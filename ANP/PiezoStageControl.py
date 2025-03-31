@@ -22,7 +22,7 @@ class Piezoconcept(si.SerialInstrument):
                     'stopbits':serial.STOPBITS_ONE,
                     'timeout': 1, #wait at most one second for a response
           #          'writeTimeout':1, #similarly, fail if writing takes >1s
-           #         'xonxoff':False, 'rtscts':False, 'dsrdtr':False,
+          #         'xonxoff':False, 'rtscts':False, 'dsrdtr':False,
                     }
 
         si.SerialInstrument.__init__(self,port=port)
