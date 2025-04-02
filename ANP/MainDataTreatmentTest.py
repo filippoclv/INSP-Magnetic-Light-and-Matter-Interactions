@@ -75,7 +75,7 @@ for i, data in enumerate(datasets):
     ax_zoom.grid(True, alpha=0.3)
 
     # Zoomed plot
-    ax_inset = inset_axes(ax_zoom, width="45%", height="45%", loc="upper left", borderpad=2)
+    ax_inset = inset_axes(ax_zoom, width="45%", height="45%", loc="upper left", borderpad=4)
 
     for label, df in all_spectra.items():
 

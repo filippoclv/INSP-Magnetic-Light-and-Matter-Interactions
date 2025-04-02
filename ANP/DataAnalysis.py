@@ -129,7 +129,7 @@ def plot_spectra(spectra_dict):
     #ax.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
 
     plt.tight_layout()
-    plt.show()
+    #plt.show()
 
 def print_power_values():
 
@@ -216,7 +216,7 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    plt.show()
+    #plt.show()
 
 # Let's try the same with spectra normalized by its max
 # Not sure if the following function makes sense
@@ -300,7 +300,7 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    plt.show()
+    #plt.show()
 
 plot_spectra_with_zoom(all_spectra,
                        integration_time=integration_time,
@@ -373,7 +373,7 @@ def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_t
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    plt.show()
+    #plt.show()
 
 plot_integrated_intensity_vs_power(results_df,
                                    wl_min=755,
