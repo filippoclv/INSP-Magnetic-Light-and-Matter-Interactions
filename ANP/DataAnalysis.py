@@ -85,6 +85,18 @@ def read_all_spectra(folder_path):
 
             print(f"Error, skipping {file_path.name}: {str(e)}")
 
+    # Background subtraction, average of P0
+    background_df = spectra.get("P0")
+
+    if background_df is not None:
+
+        background_value = background_df["Intensity_counts"].mean()
+        print(f"\nBackground (P0 average): {background_value:.2f} counts")
+
+        for df in spectra.values():
+            df["Intensity_counts"] -= background_value
+            df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
+
     return spectra
 
 def plot_spectra(spectra_dict):
