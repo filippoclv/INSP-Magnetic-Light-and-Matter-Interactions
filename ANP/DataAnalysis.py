@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from IPython.display import display
+#from IPython.display import display
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import LogNorm
@@ -91,7 +91,7 @@ def read_all_spectra(folder_path):
     if background_df is not None:
 
         background_value = background_df["Intensity_counts"].mean()
-        print(f"\nBackground (P0 average): {background_value:.2f} counts")
+        print(f"\nBackground counts (P0 average): {background_value:.2f} counts")
 
         for df in spectra.values():
             df["Intensity_counts"] -= background_value
@@ -145,9 +145,9 @@ ratio_stop = 0.08
 
 all_spectra = read_all_spectra(data_folder)
 
-file_label = "P5" # Choose which spectrum to display
-print(f"\nSpectrum ({file_label}):")
-display(all_spectra[file_label])
+#file_label = "P5" # Choose which spectrum to display
+#print(f"\nSpectrum ({file_label}):")
+#display(all_spectra[file_label])
 
 #print_power_values()
 
@@ -339,7 +339,7 @@ def integrate_peak(spectra_dict, wl_min, wl_max):
 
 results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860)
 
-display(results_df)
+#display(results_df)
 
 def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_time, ratio_start, ratio_stop):
 
@@ -361,7 +361,7 @@ def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_t
     ax.set_yscale("log")
     ax.set_xlabel("Power [W]", fontsize=12)
     ax.set_ylabel("Integrated intensity [a.u.]", fontsize=12)
-    ax.set_title(f"log-log scale: Integrated Intensity vs Power\n({wl_min}–{wl_max} nm peak)", fontsize=14)
+    ax.set_title(f"log-log scale: integrated intensity vs power\n({wl_min}–{wl_max} nm peak)", fontsize=14)
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
 
     # Parameters box
@@ -383,5 +383,6 @@ plot_integrated_intensity_vs_power(results_df,
                                    ratio_stop=ratio_stop
                                    )
 
-# Remove the background, like P0, in the data. Then try again normalization
+# Remove the background, like P0, in the data (done). Then try again normalization
 # If I do the derivative of the power spectra I should get the non linearity parameter s
+
