@@ -276,4 +276,54 @@ plot_spectra_with_zoom(all_spectra)
 
 # Let's now handle the data and integrate the big peak
 
+def integrate_peak(spectra_dict, wl_min, wl_max):
 
+    results = []
+
+    for label, df in spectra_dict.items():
+
+        power = df.attrs["Power_W"]
+        filtered_dataframe = df[(df["Wavelength_nm"] >= wl_min) & (df["Wavelength_nm"] <= wl_max)]
+
+        if filtered_dataframe.empty:
+
+            print(f"Warning: {label} has no data in range {wl_min}-{wl_max} nm")
+
+            continue
+
+        luminescence = np.trapz(filtered_dataframe["Intensity_counts"], filtered_dataframe["Wavelength_nm"])
+        results.append((power, luminescence))
+
+    return pd.DataFrame(results, columns=["Power_W", "Integrated intensity"])
+
+results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860)
+
+display(results_df)
+
+def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max):
+
+    fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
+
+    ax.plot(results_df["Power_W"], results_df["Integrated intensity"], marker='o')
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("Integrated intensity [a.u.]", fontsize=12)
+    ax.set_title(f"log-log scale: Integrated Intensity vs Power\n({wl_min}–{wl_max} nm peak)", fontsize=14)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+
+    # Parameters box
+    parameters_text = f"Integration time: {integration_time} s\nPower ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}"
+    ax.text(0.7, 0.2, parameters_text,
+            transform=ax.transAxes,
+            fontsize=11,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    plt.show()
+
+plot_integrated_intensity_vs_power(results_df, wl_min=755, wl_max=860)
+
+# Remove the background, like P0, in the data. Then try again normalization
+# If I do the derivative of the power spectra I should get the non linearity parameter s

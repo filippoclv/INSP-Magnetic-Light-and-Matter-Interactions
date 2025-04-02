@@ -1,19 +1,5 @@
 import pandas as pd
-import numpy as np
-from IPython.display import display
-import matplotlib.pyplot as plt
-from matplotlib import cm
-from matplotlib.colors import LogNorm
-from matplotlib.colors import Normalize
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from pathlib import Path
-import re
-from DataAnalysis import read_data
-from DataAnalysis import read_all_spectra
-from DataAnalysis import plot_spectra
-from DataAnalysis import print_power_values
-from DataAnalysis import plot_spectra_with_zoom
-
+from DataAnalysis import *
 
 # Write data folder path and power info file
 data_folder = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144019"
@@ -34,3 +20,6 @@ all_spectra = read_all_spectra(data_folder)
 #display(all_spectra[file_label])
 
 plot_spectra_with_zoom(all_spectra)
+
+results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860)
+plot_integrated_intensity_vs_power(results_df, wl_min=755, wl_max=860)
