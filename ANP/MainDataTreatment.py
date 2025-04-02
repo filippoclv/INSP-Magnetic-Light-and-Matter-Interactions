@@ -1,7 +1,5 @@
 from DataAnalysis import *
 
-plt.close("all")
-
 # Write data folder path and power info file
 data_folder = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144019"
 

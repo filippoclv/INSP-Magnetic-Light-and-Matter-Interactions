@@ -1,5 +1,7 @@
 from DataAnalysis import *
 
+plt.close("all")
+
 # Each dictionary defines one dataset
 datasets = [
     {
@@ -131,3 +133,5 @@ for i, data in enumerate(datasets):
 plt.show()
 
 fig.savefig("Spectra_and_powercurves.png", dpi=300, bbox_inches='tight')
+
+# You commented the plt.show in the other script
