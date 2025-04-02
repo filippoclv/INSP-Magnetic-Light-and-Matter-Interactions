@@ -1,4 +1,3 @@
-import pandas as pd
 from DataAnalysis import *
 
 # Write data folder path and power info file
