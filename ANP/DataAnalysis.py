@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from IPython.display import display
 import matplotlib.pyplot as plt
@@ -28,7 +27,8 @@ def read_data(file_path):
 
                 # Converting comma to dots
                 wavelength = float(wavelength_only.replace(',', '.'))
-                intensity = int(intensity_only.strip()) # Maybe the counts even if they are integers should be considered floats as well?
+                intensity = int(intensity_only.strip())
+                # Maybe the counts even if they are integers should be considered floats as well?
 
                 wavelengths.append(wavelength)
                 intensities.append(intensity)
@@ -46,10 +46,10 @@ def read_data(file_path):
 
 spectrum_P0 = read_data(path_P0)
 
-print("Summary:")
-print(spectrum_P0.info())
-print("\nFirst 5 rows:")
-print(spectrum_P0.head())
+#print("Summary:")
+#print(spectrum_P0.info())
+#print("\nFirst 5 rows:")
+#print(spectrum_P0.head())
 
 display(spectrum_P0)
 
