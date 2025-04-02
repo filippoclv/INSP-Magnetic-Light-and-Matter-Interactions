@@ -207,6 +207,7 @@ def plot_spectra_with_zoom(spectra_dict):
     plt.show()
 
 # Let's try the same with spectra normalized by its max
+# Not sure if the following function makes sense
 
 def plot_normalized_spectra_with_zoom(spectra_dict):
 
@@ -271,7 +272,7 @@ plot_spectra_with_zoom(all_spectra)
 
 #plot_normalized_spectra_with_zoom(all_spectra)
 
-# I should normalize each spectrum with its max value!
+# I should normalize each spectrum with its max value! Check previous function
 
 # Let's now handle the data and integrate the big peak
 
