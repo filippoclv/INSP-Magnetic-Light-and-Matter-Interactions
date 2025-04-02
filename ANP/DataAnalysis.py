@@ -143,7 +143,7 @@ print_power_values()
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-def plot_spectra_with_inset(spectra_dict):
+def plot_spectra_with_zoom(spectra_dict):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
@@ -200,10 +200,13 @@ def plot_spectra_with_inset(spectra_dict):
     ax.text(0.8, 0.95, info_text,
             transform=ax.transAxes,
             fontsize=14,
-            verticalalignment='top',
-            horizontalalignment='left',
-            bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='black', alpha=0.7))
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
     plt.show()
 
-plot_spectra_with_inset(all_spectra)
+plot_spectra_with_zoom(all_spectra)
+
+#%%
+
