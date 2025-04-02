@@ -57,7 +57,13 @@ def read_all_spectra(folder_path):
     folder = Path(folder_path)
     spectra = {} # Dictionary to store the power labels of each dataframe
 
-    for file_path in sorted(folder.glob("P*.txt")):
+    # To sort the labels
+    files = sorted(
+        folder.glob("P*.txt"),
+        key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
+    )
+
+    for file_path in files:
 
         try:
 
@@ -84,7 +90,7 @@ def plot_spectra(spectra_dict):
     plt.xlabel("Wavelength [nm]", fontsize=12)
     plt.ylabel("Intensity [counts]", fontsize=12)
     plt.grid(True, alpha=0.3)
-    plt.legend(title="Power label", bbox_to_anchor=(1.05, 1), loc="upper left", fontsize=10, ncol=2)
+    plt.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
     plt.tight_layout()
     plt.show()
 
