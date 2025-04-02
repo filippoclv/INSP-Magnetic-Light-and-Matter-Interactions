@@ -143,7 +143,7 @@ display(all_spectra[file_label])
 
 # Trying now to zoom into little peaks
 
-def plot_spectra_with_zoom(spectra_dict):
+def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
@@ -209,7 +209,7 @@ def plot_spectra_with_zoom(spectra_dict):
 # Let's try the same with spectra normalized by its max
 # Not sure if the following function makes sense
 
-def plot_normalized_spectra_with_zoom(spectra_dict):
+def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
@@ -268,7 +268,10 @@ def plot_normalized_spectra_with_zoom(spectra_dict):
 
     plt.show()
 
-plot_spectra_with_zoom(all_spectra)
+plot_spectra_with_zoom(all_spectra,
+                       integration_time=integration_time,
+                       ratio_start=ratio_start,
+                       ratio_stop=ratio_stop)
 
 #plot_normalized_spectra_with_zoom(all_spectra)
 
@@ -300,11 +303,22 @@ results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860)
 
 display(results_df)
 
-def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max):
+def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_time, ratio_start, ratio_stop):
 
     fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
 
-    ax.plot(results_df["Power_W"], results_df["Integrated intensity"], marker='o')
+    ax.plot(
+        results_df["Power_W"],
+        results_df["Integrated intensity"],
+        marker='o',
+        markersize=7,
+        markerfacecolor='none',
+        markeredgecolor='crimson',
+        linestyle='-',
+        linewidth=2,
+        color='teal',
+        label="Integrated intensity"
+    )
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("Power [W]", fontsize=12)
@@ -323,7 +337,13 @@ def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max):
 
     plt.show()
 
-plot_integrated_intensity_vs_power(results_df, wl_min=755, wl_max=860)
+plot_integrated_intensity_vs_power(results_df,
+                                   wl_min=755,
+                                   wl_max=860,
+                                   integration_time=integration_time,
+                                   ratio_start=ratio_start,
+                                   ratio_stop=ratio_stop
+                                   )
 
 # Remove the background, like P0, in the data. Then try again normalization
 # If I do the derivative of the power spectra I should get the non linearity parameter s

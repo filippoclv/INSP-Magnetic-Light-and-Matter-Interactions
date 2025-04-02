@@ -18,7 +18,16 @@ all_spectra = read_all_spectra(data_folder)
 #print(f"\nSpectrum ({file_label}):")
 #display(all_spectra[file_label])
 
-plot_spectra_with_zoom(all_spectra)
+plot_spectra_with_zoom(all_spectra,
+                       integration_time=integration_time,
+                       ratio_start=ratio_start,
+                       ratio_stop=ratio_stop
+                       )
 
 results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860)
-plot_integrated_intensity_vs_power(results_df, wl_min=755, wl_max=860)
+plot_integrated_intensity_vs_power(results_df,
+                                   wl_min=755,
+                                   wl_max=860,
+                                   integration_time=integration_time,
+                                   ratio_start=ratio_start,
+                                   ratio_stop=ratio_stop)
