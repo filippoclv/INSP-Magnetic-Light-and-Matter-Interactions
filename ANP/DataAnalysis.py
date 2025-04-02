@@ -4,6 +4,7 @@ from IPython.display import display
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 import re
 
@@ -124,7 +125,7 @@ def print_power_values():
 
 data_folder = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144818"
 
-#Specific parameters of this measurement
+#Specific parameters of this measurement!
 integration_time = 3 # Integration time in s
 ratio_start = 0.0001
 ratio_stop = 0.08
@@ -135,13 +136,11 @@ file_label = "P5" # Choose which spectrum to display
 print(f"\nSpectrum ({file_label}):")
 display(all_spectra[file_label])
 
-print_power_values()
+#print_power_values()
 
 #plot_spectra(all_spectra)
 
-#%% Trying to zoom into little peaks
-
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+# Trying now to zoom into little peaks
 
 def plot_spectra_with_zoom(spectra_dict):
 
@@ -208,5 +207,6 @@ def plot_spectra_with_zoom(spectra_dict):
 
 plot_spectra_with_zoom(all_spectra)
 
-#%%
+# Let's now handle the data and integrate the big peak
+
 
