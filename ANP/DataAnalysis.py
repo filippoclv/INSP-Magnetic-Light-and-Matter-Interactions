@@ -231,9 +231,19 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
 
     # Main curves
     for label, df in spectra_dict.items():
+
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
-        normalized_intensity = df["Intensity_counts"] / df["Intensity_counts"].max()
+        max_value = df["Intensity_counts"].max()
+
+        if max_value > 0:
+
+            normalized_intensity = df["Intensity_counts"] / max_value
+
+        else:
+
+            normalized_intensity = np.zeros_like(df["Intensity_counts"])
+
         ax.plot(df["Wavelength_nm"], normalized_intensity, label=label, color=color)
 
     # Colorbar
@@ -247,12 +257,24 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
     ax_inset = inset_axes(ax, width="45%", height="45%", loc="upper left", borderpad=7)
 
     for label, df in spectra_dict.items():
+
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
         zoomed = df[(df["Wavelength_nm"] >= 630) & (df["Wavelength_nm"] <= 760)]
+
         if not zoomed.empty:
-            norm_intensity_zoom = zoomed["Intensity_counts"] / df["Intensity_counts"].max()
-            ax_inset.plot(zoomed["Wavelength_nm"], norm_intensity_zoom, color=color)
+
+            max_zoomed_value = df["Intensity_counts"].max()
+
+            if max_zoomed_value > 0:
+
+                norm_intensity_zoomed = zoomed["Intensity_counts"] / max_zoomed_value
+
+            else:
+
+                norm_intensity_zoomed = np.zeros_like(zoomed["Intensity_counts"])
+
+            ax_inset.plot(zoomed["Wavelength_nm"], norm_intensity_zoomed, color=color)
 
     ax_inset.set_xlim(630, 760)
     ax_inset.set_title("Zoom: 630–760 nm", fontsize=10)
@@ -285,7 +307,11 @@ plot_spectra_with_zoom(all_spectra,
                        ratio_start=ratio_start,
                        ratio_stop=ratio_stop)
 
-#plot_normalized_spectra_with_zoom(all_spectra)
+#plot_normalized_spectra_with_zoom(all_spectra,
+#                                  integration_time=integration_time,
+#                                  ratio_start=ratio_start,
+#                                  ratio_stop=ratio_stop
+#                                  )
 
 # I should normalize each spectrum with its max value! Check previous function
 
