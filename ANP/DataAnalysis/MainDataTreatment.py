@@ -74,7 +74,7 @@ for i, data in enumerate(datasets):
 
 ax_all.set_xscale("log")
 ax_all.set_yscale("log")
-ax_all.set_title("Integrated intensity vs power", fontsize=14)
+ax_all.set_title(f"log-log scale: integrated intensity vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
 ax_all.set_xlabel("Power [W]")
 ax_all.set_ylabel("Integrated intensity [a.u.]")
 ax_all.grid(True, which='both', linestyle='--', alpha=0.3)
