@@ -79,7 +79,7 @@ plt.tight_layout()
 plt.savefig("All_PowerCurves.png", dpi=300)
 plt.show()
 
-# For the specific spectra
+# For the specific spectra plot
 
 selected_data = datasets[2]  # This is the third one
 
