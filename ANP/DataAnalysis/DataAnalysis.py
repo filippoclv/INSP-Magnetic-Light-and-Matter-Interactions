@@ -145,9 +145,10 @@ ratio_stop = 0.08
 
 all_spectra = read_all_spectra(data_folder)
 
-#file_label = "P5" # Choose which spectrum to display
-#print(f"\nSpectrum ({file_label}):")
-#display(all_spectra[file_label])
+# To display a certain dataframe
+file_label = "P5" # Choose which spectrum to display
+print(f"\nSpectrum ({file_label}):")
+display(all_spectra[file_label])
 
 #print_power_values()
 
