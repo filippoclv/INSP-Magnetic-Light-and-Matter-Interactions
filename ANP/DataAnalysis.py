@@ -318,6 +318,7 @@ plot_spectra_with_zoom(all_spectra,
 # Let's now handle the data and integrate the big peak
 
 def integrate_peak(spectra_dict, wl_min, wl_max):
+    # Integrating with trapeizoidal method
 
     results = []
 

@@ -37,101 +37,65 @@ datasets = [
 ]
 
 n = len(datasets)
-fig, axes = plt.subplots(nrows=n, ncols=2, figsize=(16, 5 * n), constrained_layout=True)
 
-# Looping through each dataset
+# Plot all power curves in one figure
+fig_all, ax_all = plt.subplots(figsize=(8, 6))
+
+colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
+
 for i, data in enumerate(datasets):
 
-    print(f"\nProcessing Dataset {i}")
-    print(f"Folder: {data['folder']}")
-
-    # Load power info for the current dataset
-
-    power_info_file = Path(data["folder"]) / "SetInfoPowerCurve.txt"
+    folder = data["folder"]
+    power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
     power_info = pd.read_csv(power_info_file, sep="\t")
     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
-    # Read spectra and apply background correction
-    all_spectra = read_all_spectra(data["folder"])
+    all_spectra = read_all_spectra(folder)
+    results_df = integrate_peak(all_spectra, wl_min=790, wl_max=810)
 
-    # Integrate peak
-    results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860)
+    label = f"Int: {data['integration_time']:>4.1f} s    R: {data['ratio_start']:<7.4f} – {data['ratio_stop']:<4.2f}"
 
-    powers = [df.attrs["Power_W"] for df in all_spectra.values()]
-    norm = LogNorm(vmin=min(powers), vmax=max(powers))
-    colormap = cm.turbo
-
-    # Spectra plot
-    ax_zoom = axes[i, 0]
-    powers = [df.attrs["Power_W"] for df in all_spectra.values()]
-
-    for label, df in all_spectra.items():
-
-        power = df.attrs["Power_W"]
-        color = colormap(norm(power))
-        ax_zoom.plot(df["Wavelength_nm"], df["Intensity_counts"], color=color)
-
-    ax_zoom.set_title("Intensity counts vs wavelength", fontsize=14)
-    ax_zoom.set_xlabel("Wavelength [nm]")
-    ax_zoom.set_ylabel("Intensity [counts]")
-    ax_zoom.grid(True, alpha=0.3)
-
-    # Zoomed plot
-    ax_inset = inset_axes(ax_zoom, width="45%", height="45%", loc="upper left", borderpad=4)
-
-    for label, df in all_spectra.items():
-
-        power = df.attrs["Power_W"]
-        color = colormap(norm(power))
-        zoomed = df[(df["Wavelength_nm"] >= 630) & (df["Wavelength_nm"] <= 760)]
-
-        if not zoomed.empty:
-
-            ax_inset.plot(zoomed["Wavelength_nm"], zoomed["Intensity_counts"], color=color)
-
-    ax_inset.set_xlim(630, 760)
-    ax_inset.set_title("Zoomed in 630–760 nm range", fontsize=9)
-    ax_inset.tick_params(labelsize=8)
-    ax_inset.grid(True, alpha=0.3)
-    ax_inset.patch.set_edgecolor('black')
-    ax_inset.patch.set_linewidth(1)
-
-    # Add parameter box on main subplot
-    info_text = (
-        f"Int. time: {data['integration_time']} s\n"
-        f"R_start: {data['ratio_start']}\n"
-        f"R_stop: {data['ratio_stop']}"
-    )
-    ax_zoom.text(0.8, 0.2, info_text,
-                 transform=ax_zoom.transAxes,
-                 fontsize=10,
-                 verticalalignment="bottom",
-                 horizontalalignment="left",
-                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.6))
-
-
-    # Integrated intensity vs Power plot
-    ax_int = axes[i, 1]
-    ax_int.plot(
+    ax_all.plot(
         results_df["Power_W"],
         results_df["Integrated intensity"],
         marker='o',
         markersize=6,
         markerfacecolor='none',
-        markeredgecolor='crimson',
         linestyle='-',
         linewidth=2,
-        color='teal'
+        label=label,
+        color=colors[i]
     )
-    ax_int.set_xscale("log")
-    ax_int.set_yscale("log")
-    ax_int.set_title("log-log scale: integrated intensity vs power", fontsize=14)
-    ax_int.set_xlabel("Power [W]")
-    ax_int.set_ylabel("Integrated intensity [a.u.]")
-    ax_int.grid(True, which='both', linestyle='--', alpha=0.3)
 
+ax_all.set_xscale("log")
+ax_all.set_yscale("log")
+ax_all.set_title("Integrated intensity vs power", fontsize=14)
+ax_all.set_xlabel("Power [W]")
+ax_all.set_ylabel("Integrated intensity [a.u.]")
+ax_all.grid(True, which='both', linestyle='--', alpha=0.3)
+ax_all.legend(fontsize=9, loc="lower right")
+
+plt.tight_layout()
+plt.savefig("All_PowerCurves.png", dpi=300)
 plt.show()
 
-fig.savefig("Spectra_and_powercurves.png", dpi=300, bbox_inches='tight')
+# For the specific spectra
 
-# You commented the plt.show in the other script
+selected_data = datasets[2]  # This is the third one
+
+# Load power map
+power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
+power_info = pd.read_csv(power_info_file, sep="\t")
+power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+
+# Read spectra and plot
+all_spectra = read_all_spectra(selected_data["folder"])
+
+plot_spectra_with_zoom(
+    all_spectra,
+    integration_time=selected_data["integration_time"],
+    ratio_start=selected_data["ratio_start"],
+    ratio_stop=selected_data["ratio_stop"]
+)
+
+plt.show()
