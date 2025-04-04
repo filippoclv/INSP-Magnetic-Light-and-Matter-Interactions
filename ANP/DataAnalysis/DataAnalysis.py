@@ -91,13 +91,27 @@ def read_all_spectra(folder_path):
     background_df = spectra.get("P0")
 
     if background_df is not None:
+        # Choose a wavelength region where there's clearly no signal
+        background_region = background_df[
+            (background_df["Wavelength_nm"] >= 870) &
+            (background_df["Wavelength_nm"] <= 900)
+            ]
 
-        background_value = background_df["Intensity_counts"].mean()
-        print(f"\nBackground counts (P0 average) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
+        if not background_region.empty:
 
-        for df in spectra.values():
-            df["Intensity_counts"] -= background_value
-            df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
+            background_value = background_region["Intensity_counts"].mean()
+            print(
+                f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
+
+            for label, df in spectra.items():
+
+                df["Intensity_counts"] -= background_value
+                df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
+
+        else:
+
+            print(
+                f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
 
     return spectra
 
@@ -158,7 +172,7 @@ display(all_spectra[file_label])
 
 # Trying now to zoom into little peaks
 
-def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop):
+def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, zoom_wl_min=630, zoom_wl_max=760, integration_range=None):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
@@ -167,11 +181,21 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
     colormap = cm.turbo
 
     # Main curve
-    for label, df in spectra_dict.items()\
-            :
+    for label, df in spectra_dict.items():
+
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
         ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color)
+
+    if integration_range is not None:
+
+        wl_min, wl_max = integration_range
+
+
+        line1 = ax.axvline(x=wl_min, color='grey', linestyle='--', linewidth=1.2)
+        line2 = ax.axvline(x=wl_max, color='grey', linestyle='--', linewidth=1.2)
+
+        ax.legend([line1], ["Integration region"], loc="lower right", bbox_to_anchor=(1, 0.1), fontsize=11, frameon=True)
 
     # Colorbar
     sm = plt.cm.ScalarMappable(cmap=colormap, norm=norm)
@@ -190,16 +214,18 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
 
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
-        zoomed = df[(df["Wavelength_nm"] >= 630) & (df["Wavelength_nm"] <= 760)]
+        zoomed = df[(df["Wavelength_nm"] >= zoom_wl_min) & (df["Wavelength_nm"] <= zoom_wl_max)]
         if not zoomed.empty:
             ax_inset.plot(zoomed["Wavelength_nm"], zoomed["Intensity_counts"], color=color)
 
-    ax_inset.set_xlim(630, 760)
-    ax_inset.set_title("Zoomed in 630–760 nm range", fontsize=12)
-    ax_inset.tick_params(labelsize=12)
+    ax_inset.set_xlim(zoom_wl_min, zoom_wl_max)
+    ax_inset.set_title(f"Zoom: {zoom_wl_min}–{zoom_wl_max} nm", fontsize=10)
+    ax_inset.tick_params(labelsize=9)
     ax_inset.grid(True, alpha=0.3)
-    ax_inset.set_xlabel("Wavelength [nm]", fontsize=12)
-    ax_inset.set_ylabel("Intensity [counts]", fontsize=12)
+    ax_inset.set_xlabel("Wavelength [nm]", fontsize=10)
+    ax_inset.set_ylabel("Intensity [counts]", fontsize=10)
+    ax_inset.patch.set_edgecolor('black')
+    ax_inset.patch.set_linewidth(1.2)
 
     ax_inset.patch.set_edgecolor('black')
     ax_inset.patch.set_linewidth(1.2)
@@ -232,22 +258,27 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
     norm = Normalize(vmin=min(powers), vmax=max(powers))
     colormap = cm.turbo
 
-    # Main curves
+    # Main plot
     for label, df in spectra_dict.items():
+
+        if df.attrs["Power_label"] == "P0":
+
+            continue
 
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
-        max_value = df["Intensity_counts"].max()
 
-        if max_value > 0:
+        max_val = df["Intensity_counts"].max()
 
-            normalized_intensity = df["Intensity_counts"] / max_value
+        if max_val > 0:
+
+            normalized = df["Intensity_counts"] / max_val
 
         else:
 
-            normalized_intensity = np.zeros_like(df["Intensity_counts"])
+            normalized = np.zeros_like(df["Intensity_counts"])
 
-        ax.plot(df["Wavelength_nm"], normalized_intensity, label=label, color=color)
+        ax.plot(df["Wavelength_nm"], normalized, label=label, color=color)
 
     # Colorbar
     sm = plt.cm.ScalarMappable(cmap=colormap, norm=norm)
@@ -256,10 +287,14 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
     cbar.set_label("Normalized power", fontsize=14, labelpad=10)
     cbar.ax.tick_params(labelsize=12)
 
-    # Zoomed in normalized curves
+    # Zoomed part
     ax_inset = inset_axes(ax, width="45%", height="45%", loc="upper left", borderpad=7)
 
     for label, df in spectra_dict.items():
+
+        if df.attrs["Power_label"] == "P0":
+
+            continue
 
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
@@ -267,17 +302,17 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
 
         if not zoomed.empty:
 
-            max_zoomed_value = df["Intensity_counts"].max()
+            zoomed_max = df["Intensity_counts"].max()
 
-            if max_zoomed_value > 0:
+            if zoomed_max > 0:
 
-                norm_intensity_zoomed = zoomed["Intensity_counts"] / max_zoomed_value
+                norm_zoom = zoomed["Intensity_counts"] / zoomed_max
 
             else:
 
-                norm_intensity_zoomed = np.zeros_like(zoomed["Intensity_counts"])
+                norm_zoom = np.zeros_like(zoomed["Intensity_counts"])
 
-            ax_inset.plot(zoomed["Wavelength_nm"], norm_intensity_zoomed, color=color)
+            ax_inset.plot(zoomed["Wavelength_nm"], norm_zoom, color=color)
 
     ax_inset.set_xlim(630, 760)
     ax_inset.set_title("Zoom: 630–760 nm", fontsize=10)
@@ -294,7 +329,7 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
     ax.set_ylabel("Normalized intensity counts", fontsize=14)
     ax.grid(True, alpha=0.3)
 
-    # Parameter box
+    # Parameters box
     parameters_text = f"Integration time: {integration_time} s\nPower ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}"
     ax.text(0.72, 0.95, parameters_text,
             transform=ax.transAxes,
@@ -389,4 +424,3 @@ plot_integrated_intensity_vs_power(results_df,
 
 # Remove the background, like P0, in the data (done). Then try again normalization
 # If I do the derivative of the power spectra I should get the non linearity parameter s
-

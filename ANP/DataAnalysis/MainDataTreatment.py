@@ -36,6 +36,11 @@ datasets = [
     },
 ]
 
+# Integration range
+
+int_start = 770
+int_end = 835
+
 n = len(datasets)
 
 # Plot all power curves in one figure
@@ -51,7 +56,7 @@ for i, data in enumerate(datasets):
     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
     all_spectra = read_all_spectra(folder)
-    results_df = integrate_peak(all_spectra, wl_min=790, wl_max=810)
+    results_df = integrate_peak(all_spectra, int_start, int_end)
 
     label = f"Int: {data['integration_time']:>4.1f} s    R: {data['ratio_start']:<7.4f} – {data['ratio_stop']:<4.2f}"
 
@@ -95,16 +100,12 @@ plot_spectra_with_zoom(
     all_spectra,
     integration_time=selected_data["integration_time"],
     ratio_start=selected_data["ratio_start"],
-    ratio_stop=selected_data["ratio_stop"]
+    ratio_stop=selected_data["ratio_stop"],
+    zoom_wl_min=630,
+    zoom_wl_max=760,
+    integration_range=(int_start, int_end)
 )
 
-plt.show()
-
-plot_normalized_spectra_with_zoom(
-    all_spectra,
-    integration_time=selected_data["integration_time"],
-    ratio_start=selected_data["ratio_start"],
-    ratio_stop=selected_data["ratio_stop"]
-)
+# 630 - 760 nm range is good to zoom on the smaller peaks
 
 plt.show()
