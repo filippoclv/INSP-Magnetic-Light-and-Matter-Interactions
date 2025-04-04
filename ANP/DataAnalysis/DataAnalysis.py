@@ -9,6 +9,8 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 import re
 
+# If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
+
 power_info_file = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144818\SetInfoPowerCurve.txt"
 power_info = pd.read_csv(power_info_file, sep="\t")
 power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))

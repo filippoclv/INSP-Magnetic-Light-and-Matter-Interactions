@@ -99,3 +99,12 @@ plot_spectra_with_zoom(
 )
 
 plt.show()
+
+plot_normalized_spectra_with_zoom(
+    all_spectra,
+    integration_time=selected_data["integration_time"],
+    ratio_start=selected_data["ratio_start"],
+    ratio_stop=selected_data["ratio_stop"]
+)
+
+plt.show()
