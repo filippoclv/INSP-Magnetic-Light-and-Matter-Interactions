@@ -109,3 +109,8 @@ plot_spectra_with_zoom(
 # 630 - 760 nm range is good to zoom on the smaller peaks
 
 plt.show()
+
+# Possible derivative methods: "spline", "finite_diff"
+derivative_results = calculate_derivative(results_df, method="spline", smoothing=0.1)
+
+plot_derivative(derivative_results)

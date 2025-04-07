@@ -8,6 +8,7 @@ from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 import re
+from scipy.interpolate import UnivariateSpline
 
 # If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
 
@@ -385,17 +386,17 @@ def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_t
     fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
 
     ax.plot(
-        results_df["Power_W"],
-        results_df["Integrated_counts"],
-        marker='o',
-        markersize=7,
-        markerfacecolor='none',
-        markeredgecolor='crimson',
-        linestyle='-',
-        linewidth=2,
-        color='teal',
-        label="Integrated intensity"
-    )
+      results_df["Power_W"],
+            results_df["Integrated_counts"],
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='crimson',
+            linestyle='-',
+            linewidth=2,
+            color='teal',
+            label="Integrated intensity"
+           )
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("Power [W]", fontsize=12)
@@ -405,12 +406,14 @@ def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_t
 
     # Parameters box
     parameters_text = f"Integration time: {integration_time} s\nPower ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}"
-    ax.text(0.7, 0.2, parameters_text,
+    ax.text(0.7, 0.2,
+            parameters_text,
             transform=ax.transAxes,
             fontsize=11,
             verticalalignment="top",
             horizontalalignment="left",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7)
+           )
 
     #plt.show()
 
@@ -419,17 +422,17 @@ def plot_luminescence_vs_power(results_df, wl_min, wl_max, integration_time, rat
     fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
 
     ax.plot(
-        results_df["Power_W"],
-        results_df["Luminescence_counts"],
-        marker='o',
-        markersize=7,
-        markerfacecolor='none',
-        markeredgecolor='crimson',
-        linestyle='-',
-        linewidth=2,
-        color='teal',
-        label="Luminescence counts"
-    )
+      results_df["Power_W"],
+            results_df["Luminescence_counts"],
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='crimson',
+            linestyle='-',
+            linewidth=2,
+            color='teal',
+            label="Luminescence counts"
+           )
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("Power [W]", fontsize=12)
@@ -448,23 +451,85 @@ def plot_luminescence_vs_power(results_df, wl_min, wl_max, integration_time, rat
 
     #plt.show()
 
-'''
-plot_luminescence_vs_power(results_df,
-                                   wl_min=755,
-                                   wl_max=860,
-                                   integration_time=integration_time,
-                                   ratio_start=ratio_start,
-                                   ratio_stop=ratio_stop
-                                   )
 
-plot_integrated_intensity_vs_power(results_df,
-                                   wl_min=755,
-                                   wl_max=860,
-                                   integration_time=integration_time,
-                                   ratio_start=ratio_start,
-                                   ratio_stop=ratio_stop
-                                   )
-'''
+#plot_luminescence_vs_power(results_df,
+#                           wl_min=755,
+#                           wl_max=860,
+#                           integration_time=integration_time,
+#                           ratio_start=ratio_start,
+#                           ratio_stop=ratio_stop
+#                          )
+
+#plot_integrated_intensity_vs_power(results_df,
+#                                   wl_min=755,
+#                                   wl_max=860,
+#                                   integration_time=integration_time,
+#                                   ratio_start=ratio_start,
+#                                   ratio_stop=ratio_stop
+#                                   )
+
 
 # Remove the background, like P0, in the data (done). Then try again normalization
 # If I do the derivative of the power spectra I should get the non linearity parameter s
+
+def calculate_derivative(results_df, method="spline", smoothing=0.1):
+
+    power = results_df["Power_W"].values
+    luminescence = results_df["Luminescence_counts"].values
+
+    if method == "spline":
+        # Smoothing spline fit
+        spl = UnivariateSpline(np.log(power), np.log(luminescence), s=smoothing * len(power))
+        log_derivative = spl.derivative()(np.log(power))
+        results_df["Derivative"] = log_derivative  # This is d(logL)/d(logP) = s
+
+    elif method == "finite_diff":
+        # Finite differences method
+        log_power = np.log(x)
+        log_luminescence = np.log(luminescence)
+        derivative = np.gradient(log_luminescence, log_power)
+        results_df["Derivative"] = derivative
+
+    # Find maximum slope (nonlinearity parameter s)
+    s_parameter_index = results_df["Derivative"].idxmax()
+    results_df["s parameter"] = False
+    results_df.loc[s_parameter_index, "s parameter"] = True
+
+    return results_df
+
+def plot_derivative(results_df):
+
+    fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
+
+    ax.plot(
+      results_df["Power_W"],
+            results_df["Derivative"],
+            marker="o",
+            markersize=6,
+            markerfacecolor="none",
+            linestyle="-",
+            linewidth=2,
+            color="darkorange",
+            label="d(logL) / d(logP)"
+           )
+
+    # Highlight s parameter
+    s_point = results_df[results_df["s parameter"]]
+    ax.plot(
+      s_point["Power_W"],
+            s_point["Derivative"],
+            marker="o",
+            color="crimson",
+            markersize=8,
+            label=f"Max slope: s ≈ {s_point["Derivative"].values[0]:.2f}"
+           )
+
+    ax.set_xscale("log")
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("d(logL) / d(logP)", fontsize=12)
+    ax.set_title("log-log scale: derivative of Luminescence vs Power", fontsize=14)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=10)
+
+    plt.tight_layout()
+    plt.show()
