@@ -100,8 +100,7 @@ def read_all_spectra(folder_path):
         if not background_region.empty:
 
             background_value = background_region["Intensity_counts"].mean()
-            print(
-                f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
+            print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
 
             for label, df in spectra.items():
 
@@ -110,8 +109,7 @@ def read_all_spectra(folder_path):
 
         else:
 
-            print(
-                f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
+            print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
 
     return spectra
 
@@ -159,12 +157,12 @@ integration_time = 3 # Integration time in s
 ratio_start = 0.0001
 ratio_stop = 0.08
 
-all_spectra = read_all_spectra(data_folder)
+#all_spectra = read_all_spectra(data_folder)
 
 # To display a certain dataframe
-file_label = "P5" # Choose which spectrum to display
-print(f"\nSpectrum ({file_label}):")
-display(all_spectra[file_label])
+#file_label = "P5" # Choose which spectrum to display
+#print(f"\nSpectrum ({file_label}):")
+#display(all_spectra[file_label])
 
 #print_power_values()
 
@@ -340,10 +338,10 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
 
     #plt.show()
 
-plot_spectra_with_zoom(all_spectra,
-                       integration_time=integration_time,
-                       ratio_start=ratio_start,
-                       ratio_stop=ratio_stop)
+#plot_spectra_with_zoom(all_spectra,
+#                       integration_time=integration_time,
+#                       ratio_start=ratio_start,
+#                       ratio_stop=ratio_stop)
 
 #plot_normalized_spectra_with_zoom(all_spectra,
 #                                  integration_time=integration_time,
@@ -378,7 +376,7 @@ def integrate_peak(spectra_dict, wl_min, wl_max, integration_time):
 
     return pd.DataFrame(results, columns=["Power_W", "Luminescence_counts", "Integrated_counts"])
 
-results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860, integration_time=integration_time)
+#results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860, integration_time=integration_time)
 
 #display(results_df)
 
@@ -450,6 +448,7 @@ def plot_luminescence_vs_power(results_df, wl_min, wl_max, integration_time, rat
 
     #plt.show()
 
+'''
 plot_luminescence_vs_power(results_df,
                                    wl_min=755,
                                    wl_max=860,
@@ -465,6 +464,7 @@ plot_integrated_intensity_vs_power(results_df,
                                    ratio_start=ratio_start,
                                    ratio_stop=ratio_stop
                                    )
+'''
 
 # Remove the background, like P0, in the data (done). Then try again normalization
 # If I do the derivative of the power spectra I should get the non linearity parameter s
