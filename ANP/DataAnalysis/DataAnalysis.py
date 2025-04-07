@@ -679,6 +679,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
                  f"s ≈ {s_value:.2f} at {s_power:.8f} W"
                 )
 
+
         # Plot curve
         ax.plot(
           results_df["Power_W"],
