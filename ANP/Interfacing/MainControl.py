@@ -5,6 +5,8 @@ Created on Thu Mar  7 17:09:11 2024
 @author: benre
 """
 
+# TO BE TESTED VERSION
+
 import numpy as np
 import os
 import time
@@ -106,8 +108,9 @@ def fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberSte
         FileInfo.close()
         print(f'{Pi+1}/{PowerNumberStep} Power done')
 
-    # TEST FOLLOWING LINE POTENTIAL IMPROVEMENT
-    fMoveToPower(RotorStage, PowerMeter, SetPointPower.min(), *PowerRangeFitParameters) # Test to come back to the smallest power after each power curve
+    fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+
+    print('\nSetup back to the initial ratio of max power: ', Ratio)
 
     return MyDataFolder
 

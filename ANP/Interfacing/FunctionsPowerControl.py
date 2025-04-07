@@ -5,6 +5,8 @@ Created on Thu Mar  7 17:15:56 2024
 @author: benre
 """
 
+# TO BE TESTED VERSION
+
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -129,8 +131,11 @@ def fScanPowerRange(RotorStage, PowerMeter, fMalusLawTheta2Power, AngleStart = 0
     # plt.ticklabel_format(axis='both', style='sci')
     plt.show()
 
-    # TEST FOLLOWING LINE POTENTIAL IMPROVEMENT
-    RotorStage.move_to(AngleAll[PowerAll.min().index()], scale=True) # Test to come back at smallest power after power characterization
+    RotorStage.move_to(AngleAll[np.argmin(PowerAll)], scale=True)
+    RotorStage.wait_move()
+    time.sleep(0.1)
+    print('Angle back to theta = ', f'{RotorStage.get_position():.5f}', '°, \t where P = ',
+          f'{fMeasurePower(PowerMeter):.5f}', 'W, the minimum power value')
 
     return AngleAll, PowerAll, PowerRange, OptFitParameters
 
