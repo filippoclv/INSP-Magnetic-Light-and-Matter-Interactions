@@ -56,13 +56,13 @@ for i, data in enumerate(datasets):
     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
     all_spectra = read_all_spectra(folder)
-    results_df = integrate_peak(all_spectra, int_start, int_end)
+    results_df = integrate_peak(all_spectra, int_start, int_end,  integration_time=data["integration_time"])
 
     label = f"Int: {data['integration_time']:>4.1f} s    R: {data['ratio_start']:<7.4f} – {data['ratio_stop']:<4.2f}"
 
     ax_all.plot(
         results_df["Power_W"],
-        results_df["Integrated intensity"],
+        results_df["Luminescence_counts"],
         marker='o',
         markersize=6,
         markerfacecolor='none',
@@ -74,9 +74,9 @@ for i, data in enumerate(datasets):
 
 ax_all.set_xscale("log")
 ax_all.set_yscale("log")
-ax_all.set_title(f"log-log scale: integrated intensity vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
+ax_all.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
 ax_all.set_xlabel("Power [W]")
-ax_all.set_ylabel("Integrated intensity [a.u.]")
+ax_all.set_ylabel("Luminescence [counts]")
 ax_all.grid(True, which='both', linestyle='--', alpha=0.3)
 ax_all.legend(fontsize=9, loc="lower right")
 

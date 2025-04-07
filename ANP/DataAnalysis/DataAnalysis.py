@@ -355,7 +355,7 @@ plot_spectra_with_zoom(all_spectra,
 
 # Let's now handle the data and integrate the big peak
 
-def integrate_peak(spectra_dict, wl_min, wl_max):
+def integrate_peak(spectra_dict, wl_min, wl_max, integration_time):
     # Integrating with trapeizoidal method
 
     results = []
@@ -371,12 +371,14 @@ def integrate_peak(spectra_dict, wl_min, wl_max):
 
             continue
 
-        luminescence = np.trapz(filtered_dataframe["Intensity_counts"], filtered_dataframe["Wavelength_nm"])
-        results.append((power, luminescence))
+        integrated_counts = np.trapz(filtered_dataframe["Intensity_counts"], filtered_dataframe["Wavelength_nm"])
+        luminescence = integrated_counts / integration_time
 
-    return pd.DataFrame(results, columns=["Power_W", "Integrated intensity"])
+        results.append((power, luminescence, integrated_counts))
 
-results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860)
+    return pd.DataFrame(results, columns=["Power_W", "Luminescence_counts", "Integrated_counts"])
+
+results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860, integration_time=integration_time)
 
 #display(results_df)
 
@@ -386,7 +388,7 @@ def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_t
 
     ax.plot(
         results_df["Power_W"],
-        results_df["Integrated intensity"],
+        results_df["Integrated_counts"],
         marker='o',
         markersize=7,
         markerfacecolor='none',
@@ -413,6 +415,48 @@ def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_t
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
     #plt.show()
+
+def plot_luminescence_vs_power(results_df, wl_min, wl_max, integration_time, ratio_start, ratio_stop):
+
+    fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
+
+    ax.plot(
+        results_df["Power_W"],
+        results_df["Luminescence_counts"],
+        marker='o',
+        markersize=7,
+        markerfacecolor='none',
+        markeredgecolor='crimson',
+        linestyle='-',
+        linewidth=2,
+        color='teal',
+        label="Luminescence counts"
+    )
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("Luminescence [counts]", fontsize=12)
+    ax.set_title(f"log-log scale: luminescence vs power\n({wl_min}–{wl_max} nm peak)", fontsize=14)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+
+    # Parameters box
+    parameters_text = f"Integration time: {integration_time} s\nPower ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}"
+    ax.text(0.7, 0.2, parameters_text,
+            transform=ax.transAxes,
+            fontsize=11,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    #plt.show()
+
+plot_luminescence_vs_power(results_df,
+                                   wl_min=755,
+                                   wl_max=860,
+                                   integration_time=integration_time,
+                                   ratio_start=ratio_start,
+                                   ratio_stop=ratio_stop
+                                   )
 
 plot_integrated_intensity_vs_power(results_df,
                                    wl_min=755,
