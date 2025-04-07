@@ -44,66 +44,25 @@ int_start = 770
 int_end = 835
 
 plot_spectra_with_zoom(
-    all_spectra,
-    integration_time=selected_data["integration_time"],
-    ratio_start=selected_data["ratio_start"],
-    ratio_stop=selected_data["ratio_stop"],
-    zoom_wl_min=630,
-    zoom_wl_max=760,
-    integration_range=(int_start, int_end)
-)
+                       all_spectra,
+                       integration_time=selected_data["integration_time"],
+                       ratio_start=selected_data["ratio_start"],
+                       ratio_stop=selected_data["ratio_stop"],
+                       zoom_wl_min=630,
+                       zoom_wl_max=760,
+                       integration_range=(int_start, int_end)
+                      )
 
 # 630 - 760 nm range is good to zoom on the smaller peaks
 
-plt.show()
-
-n = len(datasets)
-
-# Plot all power curves in one figure
-fig_all, ax_all = plt.subplots(figsize=(8, 6))
-
-colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
-
-for i, data in enumerate(datasets):
-
-    folder = data["folder"]
-    power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
-    power_info = pd.read_csv(power_info_file, sep="\t")
-    power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-
-    all_spectra = read_all_spectra(folder)
-    results_df = integrate_peak(all_spectra, int_start, int_end,  integration_time=data["integration_time"])
-
-    label = f"Int. time: {data['integration_time']:>4.1f} s    R: {data['ratio_start']:<7.4f} – {data['ratio_stop']:<4.2f}"
-
-    ax_all.plot(
-        results_df["Power_W"],
-        results_df["Luminescence_counts"],
-        marker="o",
-        markersize=6,
-        markerfacecolor="none",
-        linestyle="-",
-        linewidth=2,
-        label=label,
-        color=colors[i]
-    )
-
-ax_all.set_xscale("log")
-ax_all.set_yscale("log")
-ax_all.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
-ax_all.set_xlabel("Power [W]")
-ax_all.set_ylabel("Luminescence [counts]")
-ax_all.grid(True, which='both', linestyle='--', alpha=0.3)
-ax_all.legend(fontsize=12, loc="lower right")
-
-plt.tight_layout()
-plt.savefig("All_PowerCurves.png", dpi=300)
-plt.show()
+plot_all_power_curves(datasets, int_start, int_end)
 
 # The derivative method is just a simple slope calculation between two points
-derivative_results, s = calculate_derivative(results_df)
-print(f"\nMaximum slope s ≈ {s:.2f}")
+#derivative_df, s_value, s_power = calculate_derivative(results_df)
+#print(f"s ≈ {s_value:.2f} at power {s_power:.8f} W")
 
 #plot_derivative(derivative_results)
 
 plot_all_derivatives(datasets, int_start, int_end)
+
+plot_all_power_curves_with_s(datasets, int_start, int_end)

@@ -101,7 +101,7 @@ def read_all_spectra(folder_path):
         if not background_region.empty:
 
             background_value = background_region["Intensity_counts"].mean()
-            print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
+            #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
 
             for label, df in spectra.items():
 
@@ -451,6 +451,50 @@ def plot_luminescence_vs_power(results_df, wl_min, wl_max, integration_time, rat
 
     #plt.show()
 
+def plot_all_power_curves(datasets, int_start, int_end):
+
+    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
+
+    for i, data in enumerate(datasets):
+
+        folder = data["folder"]
+        int_time = data["integration_time"]
+        ratio_start = data["ratio_start"]
+        ratio_stop = data["ratio_stop"]
+
+        power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
+        power_info = pd.read_csv(power_info_file, sep="\t")
+        power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+
+        all_spectra = read_all_spectra(folder)
+        results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
+
+        label = f"Int. time: {int_time:>4.1f} s    R: {ratio_start:<7.4f} – {ratio_stop:<4.2f}"
+
+        ax.plot(
+          results_df["Power_W"],
+                results_df["Luminescence_counts"],
+                marker="o",
+                markersize=6,
+                markerfacecolor="none",
+                linestyle="-",
+                linewidth=2,
+                label=label,
+                color=colors[i]
+               )
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
+    ax.set_xlabel("Power [W]")
+    ax.set_ylabel("Luminescence [counts]")
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=11, loc="lower right")
+
+    plt.savefig("All_PowerCurves.png", dpi=300)
+
+    plt.show()
 
 #plot_luminescence_vs_power(results_df,
 #                           wl_min=755,
@@ -487,8 +531,9 @@ def calculate_derivative(results_df):
     results_df["s parameter"] = False
     results_df.loc[s_parameter_index, "s parameter"] = True
     s_value = results_df.loc[s_parameter_index, "Derivative"]
+    s_power = results_df.loc[s_parameter_index, "Power_W"]
 
-    return results_df, s_value
+    return results_df, s_value, s_power
 
 def plot_derivative(results_df):
 
@@ -556,9 +601,13 @@ def plot_all_derivatives(datasets, int_start, int_end):
 
         all_spectra = read_all_spectra(folder)
         results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
-        derivative_df, s = calculate_derivative(results_df)
+        derivative_df, s_value, s_power = calculate_derivative(results_df)
 
-        label = f"Int. time: {int_time:.1f} s | R: {ratio_start:.4f} – {ratio_stop:.2f} | s ≈ {s:.2f}"
+        label = (
+                 f"Int. time: {int_time:.1f} s | "
+                 f"R: {ratio_start:.4f} – {ratio_stop:.2f} | "
+                 f"s ≈ {s_value:.2f} at {s_power:.8f} W"
+                )
 
         # Plot full curve
         ax.plot(
@@ -584,6 +633,14 @@ def plot_all_derivatives(datasets, int_start, int_end):
                 markeredgecolor="black"
                )
 
+        ax.axvline(
+                   x=s_power,
+                   linestyle="--",
+                   linewidth=1.2,
+                   color=colors[i],
+                   alpha=0.6
+                  )
+
     ax.set_xscale("log")
     ax.set_xlabel("Power [W]", fontsize=12)
     ax.set_ylabel("d(logL) / d(logP)", fontsize=12)
@@ -592,4 +649,66 @@ def plot_all_derivatives(datasets, int_start, int_end):
     ax.legend(fontsize=12, loc="best")
 
     plt.savefig("All_Derivative_Curves.png", dpi=300)
+    plt.show()
+
+def plot_all_power_curves_with_s(datasets, int_start, int_end):
+
+    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
+
+    for i, data in enumerate(datasets):
+
+        folder = data["folder"]
+        int_time = data["integration_time"]
+        ratio_start = data["ratio_start"]
+        ratio_stop = data["ratio_stop"]
+
+        power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
+        power_info = pd.read_csv(power_info_file, sep="\t")
+        power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+
+        all_spectra = read_all_spectra(folder)
+        results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
+
+        # Compute s value and power
+        derivative_df, s_value, s_power = calculate_derivative(results_df)
+
+        label = (
+                 f"Int. time: {int_time:.1f} s | "
+                 f"R: {ratio_start:.4f} – {ratio_stop:.2f} | "
+                 f"s ≈ {s_value:.2f} at {s_power:.8f} W"
+                )
+
+        # Plot curve
+        ax.plot(
+          results_df["Power_W"],
+                results_df["Luminescence_counts"],
+                marker="o",
+                markersize=6,
+                markerfacecolor="none",
+                linestyle="-",
+                linewidth=2,
+                color=colors[i],
+                label=label
+               )
+
+        # Vertical line at s_power
+        ax.axvline(
+                   x=s_power,
+                   linestyle="--",
+                   linewidth=1.2,
+                   color=colors[i],
+                   alpha=0.5
+                  )
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("Luminescence [counts]", fontsize=12)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+    ax.legend(fontsize=11, loc="lower right")
+
+    #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
+
     plt.show()
