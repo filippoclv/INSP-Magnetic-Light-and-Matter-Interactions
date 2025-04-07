@@ -424,20 +424,3 @@ plot_integrated_intensity_vs_power(results_df,
 
 # Remove the background, like P0, in the data (done). Then try again normalization
 # If I do the derivative of the power spectra I should get the non linearity parameter s
-
-def derivative_loglog(results_df):
-
-    power = results_df["Power_W"].values
-    intensity = results_df["Integrated intensity"].values
-
-    # Avoid log of zero or negative
-    mask = (power > 0) & (intensity > 0)
-    log_power = np.log(power[mask])
-    log_intensity = np.log(intensity[mask])
-
-    # Compute derivative using numpy gradient
-    dlogI_dlogP = np.gradient(log_intensity, log_power)
-
-    # Return max value of the derivative, should be the s parameter
-    max_slope = np.max(dlogI_dlogP)
-    return max_slope, log_power, dlogI_dlogP
