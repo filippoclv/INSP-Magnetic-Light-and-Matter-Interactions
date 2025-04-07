@@ -472,30 +472,23 @@ def plot_luminescence_vs_power(results_df, wl_min, wl_max, integration_time, rat
 # Remove the background, like P0, in the data (done). Then try again normalization
 # If I do the derivative of the power spectra I should get the non linearity parameter s
 
-def calculate_derivative(results_df, method="spline", smoothing=0.1):
+def calculate_derivative(results_df):
 
     power = results_df["Power_W"].values
     luminescence = results_df["Luminescence_counts"].values
 
-    if method == "spline":
-        # Smoothing spline fit
-        spl = UnivariateSpline(np.log(power), np.log(luminescence), s=smoothing * len(power))
-        log_derivative = spl.derivative()(np.log(power))
-        results_df["Derivative"] = log_derivative  # This is d(logL)/d(logP) = s
-
-    elif method == "finite_diff":
-        # Finite differences method
-        log_power = np.log(x)
-        log_luminescence = np.log(luminescence)
-        derivative = np.gradient(log_luminescence, log_power)
-        results_df["Derivative"] = derivative
+    log_power = np.log(power)
+    log_luminescence = np.log(luminescence)
+    derivative = np.gradient(log_luminescence, log_power)
+    results_df["Derivative"] = derivative
 
     # Find maximum slope (nonlinearity parameter s)
     s_parameter_index = results_df["Derivative"].idxmax()
     results_df["s parameter"] = False
     results_df.loc[s_parameter_index, "s parameter"] = True
+    s_value = results_df.loc[s_parameter_index, "Derivative"]
 
-    return results_df
+    return results_df, s_value
 
 def plot_derivative(results_df):
 
@@ -521,15 +514,82 @@ def plot_derivative(results_df):
             marker="o",
             color="crimson",
             markersize=8,
-            label=f"Max slope: s ≈ {s_point["Derivative"].values[0]:.2f}"
+            label="Slope maximum: s ≈ {:.2f}".format(s_point["Derivative"].values[0])
            )
 
     ax.set_xscale("log")
     ax.set_xlabel("Power [W]", fontsize=12)
     ax.set_ylabel("d(logL) / d(logP)", fontsize=12)
-    ax.set_title("log-log scale: derivative of Luminescence vs Power", fontsize=14)
-    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.set_title("Derivative of luminescence vs power, log scale", fontsize=14)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=10)
 
-    plt.tight_layout()
+    param_text = (
+                  f"Integration time: {integration_time} s\n"
+                  f"Power ratio start: {ratio_start}\n"
+                  f"Power ratio stop: {ratio_stop}"
+                 )
+    ax.text(0.68, 0.18,
+            param_text,
+            transform=ax.transAxes,
+            fontsize=11,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7)
+           )
+
+    #plt.savefig("Derivative_Curve.png", dpi=300)
+
+    plt.show()
+
+def plot_all_derivatives(datasets, int_start, int_end):
+
+    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
+
+    for i, data in enumerate(datasets):
+
+        folder = data["folder"]
+        int_time = data["integration_time"]
+        ratio_start = data["ratio_start"]
+        ratio_stop = data["ratio_stop"]
+
+        all_spectra = read_all_spectra(folder)
+        results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
+        derivative_df, s = calculate_derivative(results_df)
+
+        label = f"Int. time: {int_time:.1f} s | R: {ratio_start:.4f} – {ratio_stop:.2f} | s ≈ {s:.2f}"
+
+        # Plot full curve
+        ax.plot(
+          derivative_df["Power_W"],
+                derivative_df["Derivative"],
+                marker="o",
+                markersize=6,
+                markerfacecolor="none",
+                linestyle="-",
+                linewidth=2,
+                label=label,
+                color=colors[i]
+               )
+
+        # Highlight s parameter
+        s_point = derivative_df[derivative_df["s parameter"]]
+        ax.plot(
+          s_point["Power_W"],
+                s_point["Derivative"],
+                marker="o",
+                color=colors[i],
+                markersize=8,
+                markeredgecolor="black"
+               )
+
+    ax.set_xscale("log")
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("d(logL) / d(logP)", fontsize=12)
+    ax.set_title(f"Derivative curves of luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+    ax.legend(fontsize=12, loc="best")
+
+    plt.savefig("All_Derivative_Curves.png", dpi=300)
     plt.show()
