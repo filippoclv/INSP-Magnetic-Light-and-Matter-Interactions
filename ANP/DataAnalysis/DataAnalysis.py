@@ -810,3 +810,50 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
 
     plt.savefig("All_Derivative_Curves_Fit.png", dpi=300)
     plt.show()
+
+def check_all_fits(datasets, int_start, int_end, degree=3):
+
+    fig, ax = plt.subplots(figsize=(9, 6), constrained_layout=True)
+    colors = plt.cm.plasma(np.linspace(0, 1, len(datasets)))
+
+    for i, data in enumerate(datasets):
+
+        folder = data["folder"]
+        int_time = data["integration_time"]
+
+        # Read and integrate
+        all_spectra = read_all_spectra(folder)
+        results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
+
+        # Raw data
+        power = results_df["Power_W"].values
+        luminescence = results_df["Luminescence_counts"].values
+        log_power = np.log(power)
+        log_luminescence = np.log(luminescence)
+
+        # Fit
+        coefficients = np.polyfit(log_power, log_luminescence, deg=degree)
+        poly_fit = np.poly1d(coefficients)
+        log_power_smooth = np.linspace(log_power.min(), log_power.max(), 300)
+        log_luminescence_smooth = poly_fit(log_power)
+
+        # Back to linear scale
+        power_fit = np.exp(log_power_smooth)
+        luminescence_fit = np.exp(log_luminescence_smooth)
+
+        # Label
+        label = f"Int. time {int_time:.1f}s | Fit degree={degree}"
+
+        # Plot raw + fit
+        ax.plot(power, luminescence, "o", color=colors[i], alpha=0.6, label=f"Data {i+1}")
+        ax.plot(power_fit, luminescence_fit, "-", color=colors[i], label=label)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("Luminescence [counts]", fontsize=12)
+    ax.set_title(f"Power curves and polynomial fits (deg={degree})", fontsize=14)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+    ax.legend(fontsize=10)
+
+    plt.show()
