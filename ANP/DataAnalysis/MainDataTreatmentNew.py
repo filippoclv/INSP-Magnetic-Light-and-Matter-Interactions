@@ -1,6 +1,8 @@
-import matplotlib.pyplot as plt
-
 from DataAnalysis import *
+import warnings
+import numpy as np
+
+warnings.simplefilter('ignore', np.RankWarning)
 
 plt.close("all")
 
