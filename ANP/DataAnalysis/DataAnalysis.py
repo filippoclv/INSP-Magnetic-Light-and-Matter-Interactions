@@ -712,3 +712,101 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
     #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
 
     plt.show()
+
+def calculate_derivative_fit(results_df, degree):
+
+    power = results_df["Power_W"].values
+    luminescence = results_df["Luminescence_counts"].values
+
+    # Log-log transform
+    log_power = np.log(power)
+    log_luminescence = np.log(luminescence)
+
+    # Polynomial fit
+    coefficients = np.polyfit(log_power, log_luminescence, deg=degree)
+    poly_fit = np.poly1d(coefficients)
+
+    # Evaluate fitted curve and its gradient
+    log_luminescence_fit = poly_fit(log_power)
+    derivative = np.gradient(log_luminescence_fit, log_power)
+
+    results_df["Fitted_logLuminescence"] = log_luminescence_fit
+    results_df["Derivative"] = derivative
+
+    # Identify max slope (s)
+    s_idx = np.argmax(derivative)
+    results_df["s parameter"] = False
+    results_df.loc[s_idx, "s parameter"] = True
+
+    s_value = derivative[s_idx]
+    s_power = power[s_idx]
+
+    return results_df, s_value, s_power
+
+def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
+
+    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+    colors = plt.cm.plasma(np.linspace(0, 1, len(datasets)))
+
+    for i, data in enumerate(datasets):
+
+        folder = data["folder"]
+        int_time = data["integration_time"]
+        ratio_start = data["ratio_start"]
+        ratio_stop = data["ratio_stop"]
+
+        # Read and integrate
+        all_spectra = read_all_spectra(folder)
+        results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
+
+        # Use the new fitting-based derivative
+        derivative_df, s_value, s_power = calculate_derivative_fit(results_df, degree=degree)
+
+        label = (
+                 f"Int. time: {int_time:.1f} s | "
+                 f"R: {ratio_start:.4f}–{ratio_stop:.2f} | "
+                 f"s ≈ {s_value:.2f} at {s_power:.2e} W"
+                )
+
+        # Main curve
+        ax.plot(
+          derivative_df["Power_W"],
+                derivative_df["Derivative"],
+                marker="o",
+                markersize=6,
+                markerfacecolor="none",
+                linestyle="-",
+                linewidth=2,
+                color=colors[i],
+                label=label
+               )
+
+        # Max slope point
+        s_point = derivative_df[derivative_df["s parameter"]]
+        ax.plot(
+          s_point["Power_W"],
+                s_point["Derivative"],
+                marker="o",
+                color=colors[i],
+                markersize=8,
+                markeredgecolor="black"
+               )
+
+        # Vertical line at s power
+        ax.axvline(
+                   x=s_power,
+                   linestyle="--",
+                   linewidth=1.2,
+                   color=colors[i],
+                   alpha=0.5
+                  )
+
+    ax.set_xscale("log")
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("d(logL) / d(logP)", fontsize=12)
+    ax.set_title(f"Derivative (fitted) of luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+    ax.legend(fontsize=11, loc="best")
+
+    plt.savefig("All_Derivative_Curves_Fit.png", dpi=300)
+    plt.show()
