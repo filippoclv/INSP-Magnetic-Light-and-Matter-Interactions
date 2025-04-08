@@ -835,7 +835,7 @@ def check_all_fits(datasets, int_start, int_end, degree=3):
         coefficients = np.polyfit(log_power, log_luminescence, deg=degree)
         poly_fit = np.poly1d(coefficients)
         log_power_smooth = np.linspace(log_power.min(), log_power.max(), 300)
-        log_luminescence_smooth = poly_fit(log_power)
+        log_luminescence_smooth = poly_fit(log_power_smooth)
 
         # Back to linear scale
         power_fit = np.exp(log_power_smooth)

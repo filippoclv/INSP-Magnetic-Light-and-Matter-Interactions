@@ -42,7 +42,7 @@ all_spectra = read_all_spectra(selected_data["folder"])
 
 int_start = 770
 int_end = 835
-
+'''
 plot_spectra_with_zoom(
                        all_spectra,
                        integration_time=selected_data["integration_time"],
@@ -66,7 +66,7 @@ plot_all_power_curves(datasets, int_start, int_end)
 plot_all_derivatives(datasets, int_start, int_end)
 
 plot_all_power_curves_with_s(datasets, int_start, int_end)
+'''
+check_all_fits(datasets, int_start=770, int_end=835, degree=8)
 
-check_all_fits(datasets, int_start=770, int_end=835, degree=3)
-
-plot_all_derivatives_fit(datasets, int_start, int_end, degree=10)
+#plot_all_derivatives_fit(datasets, int_start, int_end, degree=10)
