@@ -64,9 +64,9 @@ plot_all_power_curves(datasets, int_start, int_end)
 #plot_derivative(derivative_results)
 
 plot_all_derivatives(datasets, int_start, int_end)
-
-plot_all_power_curves_with_s(datasets, int_start, int_end)
 '''
-check_all_fits(datasets, int_start=770, int_end=835, degree=8)
+plot_all_power_curves_with_s(datasets, int_start, int_end)
 
-#plot_all_derivatives_fit(datasets, int_start, int_end, degree=10)
+check_all_fits(datasets, int_start=770, int_end=835, degree=100)
+
+plot_all_derivatives_fit(datasets, int_start, int_end, degree=100)

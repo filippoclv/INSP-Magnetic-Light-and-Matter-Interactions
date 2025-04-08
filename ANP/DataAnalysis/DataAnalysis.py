@@ -746,7 +746,7 @@ def calculate_derivative_fit(results_df, degree):
 def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
 
     fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
-    colors = plt.cm.plasma(np.linspace(0, 1, len(datasets)))
+    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
 
@@ -814,7 +814,7 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
 def check_all_fits(datasets, int_start, int_end, degree=3):
 
     fig, ax = plt.subplots(figsize=(9, 6), constrained_layout=True)
-    colors = plt.cm.plasma(np.linspace(0, 1, len(datasets)))
+    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
 
