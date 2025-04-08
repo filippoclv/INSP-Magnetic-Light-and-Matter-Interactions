@@ -1,6 +1,7 @@
-import matplotlib.pyplot as plt
-
 from DataAnalysis import *
+import warnings
+
+warnings.simplefilter('ignore', np.RankWarning)
 
 plt.close("all")
 
@@ -113,9 +114,15 @@ plt.savefig("All_PowerCurves.png", dpi=300)
 plt.show()
 
 # The derivative method is just a simple slope calculation between two points
-derivative_results, s = calculate_derivative(results_df)
-print(f"\nMaximum slope s ≈ {s:.2f}")
+#derivative_results, s = calculate_derivative(results_df)
+#print(f"\nMaximum slope s ≈ {s:.2f}")
 
 #plot_derivative(derivative_results)
 
 plot_all_derivatives(datasets, int_start, int_end)
+
+plot_all_power_curves_with_s(datasets, int_start, int_end)
+
+check_all_fits(datasets, int_start=770, int_end=835, degree=100)
+
+plot_all_derivatives_fit(datasets, int_start, int_end, degree=100)
