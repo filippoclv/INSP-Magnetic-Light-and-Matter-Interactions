@@ -306,7 +306,7 @@ time.sleep(0.5)
 WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
 fProcessPowerCurve(MyDataFolder, WLRangeAll)
 
-#%% fGetPowerCurveAlsoBackwards TRYING TO MAKE BETTER MEASUREMENTS
+#%% fGetPowerCurve_BackAndForth TRYING TO MAKE BETTER MEASUREMENTS
 
 RatioStart = 0.05
 RatioStop = 0.5
@@ -315,7 +315,7 @@ PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
 PowerNumberStep = 51
 DelayIntegrationTime = 2 # [s]
-MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True)
+MyDataFolder = fGetPowerCurve_BackAndForth(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True)
 time.sleep(0.5)
 
 # WLRange = np.array([535, 550]) # [nm]
