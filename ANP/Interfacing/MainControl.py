@@ -114,6 +114,63 @@ def fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberSte
 
     return MyDataFolder
 
+#fGetPowerCurveAlsoBackwards TRYING TO MAKE BETTER MEASUREMENTS
+
+def fGetPowerCurve_BackAndForth(RotorStage, PowerMeter,
+                                PowerStart, PowerStop,
+                                PowerNumberStep, SaveDataFolder,
+                                DensityInfo, LinearPowerLogScale=True):
+
+    print('Power curve (back and forth) is running ...')
+
+    FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
+    MyDataFolder = SaveDataFolder + '\\' + FolderTimeName
+    os.makedirs(MyDataFolder)
+    print(f'New folder created in {MyDataFolder}')
+
+    # Generate the power scan
+    if LinearPowerLogScale:
+
+        PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
+
+    else:
+
+        PowerScan = np.linspace(PowerStart, PowerStop, PowerNumberStep)
+
+    # Combine forward and backward sweeps
+    FullPowerScan = np.concatenate((PowerScan, PowerScan[::-1]))
+
+    FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'w')
+    FileInfo.write('N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\n')
+    FileInfo.close()
+
+    NumberOfMeasurement = 0
+    IsFolderChecked = False
+
+    for Pi, SetPointPower in enumerate(FullPowerScan):
+
+        NumberOfMeasurement += 1
+
+        fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+        GetASpectrum(DelayIntegrationTime)
+        CurrentPower = fMeasurePower(PowerMeter)
+        CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
+        FileName = f'P{Pi}'
+
+        IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
+
+        FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a')
+        FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
+        FileInfo.close()
+
+        print(f'{Pi + 1}/{len(FullPowerScan)} Power done')
+
+    fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+
+    print('\nSetup back to the initial ratio of max power: ', Ratio)
+
+    return MyDataFolder
+
 def fProcessPowerCurve(MyDataFolder, WLRangeAll):
 
     FileSetInfoPath = MyDataFolder + '\\SetInfoPowerCurve.txt'
@@ -231,6 +288,25 @@ Angle = 37
 RotorStage.move_to(Angle)
 
 #%% fGetPowerCurve
+
+RatioStart = 0.05
+RatioStop = 0.5
+PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
+PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
+
+PowerNumberStep = 51
+DelayIntegrationTime = 2 # [s]
+MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True)
+time.sleep(0.5)
+
+# WLRange = np.array([535, 550]) # [nm]
+# WLRange = np.array([790, 810]) # [nm] 800 nm
+# WLRange = np.array([680, 710]) # [nm] 700 nm
+# WLRange = np.array([730, 750]) # [nm] 740 nm
+WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
+fProcessPowerCurve(MyDataFolder, WLRangeAll)
+
+#%% fGetPowerCurveAlsoBackwards TRYING TO MAKE BETTER MEASUREMENTS
 
 RatioStart = 0.05
 RatioStop = 0.5
