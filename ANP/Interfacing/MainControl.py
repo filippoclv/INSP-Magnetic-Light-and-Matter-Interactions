@@ -5,32 +5,28 @@ Created on Thu Mar  7 17:09:11 2024
 @author: benre
 """
 
-# TO BE TESTED VERSION
-
 import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
-from FunctionsPowerControl import fConnectRotorStage, fConnectPowerMeter, fScanPowerRange, fMoveToPower, fBeamSplitterCubeLawTheta2Power, fStudyLaserStabilityPower, fMeasurePower
-from FunctionsTipControl import FromPhaseToSenZ, FromSenZToPhase, ChangeSetPointV, GetASpectrum, SaveASpectrum
+
 
 WorkingFolder = 'C:\\Users\\User\\Desktop\\Benoit\\PythonConnection\\v2_20240318'; os.chdir(WorkingFolder)
 TodayDateTime = time.strftime('%Y%m%d', time.gmtime())
 SaveDataFolder = r'\Users\User\Desktop\Benoit\PythonConnection\v2_20240318\DATA' + '\\' + TodayDateTime
 
-def fScanAllHeightAllPower(LinearPowerLogScale = True):
+from FunctionsPowerControl import fConnectRotorStage, fConnectPowerMeter, fScanPowerRange, fMoveToPower, fBeamSplitterCubeLawTheta2Power, fStudyLaserStabilityPower, fMeasurePower
+from FunctionsTipControl import FromPhaseToSenZ, FromSenZToPhase, ChangeSetPointV, GetASpectrum, SaveASpectrum
 
+def fScanAllHeightAllPower(LinearPowerLogScale = True):
     FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
     MyDataFolder = SaveDataFolder + '\\' + FolderTimeName
     os.makedirs(MyDataFolder)
     print(f'New folder created in {MyDataFolder}')
 
     if LinearPowerLogScale == True:
-
         PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
-
     else:
-
         PowerScan = np.linspace(PowerStart, PowerStop, PowerNumberStep)
         
     FileInfo = open(MyDataFolder + '\\' + 'SetInfoScanAllHeightAllPower.txt', 'w')
@@ -41,11 +37,8 @@ def fScanAllHeightAllPower(LinearPowerLogScale = True):
     SensZStart = FromPhaseToSenZ()
     SetPointHeight = SensZStart
     IsFolderChecked  = False
-
     for Zi in range(HeightNumberStep):
-
         for Pi in range(len(PowerScan)):
-
             NumberOfMeasurement += 1
 
             SetPointPower = PowerScan[Pi]
@@ -67,7 +60,6 @@ def fScanAllHeightAllPower(LinearPowerLogScale = True):
     FromSenZToPhase()
 
 def fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True):
-
     print('Power curve is running ...')
     
     FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
@@ -76,11 +68,8 @@ def fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberSte
     print(f'New folder created in {MyDataFolder}')
     
     if LinearPowerLogScale == True:
-
         PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
-
     else:
-
         PowerScan = np.linspace(PowerStart, PowerStop, PowerNumberStep)
         
     FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'w')
@@ -89,9 +78,7 @@ def fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberSte
 
     NumberOfMeasurement = 0
     IsFolderChecked = False
-
     for Pi in range(len(PowerScan)):
-
         NumberOfMeasurement += 1
 
         SetPointPower = PowerScan[Pi]
@@ -107,14 +94,8 @@ def fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberSte
         FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
         FileInfo.close()
         print(f'{Pi+1}/{PowerNumberStep} Power done')
-
-    fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
-
-    print('\nSetup back to the initial ratio of max power: ', Ratio)
-
+        
     return MyDataFolder
-
-#fGetPowerCurveAlsoBackwards TRYING TO MAKE BETTER MEASUREMENTS
 
 def fGetPowerCurve_BackAndForth(RotorStage, PowerMeter,
                                 PowerStart, PowerStop,
@@ -172,17 +153,12 @@ def fGetPowerCurve_BackAndForth(RotorStage, PowerMeter,
     return MyDataFolder
 
 def fProcessPowerCurve(MyDataFolder, WLRangeAll):
-
     FileSetInfoPath = MyDataFolder + '\\SetInfoPowerCurve.txt'
     PowerData = np.loadtxt(FileSetInfoPath, dtype = float, skiprows = 1, usecols = 3, encoding = None, )
-
     for WLi in range(len(WLRangeAll)):
-
         WLRange = WLRangeAll[WLi]
         LumiData = []
-
         for i in range(PowerNumberStep):
-
             FileNamePath = MyDataFolder + '\\P' + str(i) + '.txt'
             WL, Intensity = np.loadtxt(FileNamePath, dtype = float, delimiter = ';', skiprows = 3, converters =  lambda x: x.replace(',', '.'), encoding = None, unpack = True)
             
@@ -190,7 +166,6 @@ def fProcessPowerCurve(MyDataFolder, WLRangeAll):
             WLRangeIdxMax = np.argmin(np.abs(WL - WLRange[1]))
             
             LumiData.append(np.sum(Intensity[WLRangeIdxMin:WLRangeIdxMax]))
-
         LumiData = np.array(LumiData)
 
         fig, ax = plt.subplots()
@@ -203,11 +178,50 @@ def fProcessPowerCurve(MyDataFolder, WLRangeAll):
         plt.grid(axis = 'both', which = 'both')
         plt.show()
         # plt.savefig('PowerCurve' + str(WLi) + '.png')
-
     # return PowerData, LumiData
 
-def fScanHeight(DoRefSpectrum):
+def fProcessPowerCurveBackAndForth(MyDataFolder, WLRangeAll):
+    FileSetInfoPath = MyDataFolder + '\\SetInfoPowerCurve.txt'
 
+    # Read the full power data (now points are doubled)
+    PowerData = np.loadtxt(FileSetInfoPath, dtype=float, skiprows=1, usecols=3, encoding=None)
+    TotalMeasurements = len(PowerData)
+
+    for WLi in range(len(WLRangeAll)):
+        WLRange = WLRangeAll[WLi]
+        LumiData = []
+
+        for i in range(TotalMeasurements):
+            FileNamePath = MyDataFolder + '\\P' + str(i) + '.txt'
+            WL, Intensity = np.loadtxt(FileNamePath, dtype=float, delimiter=';', skiprows=3,
+                                       converters=lambda x: x.replace(',', '.'), encoding=None, unpack=True)
+
+            WLRangeIdxMin = np.argmin(np.abs(WL - WLRange[0]))
+            WLRangeIdxMax = np.argmin(np.abs(WL - WLRange[1]))
+            LumiData.append(np.sum(Intensity[WLRangeIdxMin:WLRangeIdxMax]))
+
+        LumiData = np.array(LumiData)
+
+        # Separate forward and backward
+        Half = TotalMeasurements // 2
+        LumiFwd = LumiData[:Half]
+        LumiBwd = LumiData[Half:]
+        PowerFwd = PowerData[:Half]
+        PowerBwd = PowerData[Half:]
+
+        fig, ax = plt.subplots()
+        ax.plot(PowerFwd, LumiFwd, 'o-', label='Forward sweep')
+        ax.plot(PowerBwd, LumiBwd, 'o-', label='Backward sweep')
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        ax.set_xlabel('Power (W)')
+        ax.set_ylabel('Integrated Luminescence (counts)')
+        ax.set_title(f'{WLRange[0]}–{WLRange[1]} nm')
+        ax.grid(True, which='both')
+        ax.legend()
+        plt.show()
+
+def fScanHeight(DoRefSpectrum):
     FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
     MyDataFolder = SaveDataFolder + '\\' + FolderTimeName
     os.makedirs(MyDataFolder)
@@ -222,18 +236,13 @@ def fScanHeight(DoRefSpectrum):
     SensZStart = FromPhaseToSenZ()
     SetPointHeight = SensZStart
     IsFolderChecked  = False
-
     for Zi in range(HeightNumberStep):
-
         NumberOfMeasurement += 1
         GetASpectrum(DelayIntegrationTime)
         CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         FileName = f'Z{Zi}'
-
         if IsFolderChecked == False:
-
             time.sleep(1)
-
         IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
         
         FileInfo = open(MyDataFolder + '\\' + 'SetInfoScanHeight.txt', 'a')
@@ -245,7 +254,6 @@ def fScanHeight(DoRefSpectrum):
         SetPointHeight = NewSenZ_mV
         
     if DoRefSpectrum == True:
-
         FeedBackOff = True
         FromSenZToPhase(FeedBackOff)
         time.sleep(2)
@@ -276,8 +284,8 @@ PowerRangeMin = PowerRange[1]
 
 #%% fMoveToPower
 
-# Desired ratio of the max power
-Ratio = 0.05
+#Desired ratio of the max power
+Ratio = 0.1
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
@@ -289,22 +297,26 @@ RotorStage.move_to(Angle)
 
 #%% fGetPowerCurve
 
-RatioStart = 0.05
-RatioStop = 0.5
+RatioStart = 0.0001
+RatioStop = 0.7
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 51
-DelayIntegrationTime = 2 # [s]
+PowerNumberStep = 21
+DelayIntegrationTime = 1 # (s)
 MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True)
 time.sleep(0.5)
 
-# WLRange = np.array([535, 550]) # [nm]
-# WLRange = np.array([790, 810]) # [nm] 800 nm
-# WLRange = np.array([680, 710]) # [nm] 700 nm
-# WLRange = np.array([730, 750]) # [nm] 740 nm
+# WLRange = np.array([535, 550]) # (nm)
+# WLRange = np.array([790, 810]) # (nm) 800 nm
+# WLRange = np.array([680, 710]) # (nm) 700 nm
+# WLRange = np.array([730, 750]) # (nm) 740 nm
 WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
 fProcessPowerCurve(MyDataFolder, WLRangeAll)
+
+fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+
+print('\nSetup back to the initial ratio of max power: ', Ratio)
 
 #%% fGetPowerCurve_BackAndForth
 
@@ -315,7 +327,7 @@ RatioStop = 0.7
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 21 # Step number will be doubled
+PowerNumberStep = 11 # Step number will be doubled
 DelayIntegrationTime = 1 # [s]
 MyDataFolder = fGetPowerCurve_BackAndForth(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True)
 time.sleep(0.5)
@@ -325,7 +337,7 @@ time.sleep(0.5)
 # WLRange = np.array([680, 710]) # [nm] 700 nm
 # WLRange = np.array([730, 750]) # [nm] 740 nm
 WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
-fProcessPowerCurve(MyDataFolder, WLRangeAll)
+fProcessPowerCurveBackAndForth(MyDataFolder, WLRangeAll)
 
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
 
@@ -339,7 +351,7 @@ PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 PowerNumberStep = 1
 DelayIntegrationTime = 2 # (s)
-SensZStep = - 60 # [mV] Must be an integer. Must be negative to move back
+SensZStep = - 60 # (mV) Doit être un nombre entier. Doit être un nombre négatif pour reculer.
 HeightNumberStep = 31
 
 fScanAllHeightAllPower()
@@ -347,7 +359,7 @@ fScanAllHeightAllPower()
 #%% fScanHeight
 
 DelayIntegrationTime = 2 # (s)
-SensZStep = - 50 # [mV] Must be an integer. Must be negative to move back
+SensZStep = - 50 # (mV) Doit être un nombre entier. Doit être un nombre négatif pour reculer.
 HeightNumberStep = 31
 DoRefSpectrum = True
 
@@ -360,9 +372,8 @@ TimeTotal = 60 # (s)
 TimeStep = 1 # (s)
 fStudyLaserStabilityPower(RotorStage, PowerMeter, SetPointPower, TimeTotal, TimeStep, *PowerRangeFitParameters)
 
-#%% Disconnection
-
+#%% Deconnection
 RotorStage.close()
 #%%
-
-PowerMeter.disconnect_device() # Disconnect the device
+PowerMeter.disconnect_device() #disconnect the device
+ 
