@@ -492,7 +492,7 @@ def plot_all_power_curves(datasets, int_start, int_end):
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.legend(fontsize=11, loc="lower right")
 
-    plt.savefig("All_PowerCurves.png", dpi=300)
+    #plt.savefig("All_PowerCurves.png", dpi=300)
 
     plt.show()
 
@@ -648,7 +648,7 @@ def plot_all_derivatives(datasets, int_start, int_end):
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=12, loc="best")
 
-    plt.savefig("All_Derivative_Curves.png", dpi=300)
+    #plt.savefig("All_Derivatives_Curves.png", dpi=300)
     plt.show()
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
@@ -808,7 +808,7 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=11, loc="best")
 
-    plt.savefig("All_Derivative_Curves_Fit.png", dpi=300)
+    #plt.savefig("All_Derivatives_Curves_Fit.png", dpi=300)
     plt.show()
 
 def check_all_fits(datasets, int_start, int_end, degree=3):
