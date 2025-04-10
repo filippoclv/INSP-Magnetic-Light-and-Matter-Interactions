@@ -325,6 +325,10 @@ time.sleep(0.5)
 WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
 fProcessPowerCurve(MyDataFolder, WLRangeAll)
 
+fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+
+print('\nSetup back to the initial ratio of max power: ', Ratio)
+
 #%% fScanAllHeightAllPower
 
 RatioStart = 0.5
