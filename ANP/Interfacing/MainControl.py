@@ -322,13 +322,13 @@ print('\nSetup back to the initial ratio of max power: ', Ratio)
 
 # Works taking data but the automatic plotting does not 
 
-RatioStart = 0.0001
-RatioStop = 0.7
+RatioStart = 0.00001
+RatioStop = 0.9
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 11 # Step number will be doubled
-DelayIntegrationTime = 1 # [s]
+PowerNumberStep = 41 # Step number will be doubled
+DelayIntegrationTime = 3 # [s]
 MyDataFolder = fGetPowerCurve_BackAndForth(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True)
 time.sleep(0.5)
 
