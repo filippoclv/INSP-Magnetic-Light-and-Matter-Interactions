@@ -297,13 +297,13 @@ RotorStage.move_to(Angle)
 
 #%% fGetPowerCurve
 
-RatioStart = 0.0001
-RatioStop = 0.7
+RatioStart = 0.00001
+RatioStop = 0.9
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 21
-DelayIntegrationTime = 1 # (s)
+PowerNumberStep = 41
+DelayIntegrationTime = 3 # (s)
 MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, LinearPowerLogScale = True)
 time.sleep(0.5)
 
