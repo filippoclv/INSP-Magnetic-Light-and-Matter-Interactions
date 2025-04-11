@@ -99,5 +99,5 @@ plot_power_curves_back_and_forth(
                                  int_start=770,
                                  int_end=835,
                                  integration_time=selected_data["integration_time"],
-                                 title_note="Test back and forth"
+                                 title_note="TIR configuration"
                                 )
