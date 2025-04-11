@@ -16,7 +16,7 @@ power_info_file = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Te
 power_info = pd.read_csv(power_info_file, sep="\t")
 power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
-def read_data(file_path):
+def read_data(file_path, power_map):
 
     # To extract the P label of the data files
     power_label_check = re.search(r'P(\d+)', file_path.name)
@@ -69,6 +69,12 @@ def read_data(file_path):
 def read_all_spectra(folder_path):
 
     folder = Path(folder_path)
+
+    # Load power map locally per folder
+    power_info_file = folder / "SetInfoPowerCurve.txt"
+    power_info = pd.read_csv(power_info_file, sep="\t")
+    power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+
     spectra = {} # Dictionary to store the power labels of each dataframe
 
     # To sort the labels
@@ -81,7 +87,7 @@ def read_all_spectra(folder_path):
 
         try:
 
-            df = read_data(file_path)
+            df = read_data(file_path, power_map)
             spectra[df.attrs["Power_label"]] = df
 
         except Exception as e:
@@ -855,5 +861,44 @@ def check_all_fits(datasets, int_start, int_end, degree=3):
     ax.set_title(f"Power curves and polynomial fits (deg={degree})", fontsize=14)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=10)
+
+    plt.show()
+
+# Let's consider the possibility of measuring curves back and forth
+
+def plot_power_curves_back_and_forth(folder, int_start, int_end, integration_time, title_note=""):
+
+    spectra = read_all_spectra(folder)
+    total_points = len(spectra)
+
+    if total_points % 2 != 0:
+
+        print("Warning: Number of spectra is not even, cannot evenly split forward/backward.")
+
+        return
+
+    half = total_points // 2
+    sorted_labels = sorted(spectra.keys(), key=lambda x: int(x[1:]))
+
+    # Split the spectra
+    spectra_fwd = {k: spectra[k] for k in sorted_labels[:half]}
+    spectra_bwd = {k: spectra[k] for k in sorted_labels[half:]}
+
+    df_fwd = integrate_peak(spectra_fwd, int_start, int_end, integration_time)
+    df_bwd = integrate_peak(spectra_bwd, int_start, int_end, integration_time)
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+
+    ax.plot(df_fwd["Power_W"], df_fwd["Luminescence_counts"], 'o-', label="Forward sweep", color='tab:blue')
+    ax.plot(df_bwd["Power_W"], df_bwd["Luminescence_counts"], 'o-', label="Backward sweep", color='tab:orange')
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("Luminescence [counts]", fontsize=12)
+    ax.set_title(f"Luminescence vs power — forward/backward power sweep\n({int_start}-{int_end} nm {title_note})", fontsize=14)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+    ax.legend(fontsize=11)
 
     plt.show()

@@ -8,22 +8,40 @@ plt.close("all")
 # Each dictionary defines one dataset
 datasets = [
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Refocusing_same_place_20250404\20250404143753",
-        "integration_time": 2,
-        "ratio_start": 0.0005,
-        "ratio_stop": 0.2
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410124848",
+        "integration_time": 1,
+        "ratio_start": 0.0001,
+        "ratio_stop": 0.7
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Refocusing_same_place_20250404\20250404144307",
-        "integration_time": 2,
-        "ratio_start": 0.0005,
-        "ratio_stop": 0.2
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
+        "integration_time": 1,
+        "ratio_start": 0.0001,
+        "ratio_stop": 0.7
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Refocusing_same_place_20250404\20250404144722",
-        "integration_time": 2,
-        "ratio_start": 0.0005,
-        "ratio_stop": 0.2
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132429",
+        "integration_time": 1,
+        "ratio_start": 0.0001,
+        "ratio_stop": 0.7
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
+        "integration_time": 1,
+        "ratio_start": 0.0001,
+        "ratio_stop": 0.7
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410135717",
+        "integration_time": 3,
+        "ratio_start": 0.00001,
+        "ratio_stop": 0.9
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410140605",
+        "integration_time": 3,
+        "ratio_start": 0.00001,
+        "ratio_stop": 0.9
     },
 ]
 
@@ -43,7 +61,9 @@ all_spectra = read_all_spectra(selected_data["folder"])
 
 int_start = 770
 int_end = 835
+
 '''
+
 plot_spectra_with_zoom(
                        all_spectra,
                        integration_time=selected_data["integration_time"],
@@ -65,9 +85,19 @@ plot_all_power_curves(datasets, int_start, int_end)
 #plot_derivative(derivative_results)
 
 plot_all_derivatives(datasets, int_start, int_end)
-'''
+
 plot_all_power_curves_with_s(datasets, int_start, int_end)
 
 check_all_fits(datasets, int_start=770, int_end=835, degree=100)
 
 plot_all_derivatives_fit(datasets, int_start, int_end, degree=100)
+
+'''
+
+plot_power_curves_back_and_forth(
+                                 folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
+                                 int_start=770,
+                                 int_end=835,
+                                 integration_time=selected_data["integration_time"],
+                                 title_note="Test back and forth"
+                                )
