@@ -497,7 +497,7 @@ def plot_all_power_curves(datasets, int_start, int_end):
     ax.set_xlabel("Power [W]")
     ax.set_ylabel("Luminescence [counts]")
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
-    ax.legend(fontsize=10, loc="lower right", prop={"family": "DejaVu Sans Mono"})
+    ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_PowerCurves.png", dpi=300)
 
@@ -656,7 +656,7 @@ def plot_all_derivatives(datasets, int_start, int_end):
     ax.set_ylabel("d(logL) / d(logP)", fontsize=12)
     ax.set_title(f"Derivative curves of luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
-    ax.legend(fontsize=10, loc="best")
+    ax.legend(fontsize=4, loc="lower right", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_Derivatives_Curves.png", dpi=300)
     plt.show()
@@ -720,7 +720,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
     ax.set_xlabel("Power [W]", fontsize=12)
     ax.set_ylabel("Luminescence [counts]", fontsize=12)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
-    ax.legend(fontsize=10, loc="lower right")
+    ax.legend(fontsize=6, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
 
@@ -822,7 +822,7 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
     ax.set_ylabel("d(logL) / d(logP)", fontsize=12)
     ax.set_title(f"Derivative (fitted) of luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
-    ax.legend(fontsize=10, loc="best")
+    ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_Derivatives_Curves_Fit.png", dpi=300)
     plt.show()
@@ -873,7 +873,7 @@ def check_all_fits(datasets, int_start, int_end, degree=3):
     ax.set_ylabel("Luminescence [counts]", fontsize=12)
     ax.set_title(f"Power curves and polynomial fits (deg={degree})", fontsize=14)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
-    ax.legend(fontsize=10)
+    ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     plt.show()
 
