@@ -69,8 +69,7 @@ all_spectra = read_all_spectra(selected_data["folder"])
 int_start = 770
 int_end = 835
 
-plot_spectra_with_zoom(
-                       all_spectra,
+plot_spectra_with_zoom(all_spectra,
                        integration_time=selected_data["integration_time"],
                        ratio_start=selected_data["ratio_start"],
                        ratio_stop=selected_data["ratio_stop"],
@@ -99,24 +98,21 @@ check_all_fits(datasets, int_start=770, int_end=835, degree=10)
 
 plot_all_derivatives_fit(datasets, int_start, int_end, degree=10)
 
-plot_power_curves_back_and_forth(
-                                 folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
+plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
                                  int_start=770,
                                  int_end=835,
                                  integration_time=selected_data["integration_time"],
                                  title_note="- TIR configuration"
                                 )
 
-plot_power_curves_back_and_forth(
-                                 folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
+plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
                                  int_start=770,
                                  int_end=835,
                                  integration_time=selected_data["integration_time"],
                                  title_note="- NO TIR configuration, same parameters"
                                 )
 
-#plot_power_curves_back_and_forth(
-#                                 folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410140605",
+#plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410140605",
 #                                 int_start=770,
 #                                 int_end=835,
 #                                 integration_time=selected_data["integration_time"],
