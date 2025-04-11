@@ -884,12 +884,6 @@ def plot_power_curves_back_and_forth(folder, int_start, int_end, integration_tim
     spectra = read_all_spectra(folder)
     total_points = len(spectra)
 
-    if total_points % 2 != 0:
-
-        print("Warning: Number of spectra is not even, cannot evenly split forward/backward.")
-
-        return
-
     half = total_points // 2
     sorted_labels = sorted(spectra.keys(), key=lambda x: int(x[1:]))
 

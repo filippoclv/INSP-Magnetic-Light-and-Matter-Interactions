@@ -320,9 +320,6 @@ print('\nSetup back to the initial ratio of max power: ', Ratio)
 
 #%% fGetPowerCurve_BackAndForth
 
-# Number of points is doubled, so to have good data treatment you need the base number to be even
-# So (PowerNumberStep + 1) should be even
-
 RatioStart = 0.00001
 RatioStop = 0.9
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
