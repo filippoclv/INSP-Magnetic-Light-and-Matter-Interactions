@@ -884,6 +884,8 @@ def plot_power_curves_back_and_forth(folder, int_start, int_end, integration_tim
     spectra_fwd = {k: spectra[k] for k in sorted_labels[:half]}
     spectra_bwd = {k: spectra[k] for k in sorted_labels[half:]}
 
+    # Fwd and bwd stands for forward and backward obviously
+
     df_fwd = integrate_peak(spectra_fwd, int_start, int_end, integration_time)
     df_bwd = integrate_peak(spectra_bwd, int_start, int_end, integration_time)
 
