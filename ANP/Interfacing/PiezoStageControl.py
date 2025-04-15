@@ -2,6 +2,7 @@ from __future__ import print_function
 from builtins import str
 import serial
 import nplab.instrument.serial_instrument as si
+import time
 
 class Piezoconcept(si.SerialInstrument):
     """A simple class for the Piezo concept FOC100 nanopositioning system."""
@@ -96,52 +97,69 @@ class Piezoconcept(si.SerialInstrument):
         self.position = 50E3
         
     def INFOS(self):
+        """Read full device information as raw text."""
+        
+        self.write("INFOS")
+        time.sleep(3)  # Let it respond fully
+        
+        try:
+            
+            raw = self.ser.read(1024)  # Read up to 1024 bytes
+            
+            return raw.decode("latin1").strip()
+        
+        except UnicodeDecodeError as e:
+            
+            return f"[Decode error] {e}"
 
-        return self.query("INFOS", multiline = True, timeout = .1,)
-    
     def GET_X(self):
 
-        print(self.query("GET_X", multiline = True, termination_line = "\n \n \n \n", timeout = .1,))
+        return self.query("GET_X", multiline=False, timeout=0.1).strip()
     
     def GET_Y(self):
 
-        print(self.query("GET_Y", multiline = True, termination_line = "\n \n \n \n", timeout = .1,))
+        return self.query("GET_Y", multiline=False, timeout=0.1).strip()
     
     def GET_Z(self):
 
-        print(self.query("GET_Z", multiline = True, termination_line = "\n \n \n \n", timeout = .1,))
+        return self.query("GET_Z", multiline=False, timeout=0.1).strip()
     
-    def GEXYZ(self):
+    def GET_XYZ(self):
 
-        self.GET_X()
-        self.GET_Y()
-        self.GET_Z()
-        
-        
+        return {
+                "X": self.GET_X(),
+                "Y": self.GET_Y(),
+                "Z": self.GET_Z()
+               }
+    
 #%% Connection PiezoStage
 
 PiezoStage = Piezoconcept(port = "COM9")
 
 #%% Testing:
 
-Piezoconcept.MOVEX(PiezoStage, 20, "u")
+PiezoStage.MOVEX(20, "u")
+
 
 #%%
 
-Piezoconcept.MOVEY(PiezoStage, 25, "u")
+PiezoStage.MOVEY(25, "u")
 
 #%%
 
-#Piezoconcept.INFOS(PiezoStage)
-Piezoconcept.GET_X(PiezoStage)
+print(PiezoStage.INFOS())
 
 #%%
 
-Piezoconcept.GET_Y(PiezoStage)
+print(f'\nX position: {PiezoStage.GET_X()}')
 
 #%%
 
-Piezoconcept.GEXYZ(PiezoStage)
+print(f'\nY position: {PiezoStage.GET_Y()}')
+
+#%%
+
+print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 

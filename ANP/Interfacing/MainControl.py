@@ -1,15 +1,20 @@
 import numpy as np
 import os
+import sys
 import time
 import matplotlib.pyplot as plt
 
-WorkingFolder = 'C:\\Users\\User\\Desktop\\Benoit\\PythonConnection\\v2_20240318'; os.chdir(WorkingFolder)
-TodayDateTime = time.strftime('%Y%m%d', time.gmtime())
-SaveDataFolder = r'\Users\User\Desktop\Benoit\PythonConnection\v2_20240318\DATA' + '\\' + TodayDateTime
+# Add the script folder to the module search path
+ScriptFolder = 'C:\\Users\\User\\Desktop\\Filippo\\INSP-Magnetic-Light-and-Matter-Interactions\\ANP\\Interfacing'
+if ScriptFolder not in sys.path: sys.path.append(ScriptFolder)
 
 from FunctionsPowerControl import *
 from SavingScript import *
 #from FunctionsTipControl import *
+
+WorkingFolder = 'C:\\Users\\User\\Desktop\\Benoit\\PythonConnection\\v2_20240318'; os.chdir(WorkingFolder)
+TodayDateTime = time.strftime('%Y%m%d', time.gmtime())
+SaveDataFolder = r'\Users\User\Desktop\Benoit\PythonConnection\v2_20240318\DATA' + '\\' + TodayDateTime
 
 def fScanAllHeightAllPower(LinearPowerLogScale = True):
 
@@ -103,6 +108,8 @@ def fGetPowerCurve(RotorStage,
         CurrentPower = fMeasurePower(PowerMeter)
         CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         FileName = f'P{Pi}'
+
+        # NEW WAY TO SAVE DATA TO BE TESTED
 
         try:
 
