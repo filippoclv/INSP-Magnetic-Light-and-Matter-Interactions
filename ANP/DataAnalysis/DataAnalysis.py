@@ -772,19 +772,47 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
         all_spectra = read_all_spectra(folder)
         results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
 
-        # Use the new fitting-based derivative
+        # Derivative fit
         derivative_df, s_value, s_power = calculate_derivative_fit(results_df, degree=degree)
 
-        config_label = f"{data.get('label', ''):<8}"  # Empty if not present
+        # Compute FWHM
+        x = np.log(derivative_df["Power_W"].values)
+        y = derivative_df["Derivative"].values
+        y_max = np.max(y)
+        half_max = y_max / 2
+        crossings = np.where(np.diff(np.sign(y - half_max)))[0]
 
+        if len(crossings) >= 2:
+
+            x1_idx, x2_idx = crossings[0], crossings[-1]
+
+            def interp_x(idx):
+
+                x0, x1 = x[idx], x[idx + 1]
+                y0, y1 = y[idx], y[idx + 1]
+
+                return x0 + (half_max - y0) * (x1 - x0) / (y1 - y0)
+
+            x1 = interp_x(x1_idx)
+            x2 = interp_x(x2_idx)
+            fwhm_val = np.exp(x2) - np.exp(x1)
+            fwhm_str = f"{fwhm_val:.8f} W"
+
+        else:
+
+            fwhm_str = "N/A"
+
+        # Label
+        config_label = f"{data.get('label', ''):<8}"  # Aligned
         label = (
-                 f"{config_label} | "
-                 f"Int. time: {int_time:.1f} s | "
-                 f"R: {ratio_start:.4f}–{ratio_stop:.2f} | "
-                 f"s ≈ {s_value:.2f} at {s_power:.8f} W"
+                 f"{config_label}\n"
+                 f"Int. time: {int_time:.1f} s\n"
+                 f"R: {ratio_start:.4f}–{ratio_stop:.2f}\n"
+                 f"s ≈ {s_value:.2f} at {s_power:.2e} W\n"
+                 f"FWHM ≈ {fwhm_str}"
                 )
 
-        # Main curve
+        # Plot curve
         ax.plot(
           derivative_df["Power_W"],
                 derivative_df["Derivative"],
@@ -797,8 +825,9 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
                 label=label
                )
 
-        # Max slope point
+        # Highlight max slope
         s_point = derivative_df[derivative_df["s parameter"]]
+
         ax.plot(
           s_point["Power_W"],
                 s_point["Derivative"],
@@ -808,7 +837,6 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
                 markeredgecolor="black"
                )
 
-        # Vertical line at s power
         ax.axvline(
                    x=s_power,
                    linestyle="--",
@@ -824,7 +852,6 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
 
-    #plt.savefig("All_Derivatives_Curves_Fit.png", dpi=300)
     plt.show()
 
 def check_all_fits(datasets, int_start, int_end, degree=3):
