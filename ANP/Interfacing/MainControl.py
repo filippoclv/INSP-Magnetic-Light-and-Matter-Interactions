@@ -2,13 +2,13 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
-from SavingScript import *
 
 WorkingFolder = 'C:\\Users\\User\\Desktop\\Benoit\\PythonConnection\\v2_20240318'; os.chdir(WorkingFolder)
 TodayDateTime = time.strftime('%Y%m%d', time.gmtime())
 SaveDataFolder = r'\Users\User\Desktop\Benoit\PythonConnection\v2_20240318\DATA' + '\\' + TodayDateTime
 
 from FunctionsPowerControl import *
+from SavingScript import *
 #from FunctionsTipControl import *
 
 def fScanAllHeightAllPower(LinearPowerLogScale = True):
