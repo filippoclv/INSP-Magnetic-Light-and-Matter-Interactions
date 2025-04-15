@@ -6,14 +6,14 @@ from pyThorlabsPM100x.driver import ThorlabsPM100x
 
 def fConnectRotorStage():
 
-    # print('Hello !')
+    #print('Hello !')
     DetectedDevices = Thorlabs.list_kinesis_devices()
     print(DetectedDevices)
     RotorStage = Thorlabs.KinesisMotor(DetectedDevices[0][0], scale = 'stage')
-    # print(RotorStage.get_scale())
-    # print(RotorStage.get_scale_units())
-    # print(RotorStage.get_velocity_parameters())
-    RotorStage.setup_velocity(max_velocity = 20, scale = 'stage') # Max velocity = 25 deg/s but we set it at 20
+    #print(RotorStage.get_scale())
+    #print(RotorStage.get_scale_units())
+    #print(RotorStage.get_velocity_parameters())
+    RotorStage.setup_velocity(max_velocity = 20, scale = 'stage') # Max velocity = 25 deg/s, but we set it at 20
     
     if RotorStage.is_homed() == False:
 
@@ -37,16 +37,16 @@ def fConnectRotorStage():
 def fConnectPowerMeter():
 
     PowerMeter = ThorlabsPM100x()
-    available_devices = PowerMeter.list_devices() #Check which devices are available
+    available_devices = PowerMeter.list_devices() # Check which devices are available
     print(available_devices)
 
     if available_devices == []:
 
         print('Check if the Driver are PM100D. Use Thorlabs.PMDriverSwitcher.')
 
-    PowerMeter.connect_device(device_addr = available_devices[0][0]) #Connect to the first available device
-    # PowerMeter.wavelength(wavelength)
-    # PowerMeter.auto_power_range(True)
+    PowerMeter.connect_device(device_addr = available_devices[0][0]) # Connect to the first available device
+    #PowerMeter.wavelength(wavelength)
+    #PowerMeter.auto_power_range(True)
     print('PowerMeter connected')
 
     return PowerMeter
@@ -83,8 +83,8 @@ def fBeamSplitterCubeLawPower2Theta(P, theta0, P0, P1):
    
 def fScanPowerRange(RotorStage, PowerMeter, fMalusLawTheta2Power, AngleStart = 0, AngleStop = 180, AngleNumberStep = 21):   
     
-    # AngleAll = np.array(range(AngleStart, AngleStop, AngleStep))
-    # AngleNumberStep = (AngleStop - AngleStart)/AngleStep + 1
+    #AngleAll = np.array(range(AngleStart, AngleStop, AngleStep))
+    #AngleNumberStep = (AngleStop - AngleStart)/AngleStep + 1
     AngleAll = np.linspace(AngleStart, AngleStop, AngleNumberStep)
     PowerAll = []
     print('Power scan in progress ...')
@@ -118,7 +118,7 @@ def fScanPowerRange(RotorStage, PowerMeter, fMalusLawTheta2Power, AngleStart = 0
     plt.axhline(PowerRange[1])
     ax.set_xlabel('Angle [°]')
     ax.set_ylabel('Power [W]')
-    # plt.ticklabel_format(axis='both', style='sci')
+    #plt.ticklabel_format(axis='both', style='sci')
     plt.show()
 
     RotorStage.move_to(AngleAll[np.argmin(PowerAll)], scale=True)
@@ -151,14 +151,14 @@ def fLaunchPowerMeasurements(RotorStage, PowerMeter, PowerStart, PowerStop, Powe
         fMoveToPower(RotorStage, PowerMeter, SetPointPower, *OptFitParameters)
         time.sleep(0.1)
         PowerData.append(fMeasurePower(PowerMeter))
-        # print(RotorStage.get_position(scale = True))
+        #print(RotorStage.get_position(scale = True))
         AngleData.append(RotorStage.get_position(scale = True))
         
     PowerData = np.array(PowerData)
     AngleData = np.array(AngleData)
     
     fig, ax = plt.subplots()
-    # plt.ticklabel_format(axis = 'x', style = 'sci', scilimits = (4,4))
+    #plt.ticklabel_format(axis = 'x', style = 'sci', scilimits = (4,4))
     ax.scatter(PowerData, AngleData)
     ax.set_xlabel('Power [W]')
     ax.set_ylabel('Angle [°]')
@@ -177,13 +177,13 @@ def fStudyLaserStabilityPower(RotorStage, PowerMeter, SetPointPower, TimeTotal, 
 
         CurrentPower = fMeasurePower(PowerMeter)
         PowerAll.append(CurrentPower)
-        # print(CurrentPower)
+        #print(CurrentPower)
         time.sleep(TimeStep)
 
     print('Power acquisition done!')
         
     fig, ax = plt.subplots()
-    # plt.ticklabel_format(axis = 'x', style = 'sci', scilimits = (4,4))
+    #plt.ticklabel_format(axis = 'x', style = 'sci', scilimits = (4,4))
     ax.scatter(TimeAll, PowerAll)
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('Power [W]')

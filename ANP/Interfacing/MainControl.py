@@ -378,16 +378,16 @@ RatioStop = 0.5
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 PowerNumberStep = 1
-DelayIntegrationTime = 2 # (s)
-SensZStep = - 60 # (mV) Doit être un nombre entier. Doit être un nombre négatif pour reculer.
+DelayIntegrationTime = 2 # [s]
+SensZStep = - 60 # [mV] Must be an integer number, and negative to move back
 HeightNumberStep = 31
 
 fScanAllHeightAllPower()
 
 #%% fScanHeight
 
-DelayIntegrationTime = 2 # (s)
-SensZStep = - 50 # (mV) Doit être un nombre entier. Doit être un nombre négatif pour reculer.
+DelayIntegrationTime = 2 # [s]
+SensZStep = - 50 # [mV] Must be an integer number, and negative to move back
 HeightNumberStep = 31
 DoRefSpectrum = True
 
@@ -400,10 +400,10 @@ TimeTotal = 60 # (s)
 TimeStep = 1 # (s)
 fStudyLaserStabilityPower(RotorStage, PowerMeter, SetPointPower, TimeTotal, TimeStep, *PowerRangeFitParameters)
 
-#%% Disconnection
+#%% Disconnection rotor stage
 
 RotorStage.close()
 
-#%%
+#%% Disconnection powermeter
 
-PowerMeter.disconnect_device() #disconnect the device
+PowerMeter.disconnect_device() # To disconnect the device

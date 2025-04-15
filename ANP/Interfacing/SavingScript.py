@@ -85,7 +85,7 @@ def SaveASpectrum(FolderName, FileName, IsFolderChecked=False):
 
     except Exception as e:
 
-        print(f"Failed to save spectrum '{FileName}': {e}")
+        print(f"[ERROR] Failed to save spectrum '{FileName}': {e}")
         # optionally retry or skip depending on context
 
         raise

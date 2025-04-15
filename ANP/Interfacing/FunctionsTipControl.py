@@ -25,12 +25,13 @@ def SaveASpectrum(FolderName, FileName, IsFolderChecked = False):
     
     # Check the folder:
     if IsFolderChecked == False:
-        # pyGUI.click(pyGUI.locateOnScreen('FolderButton.PNG', grayscale=True, confidence = 0.9))
+
+        #pyGUI.click(pyGUI.locateOnScreen('FolderButton.PNG', grayscale=True, confidence = 0.9))
         
         ButtonCoord3 = pyGUI.locateOnScreen('FolderButton2.PNG', grayscale=True, confidence = 0.9)
         ButtonCoord3Center = pyGUI.center(ButtonCoord3)
         pyGUI.click(ButtonCoord3.left - 5, ButtonCoord3Center.y)
-        # pyGUI.write(FolderName)
+        #pyGUI.write(FolderName)
         pyperclip.copy(FolderName)
         pyGUI.hotkey('ctrl', 'V')
         pyGUI.press('enter')
@@ -41,13 +42,14 @@ def SaveASpectrum(FolderName, FileName, IsFolderChecked = False):
     ButtonCoord2 = pyGUI.locateOnScreen('SaveSpectrumFileNameLoc.PNG', grayscale=True, confidence = 0.8)
     ButtonCoord2Center = pyGUI.center(ButtonCoord2)
     pyGUI.click(ButtonCoord2.left + ButtonCoord2.width, ButtonCoord2Center.y)
-    # pyGUI.write(str(FileName))
+    #pyGUI.write(str(FileName))
     pyperclip.copy(str(FileName))
     pyGUI.hotkey('ctrl', 'V')
     pyGUI.press('enter')
-    # time.sleep(0.1)
-    # pyGUI.click(pyGUI.locateOnScreen('SaveFileSpectrumButton.PNG', grayscale=True, confidence = 0.9))
+    #time.sleep(0.1)
+    #pyGUI.click(pyGUI.locateOnScreen('SaveFileSpectrumButton.PNG', grayscale=True, confidence = 0.9))
     time.sleep(0.5)
+
     return IsFolderChecked
 
 def BoucleGetSpectra(NumberSpectra, DelayIntegrationTime, FolderName): # Boucle stands for looping
@@ -69,7 +71,7 @@ def ChangeSetPointV(MoveSenZ_mV):
     ButtonCoord = pyGUI.locateOnScreen('SetPointVoltArea.PNG', grayscale=True, confidence = 0.95)
     ButtonCoordCenter = pyGUI.center(ButtonCoord)
     
-    # pyGUI.click(ButtonCoordCenter.x, ButtonCoordCenter.y + 10)
+    #pyGUI.click(ButtonCoordCenter.x, ButtonCoordCenter.y + 10)
     
     # Get the old value of SenZ:
     pyGUI.moveTo(ButtonCoord.left + ButtonCoord.width + 35, ButtonCoordCenter.y)
@@ -114,7 +116,7 @@ def BoucleChangeSetPointV(NumberStep, MoveSenZ_mV, DelayIntegrationTime, FolderN
 
         OldSenZ_mV, NewSenZ_mV = ChangeSetPointV(MoveSenZ_mV)
         
-        # FileName = f"{i} {NewSenZ_mV} mV"
+        #FileName = f"{i} {NewSenZ_mV} mV"
         FileName = f"{NewSenZ_mV} mV {DelayIntegrationTime} s"
         
         GetASpectrum(DelayIntegrationTime)
@@ -200,9 +202,9 @@ def FromSenZToPhase(FeedBackOff = False):
         pyGUI.click()
         time.sleep(0.3)
 
-def RunSeveralSeries(NumberSerie, NumberStep, MoveSenZ_mV, DelayIntegrationTime, FolderName):
+def RunSeveralSeries(NumberSeries, NumberStep, MoveSenZ_mV, DelayIntegrationTime, FolderName):
 
-    for i in range(NumberSerie):
+    for i in range(NumberSeries):
 
         NewFolderName = f'{FolderName}\{i}'
 
