@@ -2,13 +2,14 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
+from SavingScript import *
 
 WorkingFolder = 'C:\\Users\\User\\Desktop\\Benoit\\PythonConnection\\v2_20240318'; os.chdir(WorkingFolder)
 TodayDateTime = time.strftime('%Y%m%d', time.gmtime())
 SaveDataFolder = r'\Users\User\Desktop\Benoit\PythonConnection\v2_20240318\DATA' + '\\' + TodayDateTime
 
 from FunctionsPowerControl import *
-from FunctionsTipControl import *
+#from FunctionsTipControl import *
 
 def fScanAllHeightAllPower(LinearPowerLogScale = True):
 
@@ -102,12 +103,31 @@ def fGetPowerCurve(RotorStage,
         CurrentPower = fMeasurePower(PowerMeter)
         CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         FileName = f'P{Pi}'
+
+        try:
+
+            IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
+
+        except RuntimeError as e:
+
+            print(f"[FATAL] Failed to save spectrum at P{Pi}: {e}")
+
+            # Options:
+            break  # Stop the loop entirely
+            #continue   # Skip and move to next power
+            #raise      # Crash and exit
+            #retry logic here if you want
+
+        with open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a') as FileInfo:
+            FileInfo.write(
+                f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
+
+#        IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
         
-        IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
-        
-        FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a')
-        FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
-        FileInfo.close()
+#        FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a')
+#        FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
+#        FileInfo.close()
+
         print(f'{Pi+1}/{PowerNumberStep} Power done')
         
     return MyDataFolder

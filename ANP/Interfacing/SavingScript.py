@@ -97,8 +97,11 @@ then, instead of: IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFold
 let's use the following
 
 try:
+
     IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
+    
 except RuntimeError as e:
+
     print(f"[FATAL] Aborting measurement at File: {FileName}")
     # Optionally break or skip
 
