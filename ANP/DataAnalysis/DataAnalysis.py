@@ -808,7 +808,7 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
                  f"{config_label}\n"
                  f"Int. time: {int_time:.1f} s\n"
                  f"R: {ratio_start:.4f}–{ratio_stop:.2f}\n"
-                 f"s ≈ {s_value:.2f} at {s_power:.2e} W\n"
+                 f"s ≈ {s_value:.2f} at {s_power:.8f} W\n"
                  f"FWHM ≈ {fwhm_str}"
                 )
 
