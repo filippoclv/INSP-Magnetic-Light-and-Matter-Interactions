@@ -2,6 +2,7 @@ import pyautogui as pyGUI
 import pyperclip
 import time
 
+# Installing this might be necessary:
 # pip install pyautogui opencv-python pyperclip
 
 def safe_click(image_path, confidence=0.9, max_attempts=5, delay=1, click_offset=(0, 0)):
