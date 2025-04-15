@@ -3,7 +3,6 @@ import os
 import time
 import matplotlib.pyplot as plt
 
-
 WorkingFolder = 'C:\\Users\\User\\Desktop\\Benoit\\PythonConnection\\v2_20240318'; os.chdir(WorkingFolder)
 TodayDateTime = time.strftime('%Y%m%d', time.gmtime())
 SaveDataFolder = r'\Users\User\Desktop\Benoit\PythonConnection\v2_20240318\DATA' + '\\' + TodayDateTime
@@ -200,9 +199,9 @@ def fProcessPowerCurve(MyDataFolder, WLRangeAll):
         plt.title(str(WLRange[0]) + 'to' + str(WLRange[1]) + ' nm')
         plt.grid(axis = 'both', which = 'both')
         plt.show()
-        # plt.savefig('PowerCurve' + str(WLi) + '.png')
+        #plt.savefig('PowerCurve' + str(WLi) + '.png')
 
-    # return PowerData, LumiData
+    #return PowerData, LumiData
 
 def fProcessPowerCurveBackAndForth(MyDataFolder, WLRangeAll):
 
@@ -292,7 +291,6 @@ def fScanHeight(DoRefSpectrum):
         time.sleep(2)
         GetASpectrum(DelayIntegrationTime)
         SaveASpectrum(MyDataFolder, 'ref', IsFolderChecked)
-
     
 #%% Connection RotorStage
 
@@ -402,8 +400,10 @@ TimeTotal = 60 # (s)
 TimeStep = 1 # (s)
 fStudyLaserStabilityPower(RotorStage, PowerMeter, SetPointPower, TimeTotal, TimeStep, *PowerRangeFitParameters)
 
-#%% Deconnection
+#%% Disconnection
+
 RotorStage.close()
+
 #%%
+
 PowerMeter.disconnect_device() #disconnect the device
- 

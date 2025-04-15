@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar  7 17:17:07 2024
-
-@author: benre
-"""
-
 import pyautogui as pyGUI
 # https://pyautogui.readthedocs.io/en/latest/install.html
 # pip install pyautogui
