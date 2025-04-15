@@ -1,7 +1,8 @@
 import pyautogui as pyGUI
 import pyperclip
 import time
-from gui_helpers import safe_click, safe_type, wait_for_image
+
+# pip install pyautogui opencv-python pyperclip
 
 def safe_click(image_path, confidence=0.9, max_attempts=5, delay=1, click_offset=(0, 0)):
     """Try clicking a UI element by image, with retries and optional offset."""
