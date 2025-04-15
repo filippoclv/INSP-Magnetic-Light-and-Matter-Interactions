@@ -266,6 +266,82 @@ def fProcessPowerCurveBackAndForth(MyDataFolder, WLRangeAll):
         ax.legend()
         plt.show()
 
+# Let's add a way to automatically detect the slope and measure more points there
+
+def fAutoRefinedPowerCurve(RotorStage, PowerMeter, SaveDataFolder, DensityInfo,
+                          RatioStart=0.0001, RatioStop=0.9, DelayIntegrationTime=2,
+                          CoarseSteps=25, FineSteps=50, LinearPowerLogScale=True):
+
+    print("Running initial coarse scan...")
+    PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
+    PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
+
+    MyDataFolderCoarse = fGetPowerCurve(
+                                        RotorStage, PowerMeter,
+                                        PowerStart, PowerStop,
+                                        CoarseSteps, SaveDataFolder, DensityInfo,
+                                        RatioStart, RatioStop,
+                                        DelayIntegrationTime,
+                                        LinearPowerLogScale
+                                       )
+
+    # Analyze the data
+    print("Analyzing coarse data to find linear region...")
+    FileSetInfoPath = MyDataFolderCoarse + '\\SetInfoPowerCurve.txt'
+    PowerData = np.loadtxt(FileSetInfoPath, skiprows=1, usecols=3)
+    LumiData = []
+
+    for i in range(CoarseSteps):
+
+        FilePath = MyDataFolderCoarse + f'\\P{i}.txt'
+        WL, Intensity = np.loadtxt(FilePath, delimiter=';', skiprows=3, converters=lambda x: x.replace(',', '.'), unpack=True)
+        idx_min = np.argmin(np.abs(WL - 700))
+        idx_max = np.argmin(np.abs(WL - 720))
+        LumiData.append(np.sum(Intensity[idx_min:idx_max]))
+
+    PowerData = np.array(PowerData)
+    LumiData = np.array(LumiData)
+
+    # Log scale fit
+    logP = np.log10(PowerData)
+    logL = np.log10(LumiData)
+
+    window_size = 5
+    best_r2 = 0
+    best_start = 0
+
+    for i in range(len(logP) - window_size + 1):
+
+        x = logP[i:i + window_size]
+        y = logL[i:i + window_size]
+
+        coeffs = np.polyfit(x, y, 1)
+        fit = np.poly1d(coeffs)
+        residuals = y - fit(x)
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((y - np.mean(y))**2)
+        r2 = 1 - (ss_res / ss_tot)
+
+        if r2 > best_r2:
+
+            best_r2 = r2
+            best_start = i
+
+    best_range_P = PowerData[best_start:best_start + window_size]
+    print(f"Best linear region found between: {best_range_P[0]:.2e} – {best_range_P[-1]:.2e} W (R² = {best_r2:.4f})")
+
+    # Fine scan
+    MyDataFolderFine = fGetPowerCurve(
+                                      RotorStage, PowerMeter,
+                                      best_range_P[0], best_range_P[-1],
+                                      FineSteps, SaveDataFolder, DensityInfo,
+                             0, 0,  # Not relevant here
+                                      DelayIntegrationTime,
+                                      LinearPowerLogScale
+                                     )
+
+    return MyDataFolderCoarse, MyDataFolderFine
+
 def fScanHeight(DoRefSpectrum):
 
     FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
@@ -390,6 +466,39 @@ fProcessPowerCurveBackAndForth(MyDataFolder, WLRangeAll)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
 
 print('\nSetup back to the initial ratio of max power: ', Ratio)
+
+#%% fAutoRefinedPowerCurve
+
+RatioStart = 0.00001
+RatioStop = 0.9
+PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
+PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
+
+PowerNumberStepCoarse = 25  # Coarse scan step count
+PowerNumberStepFine = 80    # Refined scan step count
+DelayIntegrationTime = 3    # [s]
+
+MyDataFolderCoarse, MyDataFolderFine = fAutoRefinedPowerCurve(
+                                                             RotorStage, PowerMeter,
+                                                             SaveDataFolder, DensityInfo,
+                                                             RatioStart, RatioStop,
+                                                             DelayIntegrationTime,
+                                                             CoarseSteps=PowerNumberStepCoarse,
+                                                             FineSteps=PowerNumberStepFine,
+                                                             LinearPowerLogScale=True
+                                                            )
+
+# Wavelength ranges for integration
+WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
+
+# Process the final fine scan results
+fProcessPowerCurve(MyDataFolderFine, WLRangeAll)
+
+# Reset to chosen power level
+SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
+fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+
+print('\nSetup back to the initial ratio of max power:', Ratio)
 
 #%% fScanAllHeightAllPower
 
