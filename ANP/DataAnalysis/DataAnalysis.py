@@ -680,6 +680,14 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
         all_spectra = read_all_spectra(folder)
         results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
 
+        # If you want to shift the curves use this after integration:
+
+        power_shift = data.get("power_shift_factor", 1.0)
+        lum_shift = data.get("luminescence_shift_factor", 1.0)
+
+        results_df["Power_W"] *= power_shift
+        results_df["Luminescence_counts"] *= lum_shift
+
         # Compute s value and power
         derivative_df, s_value, s_power = calculate_derivative(results_df)
 

@@ -12,20 +12,26 @@ datasets = [
         "integration_time": 1,
         "ratio_start": 0.0001,
         "ratio_stop": 0.7,
-        "label": "TIR"
+        "label": "TIR",
+        "power_shift_factor": 1.0, # 0.13 to superimpose
+        "luminescence_shift_factor": 1.0 # 0.05 to superimpose
     },
     {
         "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132429",
         "integration_time": 1,
         "ratio_start": 0.0001,
         "ratio_stop": 0.7,
-        "label": "NO TIR"
+        "label": "NO TIR",
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0
     },
 #    {
 #        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410135717",
 #        "integration_time": 3,
 #        "ratio_start": 0.00001,
-#        "ratio_stop": 0.9
+#        "ratio_stop": 0.9,
+#        "power_shift_factor": 1.0,
+#        "luminescence_shift_factor": 1.0
 #    },
 ]
 
@@ -35,20 +41,26 @@ datasets_back_and_forth = [
         "integration_time": 1,
         "ratio_start": 0.0001,
         "ratio_stop": 0.7,
-        "label": "TIR"
+        "label": "TIR",
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0
     },
     {
         "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
         "integration_time": 1,
         "ratio_start": 0.0001,
         "ratio_stop": 0.7,
-        "label": "NO TIR"
+        "label": "NO TIR",
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0
     },
 #    {
 #        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410140605",
 #        "integration_time": 3,
 #        "ratio_start": 0.00001,
-#        "ratio_stop": 0.9
+#        "ratio_stop": 0.9,
+#        "power_shift_factor": 1.0,
+#        "luminescence_shift_factor": 1.0
 #    },
 ]
 
