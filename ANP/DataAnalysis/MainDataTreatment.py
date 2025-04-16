@@ -130,4 +130,3 @@ plot_all_power_curves_with_s(datasets, int_start, int_end)
 #                                 integration_time=selected_data["integration_time"],
 #                                 title_note="- NO TIR configuration, different parameters"
 #                                )
-
