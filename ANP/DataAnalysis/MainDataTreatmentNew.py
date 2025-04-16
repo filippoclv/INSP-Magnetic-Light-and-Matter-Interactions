@@ -69,18 +69,18 @@ all_spectra = read_all_spectra(selected_data["folder"])
 int_start = 770
 int_end = 835
 
-plot_spectra_with_zoom(all_spectra,
-                       integration_time=selected_data["integration_time"],
-                       ratio_start=selected_data["ratio_start"],
-                       ratio_stop=selected_data["ratio_stop"],
-                       zoom_wl_min=630,
-                       zoom_wl_max=760,
-                       integration_range=(int_start, int_end)
-                      )
+#plot_spectra_with_zoom(all_spectra,
+#                       integration_time=selected_data["integration_time"],
+#                       ratio_start=selected_data["ratio_start"],
+#                       ratio_stop=selected_data["ratio_stop"],
+#                       zoom_wl_min=630,
+#                       zoom_wl_max=760,
+#                       integration_range=(int_start, int_end)
+#                      )
 
 # 630 - 760 nm range is good to zoom on the smaller peaks
 
-plot_all_power_curves(datasets, int_start, int_end)
+#plot_all_power_curves(datasets, int_start, int_end)
 
 # The derivative method is just a simple slope calculation between two points
 #derivative_df, s_value, s_power = calculate_derivative(results_df)
@@ -88,29 +88,29 @@ plot_all_power_curves(datasets, int_start, int_end)
 
 #plot_derivative(derivative_results)
 
-plot_all_derivatives(datasets, int_start, int_end)
+#plot_all_derivatives(datasets, int_start, int_end)
 
 plot_all_power_curves_with_s(datasets, int_start, int_end)
 
 # Degree of 100 gets a very smooth fit, but 10 seems good enough
 
-check_all_fits(datasets, int_start=770, int_end=835, degree=10)
+#check_all_fits(datasets, int_start=770, int_end=835, degree=10)
 
-plot_all_derivatives_fit(datasets, int_start, int_end, degree=10)
+#plot_all_derivatives_fit(datasets, int_start, int_end, degree=10)
 
-plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
-                                 int_start=770,
-                                 int_end=835,
-                                 integration_time=selected_data["integration_time"],
-                                 title_note="- TIR configuration"
-                                )
+#plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
+#                                 int_start=770,
+#                                 int_end=835,
+#                                 integration_time=selected_data["integration_time"],
+#                                 title_note="- TIR configuration"
+#                                )
 
-plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
-                                 int_start=770,
-                                 int_end=835,
-                                 integration_time=selected_data["integration_time"],
-                                 title_note="- NO TIR configuration, same parameters"
-                                )
+#plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
+#                                 int_start=770,
+#                                 int_end=835,
+#                                 integration_time=selected_data["integration_time"],
+#                                 title_note="- NO TIR configuration, same parameters"
+#                                )
 
 #plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410140605",
 #                                 int_start=770,
