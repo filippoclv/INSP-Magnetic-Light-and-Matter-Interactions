@@ -52,17 +52,41 @@ def wait_for_image(image_path, confidence=0.9, timeout=10):
         time.sleep(0.5)
 
     raise TimeoutError(f"[ERROR] Timed out waiting for image: {image_path}")
+    
+def GetASpectrum(DelayIntegrationTime):
+    """
+    Triggers a spectrum acquisition by clicking the 'Single Scan' button.
+    Then waits either for a delay or until an image confirms acquisition is done.
+    """
+    
+    print("\n[INFO] Triggering spectrum acquisition...")
+
+    try:
+        # Step 1: Click 'Single Scan' button
+        safe_click('SingleScanButton.PNG', confidence=0.9)
+
+        # Step 2: Wait for scan to complete (fixed + optional detection)
+        time.sleep(DelayIntegrationTime)
+        time.sleep(0.5)
+
+        print("[INFO] Spectrum acquisition complete.")
+
+    except Exception as e:
+        
+        print(f"[ERROR] Failed to acquire spectrum: {e}")
+        
+        raise
 
 def SaveASpectrum(FolderName, FileName, IsFolderChecked=False):
     """Improved and safe version of spectrum saving using UI automation."""
 
-    print(f"[INFO] Saving spectrum as: {FileName}")
+    print(f"\n[INFO] Saving spectrum as: {FileName}")
 
     try:
         # Step 1: Click 'Save' button
         safe_click('SaveSpectrumButton.PNG', confidence=0.9)
 
-        time.sleep(0.5)  # Give time for the dialog to open
+        time.sleep(1)  # Give time for the dialog to open
 
         # Step 2: Change the folder only once
         if not IsFolderChecked:
@@ -74,7 +98,7 @@ def SaveASpectrum(FolderName, FileName, IsFolderChecked=False):
             IsFolderChecked = True
 
         # Step 3: Enter filename
-        safe_click('SaveSpectrumFileNameLoc.PNG', confidence=0.8, click_offset=(+120, 0))
+        safe_click('SaveSpectrumFileNameLoc.PNG', confidence=0.9, click_offset=(+120, 0))
         safe_type(str(FileName))
         pyGUI.press('enter')
 

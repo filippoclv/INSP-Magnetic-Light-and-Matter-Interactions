@@ -1,5 +1,6 @@
 import time
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.optimize import curve_fit
 from pylablib.devices import Thorlabs # pip install pylablib
 from pyThorlabsPM100x.driver import ThorlabsPM100x
@@ -131,7 +132,7 @@ def fScanPowerRange(RotorStage, PowerMeter, fMalusLawTheta2Power, AngleStart = 0
 
 def fMoveToPower(RotorStage, PowerMeter, SetPointPower, *OptFitParameters):
 
-    print('Power is changing ...')
+    print('\n\nPower is changing ...')
     CorrespondingAngle = fBeamSplitterCubeLawPower2Theta(SetPointPower, *OptFitParameters)
     RotorStage.move_to(CorrespondingAngle, scale = True)
     RotorStage.wait_move()

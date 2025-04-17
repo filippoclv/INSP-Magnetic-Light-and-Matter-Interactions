@@ -104,7 +104,10 @@ def fGetPowerCurve(RotorStage,
 
         SetPointPower = PowerScan[Pi]
         fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
-        GetASpectrum(DelayIntegrationTime)
+        
+        GetASpectrum(DelayIntegrationTime) # New
+        #GetASpectrum(DelayIntegrationTime)
+        
         CurrentPower = fMeasurePower(PowerMeter)
         CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         FileName = f'P{Pi}'
@@ -126,8 +129,8 @@ def fGetPowerCurve(RotorStage,
             #retry logic here if you want
 
         with open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a') as FileInfo:
-            FileInfo.write(
-                f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
+            
+            FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
 
 #        IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
         
@@ -177,22 +180,41 @@ def fGetPowerCurve_BackAndForth(RotorStage, PowerMeter,
         NumberOfMeasurement += 1
 
         fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
-        GetASpectrum(DelayIntegrationTime)
+
+        GetASpectrum(DelayIntegrationTime) # New
+        #GetASpectrum(DelayIntegrationTime)
+        
         CurrentPower = fMeasurePower(PowerMeter)
         CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         FileName = f'P{Pi}'
 
-        IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
+        # NEW WAY TO SAVE DATA TO BE TESTED
 
-        FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a')
-        FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
-        FileInfo.close()
+        try:
 
-        print(f'{Pi + 1}/{len(FullPowerScan)} Power done')
+            IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
 
-    fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+        except RuntimeError as e:
 
-    print('\nSetup back to the initial ratio of max power: ', Ratio)
+            print(f"[FATAL] Failed to save spectrum at P{Pi}: {e}")
+
+            # Options:
+            break  # Stop the loop entirely
+            #continue   # Skip and move to next power
+            #raise      # Crash and exit
+            #retry logic here if you want
+
+        with open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a') as FileInfo:
+            
+            FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
+
+#        IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
+        
+#        FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'a')
+#        FileInfo.write(f'{NumberOfMeasurement}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n')
+#        FileInfo.close()
+
+        print(f'{Pi+1}/{len(FullPowerScan)} Power done')
 
     return MyDataFolder
 
@@ -275,79 +297,167 @@ def fProcessPowerCurveBackAndForth(MyDataFolder, WLRangeAll):
 
 # Let's add a way to automatically detect the slope and measure more points there
 
-def fAutoRefinedPowerCurve(RotorStage, PowerMeter, SaveDataFolder, DensityInfo,
-                          RatioStart=0.0001, RatioStop=0.9, DelayIntegrationTime=2,
-                          CoarseSteps=25, FineSteps=50, LinearPowerLogScale=True):
+def fAdaptiveRefinedPowerCurve(RotorStage, PowerMeter,
+                               SaveDataFolder, DensityInfo,
+                               PowerStart, PowerStop,
+                               PowerNumberStep,
+                               RatioStart,
+                               RatioStop,
+                               DelayIntegrationTime,
+                               SlopeThreshold,
+                               MaxTotalExtraPoints,
+                               LuminescenceJumpThreshold,
+                               WLRange
+                              ):
 
-    print("Running initial coarse scan...")
-    PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
-    PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
+    print("[INFO] Adaptive power scan starting...")
 
-    MyDataFolderCoarse = fGetPowerCurve(
-                                        RotorStage, PowerMeter,
-                                        PowerStart, PowerStop,
-                                        CoarseSteps, SaveDataFolder, DensityInfo,
-                                        RatioStart, RatioStop,
-                                        DelayIntegrationTime,
-                                        LinearPowerLogScale
-                                       )
+    FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
+    MyDataFolder = os.path.join(SaveDataFolder, FolderTimeName)
+    os.makedirs(MyDataFolder)
+    print(f"[INFO] New folder created at: {MyDataFolder}")
 
-    # Analyze the data
-    print("Analyzing coarse data to find linear region...")
-    FileSetInfoPath = MyDataFolderCoarse + '\\SetInfoPowerCurve.txt'
-    PowerData = np.loadtxt(FileSetInfoPath, skiprows=1, usecols=3)
-    LumiData = []
+    PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
+    PowerQueue = list(PowerScan)
+    InsertedBetween = set()
 
-    for i in range(CoarseSteps):
+    SetInfoPath = os.path.join(MyDataFolder, 'SetInfoPowerCurve.txt')
+    
+    with open(SetInfoPath, 'w') as f:
+        
+        f.write(f'N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\tRatio_start = {RatioStart}\tRatio_stop = {RatioStop}\tInt. time = {DelayIntegrationTime}\n')
 
-        FilePath = MyDataFolderCoarse + f'\\P{i}.txt'
-        WL, Intensity = np.loadtxt(FilePath, delimiter=';', skiprows=3, converters=lambda x: x.replace(',', '.'), unpack=True)
-        idx_min = np.argmin(np.abs(WL - 700))
-        idx_max = np.argmin(np.abs(WL - 720))
-        LumiData.append(np.sum(Intensity[idx_min:idx_max]))
+    LumiList = []
+    IsFolderChecked = False
+    i = 0
+    P_index = 0
+    ExtraPointsAdded = 0
+    OriginalPowers = set(PowerQueue)
 
-    PowerData = np.array(PowerData)
-    LumiData = np.array(LumiData)
+    while i < len(PowerQueue):
+        
+        P = PowerQueue[i]
 
-    # Log scale fit
-    logP = np.log10(PowerData)
-    logL = np.log10(LumiData)
+        fMoveToPower(RotorStage, PowerMeter, P, *PowerRangeFitParameters)
+        GetASpectrum(DelayIntegrationTime)
+        CurrentPower = fMeasurePower(PowerMeter)
+        CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
+        FileName = f'P{P_index}'
 
-    window_size = 5
-    best_r2 = 0
-    best_start = 0
+        try:
+            
+            IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
+            
+        except RuntimeError as e:
+            
+            print(f"[FATAL] Failed to save spectrum at {FileName}: {e}")
+            
+            break
 
-    for i in range(len(logP) - window_size + 1):
+        FilePath = os.path.join(MyDataFolder, f"{FileName}.txt")
+        WL, Intensity = np.loadtxt(FilePath, delimiter=';', skiprows=3,
+                                   converters={
+                                       0: lambda x: float(x.decode('latin1').replace(',', '.')),
+                                       1: lambda x: float(x.decode('latin1').replace(',', '.'))
+                                   },
+                                   unpack=True
+                                  )
 
-        x = logP[i:i + window_size]
-        y = logL[i:i + window_size]
+        idx_min = np.argmin(np.abs(WL - WLRange[0]))
+        idx_max = np.argmin(np.abs(WL - WLRange[1]))
+        Lumi = np.sum(Intensity[idx_min:idx_max])
+        LumiList.append(Lumi)
 
-        coeffs = np.polyfit(x, y, 1)
-        fit = np.poly1d(coeffs)
-        residuals = y - fit(x)
-        ss_res = np.sum(residuals**2)
-        ss_tot = np.sum((y - np.mean(y))**2)
-        r2 = 1 - (ss_res / ss_tot)
+        with open(SetInfoPath, 'a') as f:
+            
+            f.write(f"{P_index+1}\t{P_index}\t{P}\t{CurrentPower}\t{DensityInfo}\t{CurrentTime}\n")
 
-        if r2 > best_r2:
+        print(f"[INFO] {P_index+1}/{len(PowerQueue)} power steps done")
 
-            best_r2 = r2
-            best_start = i
+        if i < len(PowerQueue) - 1 and (
+                                        P in OriginalPowers and
+                                        PowerQueue[i + 1] in OriginalPowers and
+                                        (MaxTotalExtraPoints is None or ExtraPointsAdded < MaxTotalExtraPoints)
+                                       ):
+            
+            P_next = PowerQueue[i + 1]
+            
+            if len(LumiList) >= 2:
+                
+                L_current = LumiList[-1]
+                L_prev = LumiList[-2]
+                dP = P_next - P
+                dL = L_current - L_prev
+                slope = abs(dL / dP) if dP != 0 else 0
+                ratio_increase = L_current / L_prev if L_prev > 0 else 0
+        
+                pair_id = (round(P, 10), round(P_next, 10))
+                midpoint = (P + P_next) / 2.0
+                midpoint_rounded = round(midpoint, 10)
+        
+                existing_rounded = set(round(p, 10) for p in PowerQueue)
+        
+                if (
+                    slope > SlopeThreshold and
+                    ratio_increase > LuminescenceJumpThreshold and
+                    pair_id not in InsertedBetween and
+                    midpoint_rounded not in existing_rounded
+                   ):
+                    
+                    PowerQueue.insert(i + 1, midpoint)
+                    InsertedBetween.add(pair_id)
+                    ExtraPointsAdded += 1
+                    print(f"[INFO] Inserting 1 point after {P:.5f} due to high slope and luminescence jump.")
 
-    best_range_P = PowerData[best_start:best_start + window_size]
-    print(f"Best linear region found between: {best_range_P[0]:.2e} – {best_range_P[-1]:.2e} W (R² = {best_r2:.4f})")
+        i += 1
+        P_index += 1
 
-    # Fine scan
-    MyDataFolderFine = fGetPowerCurve(
-                                      RotorStage, PowerMeter,
-                                      best_range_P[0], best_range_P[-1],
-                                      FineSteps, SaveDataFolder, DensityInfo,
-                             0, 0,  # Not relevant here
-                                      DelayIntegrationTime,
-                                      LinearPowerLogScale
-                                     )
+    return MyDataFolder
 
-    return MyDataFolderCoarse, MyDataFolderFine
+def fProcessRefinedPowerCurve(MyDataFolder, WLRangeAll):
+    
+    FileSetInfoPath = os.path.join(MyDataFolder, 'SetInfoPowerCurve.txt')
+    PowerData = np.loadtxt(FileSetInfoPath, dtype=float, skiprows=1, usecols=3, encoding=None)
+
+    NumberOfFiles = len(PowerData) # Variable number of spectra
+
+    for WLi in range(len(WLRangeAll)):
+
+        WLRange = WLRangeAll[WLi]
+        LumiData = []
+
+        for i in range(NumberOfFiles):
+            
+            FileNamePath = os.path.join(MyDataFolder, f'P{i}.txt')
+
+            try:
+                
+                WL, Intensity = np.loadtxt(
+                                           FileNamePath, dtype=float, delimiter=';', skiprows=3,
+                                           converters=lambda x: x.replace(',', '.'), encoding=None, unpack=True
+                                          )
+                
+            except Exception as e:
+                
+                print(f"[WARNING] Could not read file {FileNamePath}: {e}")
+                
+                continue
+
+            WLRangeIdxMin = np.argmin(np.abs(WL - WLRange[0]))
+            WLRangeIdxMax = np.argmin(np.abs(WL - WLRange[1]))
+            LumiData.append(np.sum(Intensity[WLRangeIdxMin:WLRangeIdxMax]))
+
+        LumiData = np.array(LumiData)
+
+        fig, ax = plt.subplots()
+        ax.scatter(PowerData[:len(LumiData)], LumiData)
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        ax.set_xlabel('Power (W)')
+        ax.set_ylabel('Integrated Luminescence (a.u.)')
+        ax.set_title(f'{WLRange[0]} to {WLRange[1]} nm')
+        ax.grid(True, which='both')
+        plt.show()
 
 def fScanHeight(DoRefSpectrum):
 
@@ -418,7 +528,7 @@ PowerRangeMin = PowerRange[1]
 #%% fMoveToPower
 
 #Desired ratio of the max power
-Ratio = 0.1
+Ratio = 0.2
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
@@ -430,13 +540,13 @@ RotorStage.move_to(Angle)
 
 #%% fGetPowerCurve
 
-RatioStart = 0.00001
+RatioStart = 0.0001
 RatioStop = 0.9
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 41
-DelayIntegrationTime = 3 # (s)
+PowerNumberStep = 21
+DelayIntegrationTime = 3 # [s]
 MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
 time.sleep(0.5)
 
@@ -453,12 +563,12 @@ print('\nSetup back to the initial ratio of max power: ', Ratio)
 
 #%% fGetPowerCurve_BackAndForth
 
-RatioStart = 0.00001
-RatioStop = 0.9
+RatioStart = 0.01
+RatioStop = 0.8
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 41 # Step number will be doubled
+PowerNumberStep = 5 # Step number will be doubled
 DelayIntegrationTime = 3 # [s]
 MyDataFolder = fGetPowerCurve_BackAndForth(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
 time.sleep(0.5)
@@ -474,35 +584,36 @@ fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
 
 print('\nSetup back to the initial ratio of max power: ', Ratio)
 
-#%% fAutoRefinedPowerCurve
+#%% fAdaptiveRefinedPowerCurve
 
-RatioStart = 0.00001
+RatioStart = 0.0001
 RatioStop = 0.9
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStepCoarse = 25  # Coarse scan step count
-PowerNumberStepFine = 80    # Refined scan step count
+PowerNumberStep = 31
 DelayIntegrationTime = 3    # [s]
 
-MyDataFolderCoarse, MyDataFolderFine = fAutoRefinedPowerCurve(
-                                                             RotorStage, PowerMeter,
-                                                             SaveDataFolder, DensityInfo,
-                                                             RatioStart, RatioStop,
-                                                             DelayIntegrationTime,
-                                                             CoarseSteps=PowerNumberStepCoarse,
-                                                             FineSteps=PowerNumberStepFine,
-                                                             LinearPowerLogScale=True
-                                                            )
+MyDataFolder = fAdaptiveRefinedPowerCurve(
+                                          RotorStage=RotorStage,
+                                          PowerMeter=PowerMeter,
+                                          SaveDataFolder=SaveDataFolder,
+                                          DensityInfo=DensityInfo,
+                                          PowerStart=PowerStart,
+                                          PowerStop=PowerStop,
+                                          PowerNumberStep=PowerNumberStep,
+                                          RatioStart=RatioStart,
+                                          RatioStop=RatioStop,
+                                          DelayIntegrationTime=3,
+                                          SlopeThreshold=4,
+                                          MaxTotalExtraPoints=5,
+                                          LuminescenceJumpThreshold=1.05,  # Percentage of luminescence difference to trigger fine measurement
+                                          WLRange=[790, 810]
+                                         )
 
-# Wavelength ranges for integration
-WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
+fProcessRefinedPowerCurve(MyDataFolder, WLRangeAll=[[790, 810]])
 
-# Process the final fine scan results
-fProcessPowerCurve(MyDataFolderFine, WLRangeAll)
 
-# Reset to chosen power level
-SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
 
 print('\nSetup back to the initial ratio of max power:', Ratio)
