@@ -15,10 +15,10 @@ def GetASpectrum(DelayIntegrationTime):
     time.sleep(DelayIntegrationTime)
     time.sleep(0.5)
 
-def SaveASpectrum(FolderName, FileName, IsFolderChecked = False):
+def SaveASpectrum(FolderName, FileName, IsFolderChecked = True):
     # Save the spectrum:
     
-    ButtonCoord1 = pyGUI.locateOnScreen('SaveSpectrumButton.PNG', grayscale=False, confidence = 0.9)
+    ButtonCoord1 = pyGUI.locateOnScreen('SaveSpectrumButton.PNG', grayscale=True, confidence = 0.9)
     ButtonCoord1Center = pyGUI.center(ButtonCoord1)
     pyGUI.click(ButtonCoord1Center)
     time.sleep(0.7)
