@@ -9,6 +9,8 @@ import time
 import pyperclip
 import os
 
+'''
+
 def GetASpectrum(DelayIntegrationTime):
 
     ButtonCoord = pyGUI.locateOnScreen('SingleScanButton.PNG', grayscale=True, confidence = 0.9)
@@ -53,6 +55,8 @@ def SaveASpectrum(FolderName, FileName, IsFolderChecked = True):
     time.sleep(0.5)
 
     return IsFolderChecked
+    
+'''
 
 def BoucleGetSpectra(NumberSpectra, DelayIntegrationTime, FolderName): # Boucle stands for looping
 
