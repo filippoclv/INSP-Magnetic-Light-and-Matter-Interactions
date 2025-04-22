@@ -24,7 +24,7 @@ class Piezoconcept(si.SerialInstrument):
         si.SerialInstrument.__init__(self, port=port)
         #self.recenter()
         
-    def move_rel(self, value, unit="n"):
+    def move_relX(self, value, unit="n"):
         """A command for relative movement, where the default units is nm."""
 
         if unit == "n":
@@ -43,6 +43,42 @@ class Piezoconcept(si.SerialInstrument):
 
             self.write("MOVRX "+str(value)+unit)
             self.position=(value*multiplier+self.position)
+
+    def move_relY(self, value, unit="n"):
+        """A command for relative movement, where the default units is nm."""
+
+        if unit == "n":
+            multiplier = 1
+
+        if unit == "u":
+            multiplier = 1E3
+
+        if (value * multiplier + self.position) > 1E5 or (value * multiplier + self.position) < 0:
+
+            print("The value is out of range! 0-100 um (0-1E8 nm) (X)")
+
+        elif (value * multiplier + self.position) < 1E5 and (value * multiplier + self.position) >= 0:
+
+            self.write("MOVRY " + str(value) + unit)
+            self.position = (value * multiplier + self.position)
+
+    def move_relZ(self, value, unit="n"):
+        """A command for relative movement, where the default units is nm."""
+
+        if unit == "n":
+            multiplier = 1
+
+        if unit == "u":
+            multiplier = 1E3
+
+        if (value * multiplier + self.position) > 1E5 or (value * multiplier + self.position) < 0:
+
+            print("The value is out of range! 0-100 um (0-1E8 nm) (X)")
+
+        elif (value * multiplier + self.position) < 1E5 and (value * multiplier + self.position) >= 0:
+
+            self.write("MOVRZ " + str(value) + unit)
+            self.position = (value * multiplier + self.position)
     
     def MOVEX(self, value, unit="n"):
         """An absolute movement command, will print an error to the console
