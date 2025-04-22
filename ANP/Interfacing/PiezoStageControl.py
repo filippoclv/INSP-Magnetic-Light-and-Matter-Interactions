@@ -162,4 +162,24 @@ print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 
+PiezoStage.recenter()
+print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+
+#%%
+
+PiezoStage.move_relX(50, "n")
+print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+
+#%%
+
+PiezoStage.move_relY(50, "n")
+print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+
+#%%
+
+PiezoStage.move_relZ(50, "n")
+print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+
+#%%
+
 PiezoStage.close()
