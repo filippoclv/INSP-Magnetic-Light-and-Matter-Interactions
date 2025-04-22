@@ -5,7 +5,7 @@ warnings.simplefilter('ignore', np.RankWarning)
 
 plt.close("all")
 
-# Each dictionary defines one dataset (this is for standard, only forward power sweep)
+# Each dictionary defines one dataset (this is for a standard, only forward power sweep)
 datasets = [
 #    {
 #        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410124848",

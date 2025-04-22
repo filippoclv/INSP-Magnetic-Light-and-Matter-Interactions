@@ -72,8 +72,6 @@ def ChangeSetPointV(MoveSenZ_mV):
 
         print('SenZ must be negative!')
 
-        return
-
     ButtonCoord = pyGUI.locateOnScreen('SetPointVoltArea.PNG', grayscale=True, confidence = 0.95)
     ButtonCoordCenter = pyGUI.center(ButtonCoord)
     
