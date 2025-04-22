@@ -7,20 +7,20 @@ plt.close("all")
 
 # Each dictionary defines one dataset (this is for standard, only forward power sweep)
 datasets = [
+#    {
+#        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410124848",
+#        "integration_time": 1,
+#        "ratio_start": 0.0001,
+#        "ratio_stop": 0.7,
+#        "label": "TIR",
+#        "power_shift_factor": 1.0, # 0.13 to superimpose
+#        "luminescence_shift_factor": 1.0 # 0.05 to superimpose
+#    },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410124848",
-        "integration_time": 1,
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TestAutoRefined_20250417\20250417165039",
+        "integration_time": 3,
         "ratio_start": 0.0001,
-        "ratio_stop": 0.7,
-        "label": "TIR",
-        "power_shift_factor": 1.0, # 0.13 to superimpose
-        "luminescence_shift_factor": 1.0 # 0.05 to superimpose
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132429",
-        "integration_time": 1,
-        "ratio_start": 0.0001,
-        "ratio_stop": 0.7,
+        "ratio_stop": 0.9,
         "label": "NO TIR",
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0

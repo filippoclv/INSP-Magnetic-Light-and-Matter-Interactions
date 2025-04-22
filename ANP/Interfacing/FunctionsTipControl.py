@@ -2,8 +2,10 @@ import pyautogui as pyGUI
 # https://pyautogui.readthedocs.io/en/latest/install.html
 # pip install pyautogui
 # pip install opencv-python
+
 import time
 # https://docs.python.org/fr/3/library/time.html
+
 import pyperclip
 import os
 
