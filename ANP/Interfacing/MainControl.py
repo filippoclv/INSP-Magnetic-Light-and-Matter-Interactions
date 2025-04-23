@@ -112,8 +112,6 @@ def fGetPowerCurve(RotorStage,
         CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         FileName = f'P{Pi}'
 
-        # NEW WAY TO SAVE DATA TO BE TESTED
-
         try:
 
             IsFolderChecked = SaveASpectrum(MyDataFolder, FileName, IsFolderChecked)
@@ -187,8 +185,6 @@ def fGetPowerCurve_BackAndForth(RotorStage, PowerMeter,
         CurrentPower = fMeasurePower(PowerMeter)
         CurrentTime = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         FileName = f'P{Pi}'
-
-        # NEW WAY TO SAVE DATA TO BE TESTED
 
         try:
 
