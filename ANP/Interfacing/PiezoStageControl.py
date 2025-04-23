@@ -312,7 +312,7 @@ move_y(-1)
 
 step_size = 100 # Nanometers by default
 
-Thread(target=keyboard_listener, daemon=True).start()
+Thread(target=keyboard_input, daemon=True).start()
 launch_gui()
 
 #%%
