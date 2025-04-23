@@ -3,6 +3,14 @@ from builtins import str
 import serial
 import nplab.instrument.serial_instrument as si
 import time
+import tkinter as tk
+import keyboard
+from threading import Thread
+
+# Could be necessary:
+# pip install keyboard
+# pip install serial
+# pip install nplab
 
 class Piezoconcept(si.SerialInstrument):
     """A simple class for the Piezo concept FOC100 nanopositioning system."""
@@ -121,11 +129,7 @@ class Piezoconcept(si.SerialInstrument):
 
             self.write("MOVEY "+str(value)+unit)
             self.position = value*multiplier
-            
-    def move_step(self, direction):
 
-        self.move_rel(direction*self.stepsize)
-        
     def recenter(self):
         """Moves the stage to the center position."""
 
@@ -167,7 +171,71 @@ class Piezoconcept(si.SerialInstrument):
                 "Y": self.GET_Y(),
                 "Z": self.GET_Z()
                }
-    
+
+# Move by steps with arrow keys:
+
+def move_x(direction):
+
+    PiezoStage.move_relX(direction * step_size, "n")
+    print(f"Moved X: {direction * step_size} nm")
+
+def move_y(direction):
+
+    PiezoStage.move_relY(direction * step_size, "n")
+    print(f"Moved Y: {direction * step_size} nm")
+
+def move_z(direction):
+
+    PiezoStage.move_relZ(direction * step_size, "n")
+    print(f"Moved Z: {direction * step_size} nm")
+
+def keyboard_input():
+
+    print("[INFO] Use arrow keys to move in the X/Y direction, ESC to exit.")
+
+    while True:
+
+        try:
+
+            if keyboard.is_pressed('right'):
+
+                move_x(1)
+                time.sleep(0.1)
+
+            elif keyboard.is_pressed('left'):
+
+                move_x(-1)
+                time.sleep(0.1)
+
+            elif keyboard.is_pressed('up'):
+
+                move_y(1)
+                time.sleep(0.1)
+
+            elif keyboard.is_pressed('down'):
+
+                move_y(-1)
+                time.sleep(0.1)
+
+            elif keyboard.is_pressed('esc'):
+
+                print("[INFO] Exiting...")
+
+                break
+
+        except:
+
+            break
+
+def launch_gui():
+
+    root = tk.Tk()
+    root.title("Piezostage keyboard controller")
+    root.geometry("300x100")
+    label = tk.Label(root, text="Use arrow keys to move.\nESC to exit.", font=("Arial", 12))
+    label.pack(pady=20)
+    root.mainloop()
+
 #%% Connection PiezoStage
 
 PiezoStage = Piezoconcept(port = "COM9")
@@ -215,6 +283,37 @@ print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 PiezoStage.move_relZ(50, "n")
 print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+
+#%% Manual step movement:
+
+step_size = 100 # Nanometers by default
+
+move_x(1) # Forward
+
+#%%
+
+step_size = 100 # Nanometers by default
+
+move_x(-1) # Backwards
+
+#%%
+
+step_size = 100 # Nanometers by default
+
+move_y(1)
+
+#%%
+
+step_size = 100 # Nanometers by default
+
+move_y(-1)
+
+#%% GUI to move with arrow keys
+
+step_size = 100 # Nanometers by default
+
+Thread(target=keyboard_listener, daemon=True).start()
+launch_gui()
 
 #%%
 
