@@ -605,9 +605,9 @@ MyDataFolder = fAdaptiveRefinedPowerCurve(
                                           RatioStart=RatioStart,
                                           RatioStop=RatioStop,
                                           DelayIntegrationTime=3,
-                                          SlopeThreshold=4,
+                                          SlopeThreshold=4, # Slope threshold to be chosen, 4 seems too high
                                           MaxTotalExtraPoints=5,
-                                          LuminescenceJumpThreshold=1.05,  # Percentage of luminescence difference to trigger fine measurement
+                                          LuminescenceJumpThreshold=1.05, # Percentage of luminescence difference to trigger fine measurement
                                           WLRange=[790, 810]
                                          )
 
