@@ -57,25 +57,26 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-wavelength = 1064 * 1e-6 # 1064 um
+wavelength = 1064 * 1e-9 # 1064 nm
 
 # Luminescence must be counts/s
 
 # Gaussian beam:
 
 # Spectrometer hole is 0.05 mm so 50 um.
-# ASSUMPTION: beam radius is 25 um. So FWHM is 1.18*25 um
+# ASSUMPTION: beam radius is 532 nm, assumed half of the wavelength. So FWHM is 1.18*532 nm
 
-FWHM = 1.18 * 25 * 1e-6
+FWHM = 1.18 * 532 * 1e-9
 print(f'\nFWHM = {FWHM} m')
 
 # nu = c/lambda
+# 1 W = 1 J/s
 
 nu = const.c / wavelength
 print(f'\nnu = {nu} Hz')
 
 hnu = const.h * nu
-print(f'\nhnu = {hnu} J')
+print(f'\nhnu = {hnu} J') # Or W*s
 
 testflux = 1.0 / hnu / (np.pi * FWHM**2 * 4)
-print(f'\nTest flux = {testflux} W/m^2')
+print(f'\nTest flux = {testflux} 1/s/m^2')
