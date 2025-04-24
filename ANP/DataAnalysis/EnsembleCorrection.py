@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import scipy.constants as const
 
 # Estimating the total excitation power from studying the power reflected and transmitted by the glass panel
 
@@ -55,3 +56,26 @@ plt.grid(True)
 plt.legend()
 plt.tight_layout()
 plt.show()
+
+wavelength = 1064 * 1e-6 # 1064 um
+
+# Luminescence must be counts/s
+
+# Gaussian beam:
+
+# Spectrometer hole is 0.05 mm so 50 um.
+# ASSUMPTION: beam radius is 25 um. So FWHM is 1.18*25 um
+
+FWHM = 1.18 * 25 * 1e-6
+print(f'\nFWHM = {FWHM} m')
+
+# nu = c/lambda
+
+nu = const.c / wavelength
+print(f'\nnu = {nu} Hz')
+
+hnu = const.h * nu
+print(f'\nhnu = {hnu} J')
+
+testflux = 1.0 / hnu / (np.pi * FWHM**2 * 4)
+print(f'\nTest flux = {testflux} W/m^2')
