@@ -19,7 +19,7 @@ slope, intercept = np.polyfit(data['power_reflected'], data['power_transmitted']
 fit_line = slope * data['power_reflected'] + intercept
 
 plt.plot(data['power_reflected'], data['power_transmitted'], 'o', markerfacecolor='none', label='Data')
-plt.plot(data['power_reflected'], fit_line, '-', color='red', label=f'Linear fit: Pt = ({slope:.4f}) Pr + ({intercept:.4f})')
+plt.plot(data['power_reflected'], fit_line, '-', color='coral', label=f'Linear fit: Pt = ({slope:.4f}) Pr + ({intercept:.4f})')
 
 plt.xlabel('Reflected power [mW]')
 plt.ylabel('Transmitted power [mW]')
@@ -29,4 +29,29 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-print(f'\nPr / Pt = {1/slope:.2f}')
+print(f'\nPr / Pt = {1/slope:.2f}\n')
+
+conversion_factor = 1/slope # Obtain power on the sample by dividing the measured power with this factor
+
+single_anp = pd.read_csv('fake_single_anp.csv')
+single_anp.drop(single_anp.columns[0], axis=1, inplace=True)
+integration_time = 3 # In seconds
+
+#print(single_anp)
+
+single_anp['Power_W'] = single_anp['Power_W'] / conversion_factor
+single_anp['Luminescence_counts'] = single_anp['Integrated_counts'] / integration_time
+single_anp.drop(single_anp.columns[1], axis=1, inplace=True)
+
+print(single_anp)
+
+plt.loglog(single_anp['Power_W'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
+           color='coral', markeredgecolor='teal', label='Single ANP power curve')
+plt.xlabel('Power [W]')
+plt.ylabel('Luminescence [counts]')
+plt.title('Power curve of a single ANP sample (arbitrary measurement)')
+
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()

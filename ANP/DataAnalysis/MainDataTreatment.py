@@ -7,24 +7,24 @@ plt.close("all")
 
 # Each dictionary defines one dataset (this is for a standard, only forward power sweep)
 datasets = [
-#    {
-#        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410124848",
-#        "integration_time": 1,
-#        "ratio_start": 0.0001,
-#        "ratio_stop": 0.7,
-#        "label": "TIR",
-#        "power_shift_factor": 1.0, # 0.13 to superimpose
-#        "luminescence_shift_factor": 1.0 # 0.05 to superimpose
-#    },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TestAutoRefined_20250417\20250417165039",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410135717",
         "integration_time": 3,
         "ratio_start": 0.0001,
         "ratio_stop": 0.9,
         "label": "NO TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0
+        "power_shift_factor": 1.0, # 0.13 to superimpose
+        "luminescence_shift_factor": 1.0 # 0.05 to superimpose
     },
+#    {
+#        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TestAutoRefined_20250417\20250417165039",
+#        "integration_time": 3,
+#        "ratio_start": 0.0001,
+#        "ratio_stop": 0.9,
+#        "label": "NO TIR",
+#        "power_shift_factor": 1.0,
+#        "luminescence_shift_factor": 1.0
+#    },
 #    {
 #        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410135717",
 #        "integration_time": 3,
@@ -35,25 +35,25 @@ datasets = [
 #    },
 ]
 
-datasets_back_and_forth = [
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
-        "integration_time": 1,
-        "ratio_start": 0.0001,
-        "ratio_stop": 0.7,
-        "label": "TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
-        "integration_time": 1,
-        "ratio_start": 0.0001,
-        "ratio_stop": 0.7,
-        "label": "NO TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0
-    },
+#datasets_back_and_forth = [
+#    {
+#        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
+#        "integration_time": 1,
+#        "ratio_start": 0.0001,
+#        "ratio_stop": 0.7,
+#        "label": "TIR",
+#        "power_shift_factor": 1.0,
+#        "luminescence_shift_factor": 1.0
+#    },
+#    {
+#        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
+#        "integration_time": 1,
+#        "ratio_start": 0.0001,
+#        "ratio_stop": 0.7,
+#        "label": "NO TIR",
+#        "power_shift_factor": 1.0,
+#        "luminescence_shift_factor": 1.0
+#    },
 #    {
 #        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410140605",
 #        "integration_time": 3,
@@ -62,7 +62,7 @@ datasets_back_and_forth = [
 #        "power_shift_factor": 1.0,
 #        "luminescence_shift_factor": 1.0
 #    },
-]
+#]
 
 # For the specific spectra plot
 
@@ -130,3 +130,9 @@ plot_all_power_curves_with_s(datasets, int_start, int_end)
 #                                 integration_time=selected_data["integration_time"],
 #                                 title_note="- NO TIR configuration, different parameters"
 #                                )
+
+#results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860, integration_time=integration_time)
+#single_anp = results_df.drop(columns=["Luminescence_counts"])
+#display(single_anp)
+
+#single_anp.to_csv("fake_single_anp.csv", index=True)
