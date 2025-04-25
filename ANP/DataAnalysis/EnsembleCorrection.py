@@ -135,8 +135,8 @@ def powercurve_singleANP(power):
 
     return np.exp(log_lum)
 
-P_min = 0.000001
-P_max = 0.1
+P_min = power.min()
+P_max = power.max()
 
 result, error = quad(powercurve_singleANP, P_min, P_max)
-print(f'\nIntegrated luminescence = {result} ± {error} counts')
+print(f'\nIntegrated luminescence = {result:2f} ± {error:6f} counts')
