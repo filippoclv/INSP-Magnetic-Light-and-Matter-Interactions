@@ -49,7 +49,7 @@ single_anp.drop(single_anp.columns[1], axis=1, inplace=True)
 plt.loglog(single_anp['Power_W'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
            color='coral', markeredgecolor='teal', label='Single ANP power curve')
 plt.xlabel('Power [W]')
-plt.ylabel('Luminescence [counts]')
+plt.ylabel('Luminescence [counts/s]')
 plt.title('Power curve of a single ANP sample (arbitrary measurement)')
 
 plt.grid(True)
@@ -86,9 +86,40 @@ single_anp['NOTIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4
 # TIR case:
 
 # ASSUMPTION: power density of the oval beam spot on the sample is constant
+# ASSUMPTION: laser spot is of the same dimension in a direction and around 3 times in the other
 
 TIR_FWHM = 3 * FWHM
 
 single_anp['TIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
 
 print(single_anp)
+
+# I need the power curve single ANP function
+
+power = single_anp['Power_W'].values
+lum = single_anp['Luminescence_counts'].values
+
+logP = np.log(power)
+logL = np.log(lum)
+
+degree = 20
+coeffs = np.polyfit(logP, logL, degree)
+poly = np.poly1d(coeffs)
+
+power_fit = np.linspace(min(power), max(power), 500)
+logP_fit = np.log(power_fit)
+logL_fit = poly(logP_fit)
+lum_fit = np.exp(logL_fit)
+
+# Plot
+plt.loglog(power, lum, 'o', markerfacecolor='none', label='Data', color='teal')
+plt.loglog(power_fit, lum_fit, '-', color='coral', label=f'Poly fit (deg {degree})')
+plt.xlabel('Power [W]')
+plt.ylabel('Luminescence [counts/s]')
+plt.title('Luminescence vs power, polynomial fit')
+plt.grid(True, which='both', linestyle='--', alpha=0.4)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+print(poly)
