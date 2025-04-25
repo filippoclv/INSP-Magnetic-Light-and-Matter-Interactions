@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.constants as const
+import warnings
+
+warnings.simplefilter('ignore', np.RankWarning)
 
 # Estimating the total excitation power from studying the power reflected and transmitted by the glass panel
 
@@ -99,17 +102,12 @@ print(single_anp)
 power = single_anp['Power_W'].values
 lum = single_anp['Luminescence_counts'].values
 
-logP = np.log(power)
-logL = np.log(lum)
-
 degree = 20
-coeffs = np.polyfit(logP, logL, degree)
+coeffs = np.polyfit(power, lum, degree)
 poly = np.poly1d(coeffs)
 
 power_fit = np.linspace(min(power), max(power), 500)
-logP_fit = np.log(power_fit)
-logL_fit = poly(logP_fit)
-lum_fit = np.exp(logL_fit)
+lum_fit = poly(P_fit)
 
 # Plot
 plt.loglog(power, lum, 'o', markerfacecolor='none', label='Data', color='teal')
