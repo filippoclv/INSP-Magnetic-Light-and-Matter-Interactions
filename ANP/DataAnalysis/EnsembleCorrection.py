@@ -102,12 +102,17 @@ print(single_anp)
 power = single_anp['Power_W'].values
 lum = single_anp['Luminescence_counts'].values
 
+logP = np.log(power)
+logL = np.log(lum)
+
 degree = 20
-coeffs = np.polyfit(power, lum, degree)
+coeffs = np.polyfit(logP, logL, degree)
 poly = np.poly1d(coeffs)
 
 power_fit = np.linspace(min(power), max(power), 500)
-lum_fit = poly(P_fit)
+logP_fit = np.log(power_fit)
+logL_fit = poly(logP_fit)
+lum_fit = np.exp(logL_fit)
 
 # Plot
 plt.loglog(power, lum, 'o', markerfacecolor='none', label='Data', color='teal')
