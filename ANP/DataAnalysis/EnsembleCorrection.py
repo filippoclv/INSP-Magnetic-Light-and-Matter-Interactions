@@ -56,7 +56,7 @@ plt.xlabel('Power [W]')
 plt.ylabel('Luminescence [counts/s]')
 plt.title('Power curve of a single ANP sample (arbitrary measurement)')
 
-plt.grid(True)
+plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -96,17 +96,18 @@ TIR_FWHM = 3 * FWHM
 
 #single_anp['TIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
 
-# Single ANP flux:
+# Flux:
 
-single_anp['Single_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4)
+single_anp['Phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4) # NO TIR, single anp or not is irrelevant
+single_anp['Phi_peak'] = single_anp['Phi_exc'] * 1.47 # Taken from the paper
 
-plt.loglog(single_anp['Single_phi_exc'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
+plt.loglog(single_anp['Phi_peak'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
            color='coral', markeredgecolor='teal', label='Single ANP power curve')
-plt.xlabel('Phi_exc [1/s/m^2]')
+plt.xlabel('Phi_peak [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
 plt.title('Power curve of a single ANP sample (arbitrary measurement),\nluminescence vs flux')
 
-plt.grid(True)
+plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -155,4 +156,4 @@ P_min = power.min()
 P_max = power.max()
 
 result, error = quad(powercurve_singleANP, P_min, P_max)
-print(f'\nIntegrated luminescence = {result:2f} ± {error:6f} counts')
+print(f'\nIntegrated luminescence = {result}')
