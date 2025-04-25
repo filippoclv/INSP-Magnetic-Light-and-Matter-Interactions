@@ -125,4 +125,19 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-print(poly)
+#print(poly)
+
+def powercurve_singleANP(power):
+
+    log_power = np.log(power)
+    log_lum = poly(log_power)
+
+    return np.exp(log_lum)
+
+from scipy.integrate import quad
+
+P_min = 0.000001
+P_max = 0.1
+
+result, error = quad(powercurve_singleANP, P_min, P_max)
+print(f"Integrated luminescence = {result:.4e} ± {error:.1e} counts")
