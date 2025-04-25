@@ -82,10 +82,10 @@ nu = const.c / wavelength
 hnu = const.h * nu
 #print(f'\nhnu = {hnu} J') # Or W*s
 
-test_flux = 1.0 / hnu / (np.pi * FWHM**2 * 4)
+#test_flux = 1.0 / hnu / (np.pi * FWHM**2 * 4)
 #print(f'\nTest flux = {test_flux} 1/s/m^2')
 
-single_anp['NOTIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4)
+#single_anp['NOTIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4)
 
 # TIR case:
 
@@ -94,7 +94,23 @@ single_anp['NOTIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4
 
 TIR_FWHM = 3 * FWHM
 
-single_anp['TIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
+#single_anp['TIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
+
+# Single ANP flux:
+
+single_anp['Single_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4)
+
+plt.loglog(single_anp['Single_phi_exc'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
+           color='coral', markeredgecolor='teal', label='Single ANP power curve')
+plt.xlabel('Phi_exc [1/s/m^2]')
+plt.ylabel('Luminescence [counts/s]')
+plt.title('Power curve of a single ANP sample (arbitrary measurement),\nluminescence vs flux')
+
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
 
 print(single_anp)
 
