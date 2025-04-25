@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.constants as const
+from scipy.integrate import quad
 import warnings
 
 warnings.simplefilter('ignore', np.RankWarning)
@@ -134,10 +135,8 @@ def powercurve_singleANP(power):
 
     return np.exp(log_lum)
 
-from scipy.integrate import quad
-
 P_min = 0.000001
 P_max = 0.1
 
 result, error = quad(powercurve_singleANP, P_min, P_max)
-print(f"Integrated luminescence = {result:.4e} ± {error:.1e} counts")
+print(f'\nIntegrated luminescence = {result} ± {error} counts')
