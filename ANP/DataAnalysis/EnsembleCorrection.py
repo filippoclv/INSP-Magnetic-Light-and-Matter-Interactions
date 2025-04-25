@@ -44,7 +44,7 @@ single_anp['Power_W'] = single_anp['Power_W'] / conversion_factor
 single_anp['Luminescence_counts'] = single_anp['Integrated_counts'] / integration_time
 single_anp.drop(single_anp.columns[1], axis=1, inplace=True)
 
-print(single_anp)
+#print(single_anp)
 
 plt.loglog(single_anp['Power_W'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
            color='coral', markeredgecolor='teal', label='Single ANP power curve')
@@ -67,16 +67,28 @@ wavelength = 1064 * 1e-9 # 1064 nm
 # ASSUMPTION: beam radius is 532 nm, assumed half of the wavelength. So FWHM is 1.18*532 nm
 
 FWHM = 1.18 * 532 * 1e-9
-print(f'\nFWHM = {FWHM} m')
+#print(f'\nFWHM = {FWHM} m')
 
 # nu = c/lambda
 # 1 W = 1 J/s
 
 nu = const.c / wavelength
-print(f'\nnu = {nu} Hz')
+#print(f'\nnu = {nu} Hz')
 
 hnu = const.h * nu
-print(f'\nhnu = {hnu} J') # Or W*s
+#print(f'\nhnu = {hnu} J') # Or W*s
 
-testflux = 1.0 / hnu / (np.pi * FWHM**2 * 4)
-print(f'\nTest flux = {testflux} 1/s/m^2')
+test_flux = 1.0 / hnu / (np.pi * FWHM**2 * 4)
+#print(f'\nTest flux = {test_flux} 1/s/m^2')
+
+single_anp['NOTIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4)
+
+# TIR case:
+
+# ASSUMPTION: power density of the oval beam spot on the sample is constant
+
+TIR_FWHM = 3 * FWHM
+
+single_anp['TIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
+
+print(single_anp)
