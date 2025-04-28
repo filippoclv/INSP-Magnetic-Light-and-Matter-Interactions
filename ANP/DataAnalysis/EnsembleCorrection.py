@@ -201,14 +201,13 @@ pd.set_option('display.max_columns', None)
 print(single_anp)
 
 plt.plot(single_anp['Phi_exc_NOTIR'], single_anp['Ensemble_f_phi_exc_NOTIR'],
-         'o-', label='Ensemble No TIR correction', color='teal', markerfacecolor='none')
-
+         '-o', label='Ensemble No TIR correction', color='teal', markerfacecolor='none')
 plt.plot(single_anp['Phi_exc_TIR'], single_anp['Ensemble_f_phi_exc_TIR'],
-         's-', label='Ensemble TIR correction', color='coral', markerfacecolor='none')
-plt.plot(single_anp['Phi_peak'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
-           color='coral', markeredgecolor='teal', label='Single ANP No TIR correction')
-plt.plot(single_anp['Phi_exc'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
-           color='red', markeredgecolor='teal', label='Single ANP no correction')
+         '-o', label='Ensemble TIR correction', color='green', markerfacecolor='none')
+plt.plot(single_anp['Phi_peak'], single_anp['Luminescence_counts'],
+         '-o', label='Single ANP No TIR correction', color='coral', markerfacecolor='none')
+plt.plot(single_anp['Phi_exc'], single_anp['Luminescence_counts'],
+         '-o', label='Single ANP no correction', color='red', markerfacecolor='none')
 
 # Axis settings
 plt.xscale('log')
