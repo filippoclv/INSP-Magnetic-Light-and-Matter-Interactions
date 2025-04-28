@@ -117,27 +117,27 @@ print(single_anp)
 
 # I need the power curve single ANP function
 
-power = single_anp['Power_W'].values
+phi = single_anp['Phi_peak'].values
 lum = single_anp['Luminescence_counts'].values
 
-logP = np.log(power)
+logPhi = np.log(phi)
 logL = np.log(lum)
 
-degree = 20
-coeffs = np.polyfit(logP, logL, degree)
+degree = 50
+coeffs = np.polyfit(logPhi, logL, degree)
 poly = np.poly1d(coeffs)
 
-power_fit = np.linspace(min(power), max(power), 500)
-logP_fit = np.log(power_fit)
-logL_fit = poly(logP_fit)
+phi_fit = np.linspace(min(phi), max(phi), 500)
+logPhi_fit = np.log(phi_fit)
+logL_fit = poly(logPhi_fit)
 lum_fit = np.exp(logL_fit)
 
 # Plot
-plt.loglog(power, lum, 'o', markerfacecolor='none', label='Data', color='teal')
-plt.loglog(power_fit, lum_fit, '-', color='coral', label=f'Poly fit (deg {degree})')
-plt.xlabel('Power [W]')
+plt.loglog(phi, lum, 'o', markerfacecolor='none', label='Data', color='teal')
+plt.loglog(phi_fit, lum_fit, '-', color='coral', label=f'Poly fit (deg {degree})')
+plt.xlabel('Phi_peak [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
-plt.title('Luminescence vs power, polynomial fit')
+plt.title('Luminescence vs peak flux, polynomial fit')
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
 plt.tight_layout()
@@ -145,15 +145,16 @@ plt.show()
 
 #print(poly)
 
-def powercurve_singleANP(power):
+def powercurve_singleANP(phi):
 
-    log_power = np.log(power)
-    log_lum = poly(log_power)
+    log_phi = np.log(phi)
+    log_lum = poly(log_phi)
 
     return np.exp(log_lum)
 
-P_min = power.min()
-P_max = power.max()
+Phi_min = phi.min()
+Phi_max = phi.max()
 
-result, error = quad(powercurve_singleANP, P_min, P_max)
+result, error = quad(powercurve_singleANP, Phi_min, Phi_max)
 print(f'\nIntegrated luminescence = {result}')
+
