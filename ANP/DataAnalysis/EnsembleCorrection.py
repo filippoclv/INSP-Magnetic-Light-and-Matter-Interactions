@@ -96,16 +96,25 @@ TIR_FWHM = 3 * FWHM
 
 #single_anp['TIR_phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
 
-# Flux:
-
 single_anp['Phi_exc'] = single_anp['Power_W'] / hnu / (np.pi * FWHM**2 * 4) # NO TIR, single anp or not is irrelevant
 single_anp['Phi_peak'] = single_anp['Phi_exc'] * 1.47 # Taken from the paper
+
+plt.loglog(single_anp['Phi_exc'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
+           color='coral', markeredgecolor='teal', label='Single ANP power curve')
+plt.xlabel('Phi [1/s/m^2]')
+plt.ylabel('Luminescence [counts/s]')
+plt.title('Power curve of a single ANP sample (arbitrary measurement),\nluminescence vs flux')
+
+plt.grid(True, which='both', linestyle='--', alpha=0.4)
+plt.legend()
+plt.tight_layout()
+plt.show()
 
 plt.loglog(single_anp['Phi_peak'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
            color='coral', markeredgecolor='teal', label='Single ANP power curve')
 plt.xlabel('Phi_peak [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
-plt.title('Power curve of a single ANP sample (arbitrary measurement),\nluminescence vs flux')
+plt.title('Power curve of a single ANP sample (arbitrary measurement),\nluminescence vs peak flux')
 
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
@@ -116,27 +125,27 @@ plt.show()
 
 # I need the power curve single ANP function
 
-phi_peak = single_anp['Phi_peak'].values
+phi_exc = single_anp['Phi_exc'].values
 lum = single_anp['Luminescence_counts'].values
 
-logPhi = np.log(phi_peak)
+logPhi = np.log(phi_exc)
 logL = np.log(lum)
 
 degree = 50
 coeffs = np.polyfit(logPhi, logL, degree)
 poly = np.poly1d(coeffs)
 
-phi_fit = np.linspace(min(phi_peak), max(phi_peak), 500)
+phi_fit = np.linspace(min(phi_exc), max(phi_exc), 500)
 logPhi_fit = np.log(phi_fit)
 logL_fit = poly(logPhi_fit)
 lum_fit = np.exp(logL_fit)
 
 # Plot
-plt.loglog(phi_peak, lum, 'o', markerfacecolor='none', label='Data', color='teal')
+plt.loglog(phi_exc, lum, 'o', markerfacecolor='none', label='Data', color='teal')
 plt.loglog(phi_fit, lum_fit, '-', color='coral', label=f'Poly fit (deg {degree})')
-plt.xlabel('Phi_peak [1/s/m^2]')
+plt.xlabel('Phi_exc [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
-plt.title('Luminescence vs peak flux, polynomial fit')
+plt.title('Luminescence vs flux, polynomial fit')
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
 plt.tight_layout()
@@ -151,13 +160,22 @@ def powercurve_singleANP(phi):
 
     return np.exp(log_lum)
 
+# Test:
+
+#plt.loglog(phi_exc, powercurve_singleANP(phi_exc), 'o-', label='NO TIR', color='teal', markerfacecolor='none')
+#plt.show()
+
+#print(phi_exc)
+#print(powercurve_singleANP(phi_exc))
+
 single_anp['Phi_exc_NOTIR'] = single_anp['Phi_exc']
 single_anp['Phi_exc_TIR'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
 
-pd.set_option('display.max_columns', None)
-print(single_anp)
-
 def integrand(phi):
+
+    if phi <= 0:
+
+        return 0  # avoid log(0) issues
 
     return powercurve_singleANP(phi) / phi
 
@@ -165,8 +183,8 @@ ensemble_f_phi_exc_NOTIR = []
 
 for phi_exc_NOTIR in single_anp['Phi_exc_NOTIR']:
 
-    result, _ = quad(integrand, single_anp['Phi_exc_NOTIR'].min(), phi_exc_NOTIR, limit = 50)
-    ensemble_f_phi_exc_NOTIR.append(result)
+    resultNOTIR, _ = quad(integrand, single_anp['Phi_exc_NOTIR'].min()*0.8, phi_exc_NOTIR, limit=100)
+    ensemble_f_phi_exc_NOTIR.append(resultNOTIR)
 
 single_anp['Ensemble_f_phi_exc_NOTIR'] = ensemble_f_phi_exc_NOTIR
 
@@ -174,15 +192,16 @@ ensemble_f_phi_exc_TIR = []
 
 for phi_exc_TIR in single_anp['Phi_exc_TIR']:
 
-    result, _ = quad(integrand, single_anp['Phi_exc_TIR'].min(), phi_exc_TIR, limit = 50)
-    ensemble_f_phi_exc_TIR.append(result)
+    resultTIR, _ = quad(integrand, single_anp['Phi_exc_TIR'].min()*0.01, phi_exc_TIR, limit=100)
+    ensemble_f_phi_exc_TIR.append(resultTIR)
 
 single_anp['Ensemble_f_phi_exc_TIR'] = ensemble_f_phi_exc_TIR
 
+pd.set_option('display.max_columns', None)
 print(single_anp)
 
 plt.plot(single_anp['Phi_exc_NOTIR'], single_anp['Ensemble_f_phi_exc_NOTIR'],
-         'o-', label='NOTIR', color='teal', markerfacecolor='none')
+         'o-', label='No TIR', color='teal', markerfacecolor='none')
 
 plt.plot(single_anp['Phi_exc_TIR'], single_anp['Ensemble_f_phi_exc_TIR'],
          's-', label='TIR', color='coral', markerfacecolor='none')
@@ -190,7 +209,7 @@ plt.plot(single_anp['Phi_exc_TIR'], single_anp['Ensemble_f_phi_exc_TIR'],
 # Axis settings
 plt.xscale('log')
 plt.yscale('log')
-plt.xlabel('Excitation flux [1/s/m²]', fontsize=12)
+plt.xlabel('Phi_exc_NOTIR [1/s/m²]', fontsize=12)
 plt.ylabel('Ensemble corrected luminescence [counts/s]', fontsize=12)
 plt.title('Ensemble corrected luminescence vs excitation flux', fontsize=14)
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
