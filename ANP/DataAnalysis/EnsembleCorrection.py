@@ -192,7 +192,7 @@ ensemble_f_phi_exc_TIR = []
 
 for phi_exc_TIR in single_anp['Phi_exc_TIR']:
 
-    resultTIR, _ = quad(integrand, single_anp['Phi_exc_TIR'].min()*0.01, phi_exc_TIR, limit=100)
+    resultTIR, _ = quad(integrand, single_anp['Phi_exc_TIR'].min()*0.8, phi_exc_TIR, limit=100)
     ensemble_f_phi_exc_TIR.append(resultTIR)
 
 single_anp['Ensemble_f_phi_exc_TIR'] = ensemble_f_phi_exc_TIR
@@ -212,7 +212,7 @@ plt.plot(single_anp['Phi_exc'], single_anp['Luminescence_counts'],
 # Axis settings
 plt.xscale('log')
 plt.yscale('log')
-plt.xlabel('Phi_exc_NOTIR [1/s/m²]', fontsize=12)
+plt.xlabel('Phi_exc [1/s/m²]', fontsize=12)
 plt.ylabel('Ensemble corrected luminescence [counts/s]', fontsize=12)
 plt.title('Corrected power curves vs excitation flux', fontsize=14)
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
