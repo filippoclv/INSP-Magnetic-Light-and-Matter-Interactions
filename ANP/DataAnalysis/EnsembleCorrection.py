@@ -102,7 +102,7 @@ single_anp['Phi_peak'] = single_anp['Phi_exc'] * 1.47 # Taken from the paper
 
 plt.loglog(single_anp['Phi_exc'], single_anp['Luminescence_counts'], '-o', markerfacecolor='none',
            color='coral', markeredgecolor='teal', label='Single ANP power curve')
-plt.xlabel('Phi [1/s/m^2]')
+plt.xlabel('Phi_exc [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
 plt.title('Power curve of a single ANP sample (arbitrary measurement),\nluminescence vs flux')
 
@@ -129,23 +129,34 @@ plt.show()
 phi_exc = single_anp['Phi_exc'].values
 lum = single_anp['Luminescence_counts'].values
 
-# Power law fit: log(L) = b * log(phi) + log(a)
+log_phi = np.log10(phi_exc)
+log_lum = np.log10(lum)
 
-b, log_a = np.polyfit(np.log(phi_exc), np.log(lum), 1)
-a = np.exp(log_a)
+loglog_interpolation = interp1d(log_phi, log_lum, kind='linear', fill_value='extrapolate')
 
 def powercurve_singleANP(phi):
 
-    return a * phi**b
+    log_phi_input = np.log10(phi)
 
-phi_fit = np.logspace(np.log(min(phi_exc)), np.log(max(phi_exc)), 5000)
+    return 10 ** loglog_interpolation(log_phi_input)
+
+# Create points for plotting the piecewise interpolation
+
+phi_fit = []
+
+for i in range(len(phi_exc) - 1):
+
+    phi_segment = np.logspace(np.log10(phi_exc[i]), np.log10(phi_exc[i + 1]), 100)
+    phi_fit.extend(phi_segment)
+
+phi_fit = np.array(phi_fit)
 lum_fit = powercurve_singleANP(phi_fit)
 
 plt.loglog(phi_exc, lum, 'o', markerfacecolor='none', label='Data', color='teal')
-plt.loglog(phi_fit, lum_fit, '-', color='coral', label=f'Power-law fit: L = {a:.2e} * Φ^{b:.2f}')
+plt.loglog(phi_fit, lum_fit, '-', color='coral', label='Piecewise linear fit')
 plt.xlabel('Phi_exc [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
-plt.title('Luminescence vs flux (power law fit)')
+plt.title('Luminescence vs flux (piecewise linear fit in log-log)')
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
 plt.tight_layout()
@@ -164,11 +175,14 @@ plt.show()
 single_anp['Phi_exc_NOTIR'] = single_anp['Phi_exc']
 single_anp['Phi_exc_TIR'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
 
-phi_array = np.logspace(np.log(single_anp['Phi_exc'].min()), np.log(single_anp['Phi_exc'].max()), 5000)
+phi_array = np.logspace(np.log10(single_anp['Phi_exc'].min()) - 1,
+                       np.log10(single_anp['Phi_exc'].max()) + 1,
+                       5000)
 
 integrand_values = powercurve_singleANP(phi_array) / phi_array
 
-cumulative_integral = cumulative_trapezoid(integrand_values, phi_array, initial=None)
+cumulative_integral = cumulative_trapezoid(integrand_values, phi_array)
+cumulative_integral = np.insert(cumulative_integral, 0, 0)
 
 integral_interp_func = interp1d(phi_array, cumulative_integral, kind='linear', fill_value='extrapolate')
 
