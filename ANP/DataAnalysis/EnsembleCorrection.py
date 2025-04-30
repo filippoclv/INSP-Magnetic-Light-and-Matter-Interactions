@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.constants as const
-from scipy.integrate import quad
+from scipy.integrate import cumulative_trapezoid
+from scipy.interpolate import interp1d
 import warnings
 
 warnings.simplefilter('ignore', np.RankWarning)
@@ -128,37 +129,29 @@ plt.show()
 phi_exc = single_anp['Phi_exc'].values
 lum = single_anp['Luminescence_counts'].values
 
-logPhi = np.log(phi_exc)
-logL = np.log(lum)
+# Power law fit: log(L) = b * log(phi) + log(a)
 
-degree = 50
-coeffs = np.polyfit(logPhi, logL, degree)
-poly = np.poly1d(coeffs)
+b, log_a = np.polyfit(np.log(phi_exc), np.log(lum), 1)
+a = np.exp(log_a)
 
-phi_fit = np.linspace(min(phi_exc), max(phi_exc), 500)
-logPhi_fit = np.log(phi_fit)
-logL_fit = poly(logPhi_fit)
-lum_fit = np.exp(logL_fit)
+def powercurve_singleANP(phi):
 
-# Plot
+    return a * phi**b
+
+phi_fit = np.logspace(np.log(min(phi_exc)), np.log(max(phi_exc)), 5000)
+lum_fit = powercurve_singleANP(phi_fit)
+
 plt.loglog(phi_exc, lum, 'o', markerfacecolor='none', label='Data', color='teal')
-plt.loglog(phi_fit, lum_fit, '-', color='coral', label=f'Poly fit (deg {degree})')
+plt.loglog(phi_fit, lum_fit, '-', color='coral', label=f'Power-law fit: L = {a:.2e} * Φ^{b:.2f}')
 plt.xlabel('Phi_exc [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
-plt.title('Luminescence vs flux, polynomial fit')
+plt.title('Luminescence vs flux (power law fit)')
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
 plt.tight_layout()
 plt.show()
 
 #print(poly)
-
-def powercurve_singleANP(phi):
-
-    log_phi = np.log(phi)
-    log_lum = poly(log_phi)
-
-    return np.exp(log_lum)
 
 # Test:
 
@@ -171,31 +164,22 @@ def powercurve_singleANP(phi):
 single_anp['Phi_exc_NOTIR'] = single_anp['Phi_exc']
 single_anp['Phi_exc_TIR'] = single_anp['Power_W'] / hnu / (np.pi * TIR_FWHM*FWHM * 4)
 
-def integrand(phi):
+phi_array = np.logspace(np.log(single_anp['Phi_exc'].min()), np.log(single_anp['Phi_exc'].max()), 5000)
 
-    if phi <= 0:
+integrand_values = powercurve_singleANP(phi_array) / phi_array
 
-        return 0  # avoid log(0) issues
+cumulative_integral = cumulative_trapezoid(integrand_values, phi_array, initial=None)
 
-    return powercurve_singleANP(phi) / phi
+integral_interp_func = interp1d(phi_array, cumulative_integral, kind='linear', fill_value='extrapolate')
 
-ensemble_f_phi_exc_NOTIR = []
+single_anp['Ensemble_f_phi_exc_NOTIR'] = integral_interp_func(single_anp['Phi_exc_NOTIR'])
+single_anp['Ensemble_f_phi_exc_TIR'] = integral_interp_func(single_anp['Phi_exc_TIR'])
 
-for phi_exc_NOTIR in single_anp['Phi_exc_NOTIR']:
+# From article code:
 
-    resultNOTIR, _ = quad(integrand, single_anp['Phi_exc_NOTIR'].min()*0.8, phi_exc_NOTIR, limit=100)
-    ensemble_f_phi_exc_NOTIR.append(resultNOTIR)
-
-single_anp['Ensemble_f_phi_exc_NOTIR'] = ensemble_f_phi_exc_NOTIR
-
-ensemble_f_phi_exc_TIR = []
-
-for phi_exc_TIR in single_anp['Phi_exc_TIR']:
-
-    resultTIR, _ = quad(integrand, single_anp['Phi_exc_TIR'].min()*0.8, phi_exc_TIR, limit=100)
-    ensemble_f_phi_exc_TIR.append(resultTIR)
-
-single_anp['Ensemble_f_phi_exc_TIR'] = ensemble_f_phi_exc_TIR
+#f_I = population_3H4_array / P_pump_array
+#population_3H4_gaussian_array = cumtrapz(f_I, P_pump_array, initial=min(P_pump_array))
+#population_3H4_gaussian_array = np.array(population_3H4_gaussian_array)
 
 pd.set_option('display.max_columns', None)
 print(single_anp)
