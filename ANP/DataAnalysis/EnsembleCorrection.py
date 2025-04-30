@@ -199,7 +199,7 @@ pd.set_option('display.max_columns', None)
 print(single_anp)
 
 plt.plot(single_anp['Phi_exc_NOTIR'], single_anp['Ensemble_f_phi_exc_NOTIR'],
-         '-o', label='Ensemble No TIR correction', color='teal', markerfacecolor='none')
+         '-o', label='Ensemble No TIR correction', color='blue', markerfacecolor='none')
 plt.plot(single_anp['Phi_exc_TIR'], single_anp['Ensemble_f_phi_exc_TIR'],
          '-o', label='Ensemble TIR correction', color='green', markerfacecolor='none')
 plt.plot(single_anp['Phi_peak'], single_anp['Luminescence_counts'],
@@ -211,7 +211,7 @@ plt.plot(single_anp['Phi_exc'], single_anp['Luminescence_counts'],
 plt.xscale('log')
 plt.yscale('log')
 plt.xlabel('Phi_exc [1/s/m²]', fontsize=12)
-plt.ylabel('Ensemble corrected luminescence [counts/s]', fontsize=12)
+plt.ylabel('Corrected luminescence [counts/s]', fontsize=12)
 plt.title('Corrected power curves vs excitation flux', fontsize=14)
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend(fontsize=11)
