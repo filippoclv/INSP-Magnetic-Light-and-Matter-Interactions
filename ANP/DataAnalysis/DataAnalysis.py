@@ -7,7 +7,6 @@ from matplotlib.colors import LogNorm
 from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
-import re
 
 # If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
 
