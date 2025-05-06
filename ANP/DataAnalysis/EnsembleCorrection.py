@@ -126,10 +126,10 @@ plt.show()
 
 # I need the power curve single ANP function
 
-phi_exc = single_anp['Phi_exc'].values
+phi_peak = single_anp['Phi_peak'].values
 lum = single_anp['Luminescence_counts'].values
 
-log_phi = np.log10(phi_exc)
+log_phi = np.log10(phi_peak)
 log_lum = np.log10(lum)
 
 loglog_interpolation = interp1d(log_phi, log_lum, kind='linear', fill_value='extrapolate')
@@ -144,19 +144,19 @@ def powercurve_singleANP(phi):
 
 phi_fit = []
 
-for i in range(len(phi_exc) - 1):
+for i in range(len(phi_peak) - 1):
 
-    phi_segment = np.logspace(np.log10(phi_exc[i]), np.log10(phi_exc[i + 1]), 100)
+    phi_segment = np.logspace(np.log10(phi_peak[i]), np.log10(phi_peak[i + 1]), 100)
     phi_fit.extend(phi_segment)
 
 phi_fit = np.array(phi_fit)
 lum_fit = powercurve_singleANP(phi_fit)
 
-plt.loglog(phi_exc, lum, 'o', markerfacecolor='none', label='Data', color='teal')
+plt.loglog(phi_peak, lum, 'o', markerfacecolor='none', label='Data', color='teal')
 plt.loglog(phi_fit, lum_fit, '-', color='coral', label='Piecewise linear fit')
-plt.xlabel('Phi_exc [1/s/m^2]')
+plt.xlabel('Phi_peak [1/s/m^2]')
 plt.ylabel('Luminescence [counts/s]')
-plt.title('Luminescence vs flux (piecewise linear fit in log-log)')
+plt.title('Luminescence vs peak flux (piecewise linear fit in log-log)')
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend()
 plt.tight_layout()
@@ -198,19 +198,19 @@ single_anp['Ensemble_f_phi_exc_TIR'] = integral_interp_func(single_anp['Phi_exc_
 pd.set_option('display.max_columns', None)
 print(single_anp)
 
-plt.plot(single_anp['Phi_exc_NOTIR'], single_anp['Ensemble_f_phi_exc_NOTIR'],
-         '-o', label='Ensemble No TIR correction', color='blue', markerfacecolor='none')
-plt.plot(single_anp['Phi_exc_TIR'], single_anp['Ensemble_f_phi_exc_TIR'],
+plt.plot(single_anp['Phi_exc_NOTIR']*1.47, single_anp['Ensemble_f_phi_exc_NOTIR'], # We actually want peak flux
+         '-o', label='Ensemble NO TIR correction', color='blue', markerfacecolor='none')
+plt.plot(single_anp['Phi_exc_TIR']*1.20, single_anp['Ensemble_f_phi_exc_TIR'], # 1.20 is the assumed correction to obtain peak flux in TIR
          '-o', label='Ensemble TIR correction', color='green', markerfacecolor='none')
-plt.plot(single_anp['Phi_peak'], single_anp['Luminescence_counts'],
-         '-o', label='Single ANP No TIR correction', color='coral', markerfacecolor='none')
+#plt.plot(single_anp['Phi_peak'], single_anp['Luminescence_counts'],
+#         '-o', label='Single ANP NO TIR correction', color='coral', markerfacecolor='none')
 plt.plot(single_anp['Phi_exc'], single_anp['Luminescence_counts'],
          '-o', label='Single ANP no correction', color='red', markerfacecolor='none')
 
 # Axis settings
 plt.xscale('log')
 plt.yscale('log')
-plt.xlabel('Phi_exc [1/s/m²]', fontsize=12)
+plt.xlabel('Phi [1/s/m²]', fontsize=12)
 plt.ylabel('Corrected luminescence [counts/s]', fontsize=12)
 plt.title('Corrected power curves vs excitation flux', fontsize=14)
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
