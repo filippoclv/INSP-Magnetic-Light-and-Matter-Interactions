@@ -218,3 +218,10 @@ plt.legend(fontsize=11)
 plt.tight_layout()
 
 plt.show()
+
+# We think that power loss due to TIR at the microscope objective plus the bigger
+# Area of the laser spot is what causes the power and luminescence shifts in the 2 theoretical
+# Curves, but they overlap perfectly which is proves our intuition.
+# Also the measured fake single ANP and the theoretical TIR correction behaves exactly like
+# Experiments, even though the correction should be calculated on a real single ANP
+# And therefore the comparison might be not correct (red vs green)
