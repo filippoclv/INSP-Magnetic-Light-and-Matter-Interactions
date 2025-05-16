@@ -198,12 +198,12 @@ single_anp['Ensemble_f_phi_exc_TIR'] = integral_interp_func(single_anp['Phi_exc_
 pd.set_option('display.max_columns', None)
 print(single_anp)
 
-plt.plot(single_anp['Phi_exc'], single_anp['Luminescence_counts'],
-         '-o', label='Single ANP NO TIR, no correction', color='red', markerfacecolor='none')
-plt.plot(single_anp['Phi_exc_NOTIR']*1.47, single_anp['Ensemble_f_phi_exc_NOTIR'], # We actually want peak flux
-         '-o', label='Ensemble NO TIR correction, theoretical', color='blue', markerfacecolor='none')
+plt.plot(single_anp['Phi_exc']*1.47, single_anp['Luminescence_counts'],
+         '-o', label='Measured carpet of ANPs, normal incidence', color='red', markerfacecolor='none')
+#plt.plot(single_anp['Phi_exc_NOTIR']*1.47, single_anp['Ensemble_f_phi_exc_NOTIR'], # We actually want peak flux
+#         '-o', label='Theoretical carpet of ANPs, normal incidence', color='blue', markerfacecolor='none')
 plt.plot(single_anp['Phi_exc_TIR']*1.20, single_anp['Ensemble_f_phi_exc_TIR'], # 1.20 is the assumed correction to obtain peak flux in TIR
-         '-o', label='Ensemble TIR correction, theoretical', color='green', markerfacecolor='none')
+         '-o', label='Theoretical carpet of ANPs, TIR', color='green', markerfacecolor='none')
 #plt.plot(single_anp['Phi_peak'], single_anp['Luminescence_counts'],
 #         '-o', label='Single ANP NO TIR correction', color='coral', markerfacecolor='none')
 
@@ -211,8 +211,8 @@ plt.plot(single_anp['Phi_exc_TIR']*1.20, single_anp['Ensemble_f_phi_exc_TIR'], #
 plt.xscale('log')
 plt.yscale('log')
 plt.xlabel('Phi [1/s/m²]', fontsize=12)
-plt.ylabel('Corrected luminescence [counts/s]', fontsize=12)
-plt.title('Corrected power curves vs excitation flux', fontsize=14)
+plt.ylabel('Luminescence [counts/s]', fontsize=12)
+plt.title('Power curves vs excitation flux', fontsize=14)
 plt.grid(True, which='both', linestyle='--', alpha=0.4)
 plt.legend(fontsize=11)
 plt.tight_layout()
