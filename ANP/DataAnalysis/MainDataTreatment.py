@@ -339,8 +339,50 @@ plt.show()
 
 #single_anp.to_csv("fake_single_anp.csv", index=True)
 
-all_spectra = read_all_spectra(data_folder)
-ratios_df = analyze_peak_ratios(all_spectra)
+# Peak ratio study:
 
-plot_peak_ratios(ratios_df)
-print(ratios_df)
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Process first dataset (NO TIR)
+selected_data = datasets[0]
+all_spectra = read_all_spectra(selected_data["folder"])
+ratios_df_no_tir = analyze_peak_ratios(all_spectra,
+                                       peak1_range=(680, 720),
+                                       peak2_range=(780, 820)
+                                      )
+
+# Plot first dataset
+ax.plot(ratios_df_no_tir["Power_W"], ratios_df_no_tir["Peak_ratio"],
+        "o-", markerfacecolor="none",
+        color="teal", label="NO TIR, ratio max(780,820) / max(680,720)"
+       )
+
+# Process second dataset (TIR)
+selected_data = datasets[1]
+all_spectra = read_all_spectra(selected_data["folder"])
+ratios_df_tir = analyze_peak_ratios(all_spectra,
+                                    peak1_range=(680, 720),
+                                    peak2_range=(780, 820)
+                                   )
+
+# Plot second dataset
+ax.plot(ratios_df_tir["Power_W"], ratios_df_tir["Peak_ratio"],
+        "o-", markerfacecolor="none",
+        color="coral", label="TIR, ratio max(780,820) / max(680,720)"
+       )
+
+# Configure plot
+ax.set_xscale('log')
+ax.set_xlabel("Power [W]", fontsize=12)
+ax.set_ylabel("Peak ratio", fontsize=12)
+ax.set_title("Ratio of peak intensities vs power", fontsize=14)
+ax.grid(True, which='both', linestyle='--', alpha=0.3)
+ax.legend(fontsize=12)
+
+plt.tight_layout()
+plt.show()
+
+print("\nNO TIR data:")
+print(ratios_df_no_tir)
+print("\nTIR data:")
+print(ratios_df_tir)

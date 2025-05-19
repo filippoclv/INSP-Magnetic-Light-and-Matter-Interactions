@@ -1078,7 +1078,7 @@ def plot_peak_ratios(results_df):
     ax.set_ylabel("Peak ratio", fontsize=12)
     ax.set_title("Ratio of peak values vs power", fontsize=14)
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
-    ax.legend(fontsize=12)
+    ax.legend(fontsize=12, loc="best")
 
     plt.tight_layout()
     plt.show()
