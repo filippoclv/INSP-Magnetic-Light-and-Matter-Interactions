@@ -7,6 +7,7 @@ from matplotlib.colors import LogNorm
 from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
+import re
 
 # If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
 
@@ -661,8 +662,8 @@ def plot_all_derivatives(datasets, int_start, int_end):
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
-    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
+    fig, ax = plt.subplots(figsize=(22, 14), constrained_layout=True)
+    colors = plt.cm.turbo(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
 
@@ -670,6 +671,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
         int_time = data["integration_time"]
         ratio_start = data["ratio_start"]
         ratio_stop = data["ratio_stop"]
+        spectrometer_hole_diameter = data["spectrometer_hole_diameter"]
 
         power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
         power_info = pd.read_csv(power_info_file, sep="\t")
@@ -689,13 +691,14 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
         # Compute s value and power
         derivative_df, s_value, s_power = calculate_derivative(results_df)
 
-        config_label = f"{data.get('label', ''):<8}"  # Empty if not present
+        config_label = f"{data.get('label', ''):<7}"  # Empty if not present
 
         label = (
-                 f"{config_label} | " 
-                 f"Int. time: {int_time:.1f} s | "
-                 f"R: {ratio_start:.4f} – {ratio_stop:.2f} | "
-                 f"s ≈ {s_value:.2f} at {s_power:.8f} W"
+                 f"{config_label:<7} | "
+                 f"Int. time: {int_time:>5.2f} s | " 
+                 f"R: {ratio_start:>7.4f} – {ratio_stop:>7.3f} | "  
+                 f"s ≈ {s_value:>6.2f} at {s_power:>10.6f} W | "  
+                 f"Spectrometer D: {spectrometer_hole_diameter:>4.2f} mm"
                 )
 
         # Plot curve
@@ -729,6 +732,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
     ax.legend(fontsize=6, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
+    plt.legend(bbox_to_anchor=(1.001, 0.5), loc='center left')
 
     plt.show()
 
