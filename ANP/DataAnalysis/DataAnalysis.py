@@ -1030,3 +1030,57 @@ def plot_power_curves_back_and_forth(folder, int_start, int_end, integration_tim
     ax.legend(fontsize=11)
 
     plt.show()
+
+# Let's analyze the peak ratios:
+
+def analyze_peak_ratios(spectra_dict, peak1_range=(680, 720), peak2_range=(780, 820)):
+
+    results = []
+
+    for power_label, df in spectra_dict.items():
+
+        # Find max value for peak 1 (around 700 nm)
+        peak1_mask = (df["Wavelength_nm"] >= peak1_range[0]) & (df["Wavelength_nm"] <= peak1_range[1])
+        peak1_max = df.loc[peak1_mask, "Intensity_counts"].max()
+
+        # Find max value for peak 2 (around 800 nm)
+        peak2_mask = (df["Wavelength_nm"] >= peak2_range[0]) & (df["Wavelength_nm"] <= peak2_range[1])
+        peak2_max = df.loc[peak2_mask, "Intensity_counts"].max()
+
+        # Calculate ratio and store with power value
+        ratio = peak2_max / peak1_max
+        power = df.attrs["Power_W"]
+
+        results.append({
+            "Power_W": power,
+            "Peak1_max": peak1_max,
+            "Peak2_max": peak2_max,
+            "Peak_ratio": ratio
+        })
+
+    # Convert to DataFrame and sort by power
+    results_df = pd.DataFrame(results)
+    results_df = results_df.sort_values("Power_W")
+
+    return results_df
+
+def plot_peak_ratios(results_df):
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    ax.plot(results_df["Power_W"], results_df["Peak_ratio"],
+            "o-", markerfacecolor="none", color="teal",
+            label="Ratio between max(780,820) / max(680,720)"
+           )
+
+    ax.set_xscale('log')
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("Peak ratio", fontsize=12)
+    ax.set_title("Ratio of peak values vs power", fontsize=14)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=12)
+
+    plt.tight_layout()
+    plt.show()
+
+    return fig, ax

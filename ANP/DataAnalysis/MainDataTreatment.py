@@ -338,3 +338,9 @@ plt.show()
 #display(single_anp)
 
 #single_anp.to_csv("fake_single_anp.csv", index=True)
+
+all_spectra = read_all_spectra(data_folder)
+ratios_df = analyze_peak_ratios(all_spectra)
+
+plot_peak_ratios(ratios_df)
+print(ratios_df)
