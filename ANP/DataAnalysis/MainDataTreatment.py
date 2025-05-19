@@ -259,7 +259,7 @@ plot_spectra_with_zoom(all_spectra,
 
 #plot_all_derivatives(datasets, int_start, int_end)
 
-plot_all_power_curves_with_s(datasets, int_start, int_end)
+#plot_all_power_curves_with_s(datasets, int_start, int_end)
 
 # Degree of 100 gets a very smooth fit, but 10 seems good enough
 

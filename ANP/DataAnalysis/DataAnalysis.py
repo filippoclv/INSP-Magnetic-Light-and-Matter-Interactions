@@ -65,6 +65,62 @@ def read_data(file_path, power_map):
 
     return df
 
+# def read_all_spectra(folder_path):
+#
+#     folder = Path(folder_path)
+#
+#     # Load power map locally per folder
+#     power_info_file = folder / "SetInfoPowerCurve.txt"
+#     power_info = pd.read_csv(power_info_file, sep="\t")
+#     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+#
+#     spectra = {} # Dictionary to store the power labels of each dataframe
+#
+#     # To sort the labels
+#     files = sorted(
+#         folder.glob("P*.txt"),
+#         key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
+#     )
+#
+#     for file_path in files:
+#
+#         try:
+#
+#             df = read_data(file_path, power_map)
+#             spectra[df.attrs["Power_label"]] = df
+#
+#         except Exception as e:
+#
+#             print(f"Error, skipping {file_path.name}: {str(e)}")
+#
+#     # Background subtraction, average of P0
+#     background_df = spectra.get("P0")
+#
+#     if background_df is not None:
+#         # Choose a wavelength region where there's clearly no signal
+#         background_region = background_df[
+#             (background_df["Wavelength_nm"] >= 870) &
+#             (background_df["Wavelength_nm"] <= 900)
+#             ]
+#
+#         if not background_region.empty:
+#
+#             background_value = background_region["Intensity_counts"].mean()
+#             #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
+#
+#             for label, df in spectra.items():
+#
+#                 df["Intensity_counts"] -= background_value
+#                 df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
+#
+#         else:
+#
+#             print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
+#
+#     return spectra
+
+# Function read_all_spectra with a kind of masking system:
+
 def read_all_spectra(folder_path):
 
     folder = Path(folder_path)
@@ -74,19 +130,32 @@ def read_all_spectra(folder_path):
     power_info = pd.read_csv(power_info_file, sep="\t")
     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
-    spectra = {} # Dictionary to store the power labels of each dataframe
+    spectra = {}  # Dictionary to store the power labels of each dataframe
 
     # To sort the labels
     files = sorted(
-        folder.glob("P*.txt"),
-        key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
-    )
+                   folder.glob("P*.txt"),
+                   key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
+                  )
 
     for file_path in files:
 
         try:
 
             df = read_data(file_path, power_map)
+
+            # Add noise filtering for 680-720 nm range
+            mask = (df["Wavelength_nm"] >= 680) & (df["Wavelength_nm"] <= 720)
+
+            if any(mask):
+
+                window_size = 15
+                rolling_mean = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).mean()
+                rolling_std = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).std()
+                outliers = abs(df.loc[mask, "Intensity_counts"] - rolling_mean) > (2 * rolling_std)
+                df.loc[mask & outliers, "Intensity_counts"] = np.nan
+                df["Intensity_counts"] = df["Intensity_counts"].interpolate(method='linear')
+
             spectra[df.attrs["Power_label"]] = df
 
         except Exception as e:
@@ -98,6 +167,7 @@ def read_all_spectra(folder_path):
 
     if background_df is not None:
         # Choose a wavelength region where there's clearly no signal
+
         background_region = background_df[
             (background_df["Wavelength_nm"] >= 870) &
             (background_df["Wavelength_nm"] <= 900)
@@ -106,7 +176,6 @@ def read_all_spectra(folder_path):
         if not background_region.empty:
 
             background_value = background_region["Intensity_counts"].mean()
-            #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
 
             for label, df in spectra.items():
 
@@ -115,7 +184,8 @@ def read_all_spectra(folder_path):
 
         else:
 
-            print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
+            print(
+                f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
 
     return spectra
 
@@ -257,7 +327,7 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    #plt.show()
+    plt.show()
 
 # Let's try the same with spectra normalized by its max
 # Not sure if the following function makes sense
@@ -670,7 +740,7 @@ def plot_all_derivatives(datasets, int_start, int_end):
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(14, 6), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
     colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
