@@ -176,7 +176,7 @@ ratio_stop = 0.08
 
 # Trying now to zoom into little peaks
 
-def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, zoom_wl_min=630, zoom_wl_max=760, integration_range=None):
+def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, data, zoom_wl_min=630, zoom_wl_max=760, integration_range=None):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
@@ -241,7 +241,15 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
     ax.grid(True, alpha=0.3)
     #ax.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
 
-    parameters_text = f"Integration time: {integration_time} s\nPower ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}"
+    # Get the first dataset to check if it's TIR or NO TIR
+    first_df = next(iter(spectra_dict.values()))
+    measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
+
+    parameters_text = (f"Type: {measurement_type}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}")
+
     ax.text(0.72, 0.95, parameters_text,
             transform=ax.transAxes,
             fontsize=14,
@@ -662,8 +670,8 @@ def plot_all_derivatives(datasets, int_start, int_end):
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(22, 14), constrained_layout=True)
-    colors = plt.cm.turbo(np.linspace(0, 1, len(datasets)))
+    fig, ax = plt.subplots(figsize=(14, 6), constrained_layout=True)
+    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
 
@@ -732,7 +740,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
     ax.legend(fontsize=6, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
-    plt.legend(bbox_to_anchor=(1.001, 0.5), loc='center left')
+    #plt.legend(bbox_to_anchor=(1.001, 0.5), loc='center left')
 
     plt.show()
 
