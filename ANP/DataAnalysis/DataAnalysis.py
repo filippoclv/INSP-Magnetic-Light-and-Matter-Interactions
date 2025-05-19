@@ -246,9 +246,11 @@ ratio_stop = 0.08
 
 # Trying now to zoom into little peaks
 
-def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, data, zoom_wl_min=630, zoom_wl_max=760, integration_range=None):
+def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, data, zoom_wl_min=630, zoom_wl_max=760, integration_range=None, fig=None, ax=None):
 
-    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+    if fig is None or ax is None:
+
+        fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
     powers = [df.attrs["Power_W"] for df in spectra_dict.values()]
     norm = LogNorm(vmin=min(powers), vmax=max(powers))
@@ -289,7 +291,9 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
         zoomed = df[(df["Wavelength_nm"] >= zoom_wl_min) & (df["Wavelength_nm"] <= zoom_wl_max)]
+
         if not zoomed.empty:
+
             ax_inset.plot(zoomed["Wavelength_nm"], zoomed["Intensity_counts"], color=color)
 
     ax_inset.set_xlim(zoom_wl_min, zoom_wl_max)
@@ -327,7 +331,7 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    plt.show()
+    return fig, ax
 
 # Let's try the same with spectra normalized by its max
 # Not sure if the following function makes sense
