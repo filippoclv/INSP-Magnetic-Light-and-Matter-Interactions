@@ -373,7 +373,7 @@ ax.plot(ratios_df_tir["Power_W"], ratios_df_tir["Peak_ratio"],
 
 # Configure plot
 ax.set_xscale('log')
-ax.set_yscale('log')
+#ax.set_yscale('log')
 ax.set_xlabel("Power [W]", fontsize=12)
 ax.set_ylabel("Peak ratio", fontsize=12)
 ax.set_title("Ratio of peak intensities vs power", fontsize=14)
