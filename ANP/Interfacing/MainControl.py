@@ -71,6 +71,9 @@ def fGetPowerCurve(RotorStage,
                    PowerNumberStep,
                    SaveDataFolder,
                    DensityInfo,
+                   Pmin,
+                   Pmax,
+                   Ratio,
                    RatioStart,
                    RatioStop,
                    DelayIntegrationTime,
@@ -92,7 +95,7 @@ def fGetPowerCurve(RotorStage,
         PowerScan = np.linspace(PowerStart, PowerStop, PowerNumberStep)
         
     FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'w')
-    FileInfo.write(f'N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\tRatio_start = {RatioStart}\tRatio_stop = {RatioStop}\tInt. time = {DelayIntegrationTime}\n')
+    FileInfo.write(f'N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\Ratio = {Ratio}\tRatio_start = {RatioStart}\tRatio_stop = {RatioStop}\tInt. time = {DelayIntegrationTime}\tP_min = {Pmin}\tP_max = {Pmax}\n')
     FileInfo.close()
 
     NumberOfMeasurement = 0
@@ -143,9 +146,10 @@ def fGetPowerCurve(RotorStage,
 def fGetPowerCurve_BackAndForth(RotorStage, PowerMeter,
                                 PowerStart, PowerStop,
                                 PowerNumberStep, SaveDataFolder,
-                                DensityInfo,
-                                RatioStart, RatioStop, DelayIntegrationTime,
-                                LinearPowerLogScale=True):
+                                DensityInfo, Pmin,
+                                Pmax, Ratio,
+                                RatioStart, RatioStop,
+                                DelayIntegrationTime, LinearPowerLogScale=True):
 
     print('Power curve (back and forth) is running ...')
 
@@ -167,7 +171,7 @@ def fGetPowerCurve_BackAndForth(RotorStage, PowerMeter,
     FullPowerScan = np.concatenate((PowerScan, PowerScan[::-1]))
 
     FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'w')
-    FileInfo.write(f'N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\tRatio_start = {RatioStart}\tRatio_stop = {RatioStop}\tInt. time = {DelayIntegrationTime}\n')
+    FileInfo.write(f'N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\Ratio = {Ratio}\tRatio_start = {RatioStart}\tRatio_stop = {RatioStop}\tInt. time = {DelayIntegrationTime}\tP_min = {Pmin}\tP_max = {Pmax}\n')
     FileInfo.close()
 
     NumberOfMeasurement = 0
@@ -295,14 +299,12 @@ def fProcessPowerCurveBackAndForth(MyDataFolder, WLRangeAll):
 
 def fAdaptiveRefinedPowerCurve(RotorStage, PowerMeter,
                                SaveDataFolder, DensityInfo,
-                               PowerStart, PowerStop,
-                               PowerNumberStep,
-                               RatioStart,
-                               RatioStop,
-                               DelayIntegrationTime,
-                               SlopeThreshold,
-                               MaxTotalExtraPoints,
-                               LuminescenceJumpThreshold,
+                               Pmin, Pmax,
+                               Ratio, PowerStart,
+                               PowerStop, PowerNumberStep,
+                               RatioStart, RatioStop,
+                               DelayIntegrationTime, SlopeThreshold,
+                               MaxTotalExtraPoints, LuminescenceJumpThreshold,
                                WLRange
                               ):
 
@@ -321,7 +323,7 @@ def fAdaptiveRefinedPowerCurve(RotorStage, PowerMeter,
     
     with open(SetInfoPath, 'w') as f:
         
-        f.write(f'N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\tRatio_start = {RatioStart}\tRatio_stop = {RatioStop}\tInt. time = {DelayIntegrationTime}\n')
+        f.write(f'N\tPindex\tSetPointPower\tCurrentPower\tDensityInfo\tTime\Ratio = {Ratio}\tRatio_start = {RatioStart}\tRatio_stop = {RatioStop}\tInt. time = {DelayIntegrationTime}\tP_min = {Pmin}\tP_max = {Pmax}\n')
 
     LumiList = []
     IsFolderChecked = False
@@ -516,10 +518,13 @@ AngleStop = 90
 AngleNumberStep = 19
 DensityInfo = 0
 
-_, _, PowerRange, PowerRangeFitParameters = fScanPowerRange(RotorStage, PowerMeter, fBeamSplitterCubeLawTheta2Power, AngleStart, AngleStop, AngleNumberStep)
+AngleAll, PowerAll, PowerRange, PowerRangeFitParameters = fScanPowerRange(RotorStage, PowerMeter, fBeamSplitterCubeLawTheta2Power, AngleStart, AngleStop, AngleNumberStep)
 
 PowerRangeMax = PowerRange[0]
 PowerRangeMin = PowerRange[1]
+
+Pmin = np.min(PowerAll)
+Pmax = np.max(PowerAll)
 
 #%% fMoveToPower
 
@@ -543,7 +548,7 @@ PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
 PowerNumberStep = 21
 DelayIntegrationTime = 3 # [s]
-MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
+MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, Pmin, Pmax, Ratio, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
 time.sleep(0.5)
 
 # WLRange = np.array([535, 550]) # (nm)
@@ -566,7 +571,7 @@ PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
 PowerNumberStep = 5 # Step number will be doubled
 DelayIntegrationTime = 3 # [s]
-MyDataFolder = fGetPowerCurve_BackAndForth(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
+MyDataFolder = fGetPowerCurve_BackAndForth(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, Pmin, Pmax, Ratio, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
 time.sleep(0.5)
 
 # WLRange = np.array([535, 550]) # [nm]
@@ -595,6 +600,9 @@ MyDataFolder = fAdaptiveRefinedPowerCurve(
                                           PowerMeter=PowerMeter,
                                           SaveDataFolder=SaveDataFolder,
                                           DensityInfo=DensityInfo,
+                                          Pmin=Pmin,
+                                          Pmax=Pmax,
+                                          Ratio=Ratio,
                                           PowerStart=PowerStart,
                                           PowerStop=PowerStop,
                                           PowerNumberStep=PowerNumberStep,
