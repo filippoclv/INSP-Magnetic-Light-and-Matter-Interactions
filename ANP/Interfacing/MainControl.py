@@ -524,14 +524,14 @@ PowerRangeMin = PowerRange[1]
 #%% fMoveToPower
 
 #Desired ratio of the max power
-Ratio = 0.2
+Ratio = 0.3
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
 
 #%% ChangeAngle
 
-Angle = 37
+Angle = 50
 RotorStage.move_to(Angle)
 
 #%% fGetPowerCurve
