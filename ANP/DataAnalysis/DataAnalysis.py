@@ -7,6 +7,7 @@ from matplotlib.colors import LogNorm
 from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
+import re
 
 # If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
 
@@ -64,6 +65,62 @@ def read_data(file_path, power_map):
 
     return df
 
+# def read_all_spectra(folder_path):
+#
+#     folder = Path(folder_path)
+#
+#     # Load power map locally per folder
+#     power_info_file = folder / "SetInfoPowerCurve.txt"
+#     power_info = pd.read_csv(power_info_file, sep="\t")
+#     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+#
+#     spectra = {} # Dictionary to store the power labels of each dataframe
+#
+#     # To sort the labels
+#     files = sorted(
+#         folder.glob("P*.txt"),
+#         key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
+#     )
+#
+#     for file_path in files:
+#
+#         try:
+#
+#             df = read_data(file_path, power_map)
+#             spectra[df.attrs["Power_label"]] = df
+#
+#         except Exception as e:
+#
+#             print(f"Error, skipping {file_path.name}: {str(e)}")
+#
+#     # Background subtraction, average of P0
+#     background_df = spectra.get("P0")
+#
+#     if background_df is not None:
+#         # Choose a wavelength region where there's clearly no signal
+#         background_region = background_df[
+#             (background_df["Wavelength_nm"] >= 870) &
+#             (background_df["Wavelength_nm"] <= 900)
+#             ]
+#
+#         if not background_region.empty:
+#
+#             background_value = background_region["Intensity_counts"].mean()
+#             #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
+#
+#             for label, df in spectra.items():
+#
+#                 df["Intensity_counts"] -= background_value
+#                 df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
+#
+#         else:
+#
+#             print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
+#
+#     return spectra
+
+# Function read_all_spectra with a kind of masking system:
+
 def read_all_spectra(folder_path):
 
     folder = Path(folder_path)
@@ -73,19 +130,32 @@ def read_all_spectra(folder_path):
     power_info = pd.read_csv(power_info_file, sep="\t")
     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
-    spectra = {} # Dictionary to store the power labels of each dataframe
+    spectra = {}  # Dictionary to store the power labels of each dataframe
 
     # To sort the labels
     files = sorted(
-        folder.glob("P*.txt"),
-        key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
-    )
+                   folder.glob("P*.txt"),
+                   key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
+                  )
 
     for file_path in files:
 
         try:
 
             df = read_data(file_path, power_map)
+
+            # Add noise filtering for 680-720 nm range
+            mask = (df["Wavelength_nm"] >= 680) & (df["Wavelength_nm"] <= 720)
+
+            if any(mask):
+
+                window_size = 15
+                rolling_mean = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).mean()
+                rolling_std = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).std()
+                outliers = abs(df.loc[mask, "Intensity_counts"] - rolling_mean) > (2 * rolling_std)
+                df.loc[mask & outliers, "Intensity_counts"] = np.nan
+                df["Intensity_counts"] = df["Intensity_counts"].interpolate(method='linear')
+
             spectra[df.attrs["Power_label"]] = df
 
         except Exception as e:
@@ -97,6 +167,7 @@ def read_all_spectra(folder_path):
 
     if background_df is not None:
         # Choose a wavelength region where there's clearly no signal
+
         background_region = background_df[
             (background_df["Wavelength_nm"] >= 870) &
             (background_df["Wavelength_nm"] <= 900)
@@ -105,7 +176,6 @@ def read_all_spectra(folder_path):
         if not background_region.empty:
 
             background_value = background_region["Intensity_counts"].mean()
-            #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
 
             for label, df in spectra.items():
 
@@ -114,7 +184,8 @@ def read_all_spectra(folder_path):
 
         else:
 
-            print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
+            print(
+                f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
 
     return spectra
 
@@ -175,9 +246,11 @@ ratio_stop = 0.08
 
 # Trying now to zoom into little peaks
 
-def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, zoom_wl_min=630, zoom_wl_max=760, integration_range=None):
+def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, data, zoom_wl_min=630, zoom_wl_max=760, integration_range=None, fig=None, ax=None):
 
-    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+    if fig is None or ax is None:
+
+        fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
     powers = [df.attrs["Power_W"] for df in spectra_dict.values()]
     norm = LogNorm(vmin=min(powers), vmax=max(powers))
@@ -218,7 +291,9 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
         power = df.attrs["Power_W"]
         color = colormap(norm(power))
         zoomed = df[(df["Wavelength_nm"] >= zoom_wl_min) & (df["Wavelength_nm"] <= zoom_wl_max)]
+
         if not zoomed.empty:
+
             ax_inset.plot(zoomed["Wavelength_nm"], zoomed["Intensity_counts"], color=color)
 
     ax_inset.set_xlim(zoom_wl_min, zoom_wl_max)
@@ -240,7 +315,15 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
     ax.grid(True, alpha=0.3)
     #ax.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
 
-    parameters_text = f"Integration time: {integration_time} s\nPower ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}"
+    # Get the first dataset to check if it's TIR or NO TIR
+    first_df = next(iter(spectra_dict.values()))
+    measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
+
+    parameters_text = (f"Type: {measurement_type}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}")
+
     ax.text(0.72, 0.95, parameters_text,
             transform=ax.transAxes,
             fontsize=14,
@@ -248,7 +331,7 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    #plt.show()
+    return fig, ax
 
 # Let's try the same with spectra normalized by its max
 # Not sure if the following function makes sense
@@ -661,7 +744,7 @@ def plot_all_derivatives(datasets, int_start, int_end):
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
     colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
@@ -670,6 +753,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
         int_time = data["integration_time"]
         ratio_start = data["ratio_start"]
         ratio_stop = data["ratio_stop"]
+        spectrometer_hole_diameter = data["spectrometer_hole_diameter"]
 
         power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
         power_info = pd.read_csv(power_info_file, sep="\t")
@@ -689,13 +773,14 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
         # Compute s value and power
         derivative_df, s_value, s_power = calculate_derivative(results_df)
 
-        config_label = f"{data.get('label', ''):<8}"  # Empty if not present
+        config_label = f"{data.get('label', ''):<7}"  # Empty if not present
 
         label = (
-                 f"{config_label} | " 
-                 f"Int. time: {int_time:.1f} s | "
-                 f"R: {ratio_start:.4f} – {ratio_stop:.2f} | "
-                 f"s ≈ {s_value:.2f} at {s_power:.8f} W"
+                 f"{config_label:<7} | "
+                 f"Int. time: {int_time:>5.2f} s | " 
+                 f"R: {ratio_start:>7.4f} – {ratio_stop:>7.3f} | "  
+                 f"s ≈ {s_value:>6.2f} at {s_power:>10.6f} W | "  
+                 f"Spectrometer D: {spectrometer_hole_diameter:>4.2f} mm"
                 )
 
         # Plot curve
@@ -729,6 +814,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
     ax.legend(fontsize=6, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
+    #plt.legend(bbox_to_anchor=(1.001, 0.5), loc='center left')
 
     plt.show()
 
@@ -944,3 +1030,57 @@ def plot_power_curves_back_and_forth(folder, int_start, int_end, integration_tim
     ax.legend(fontsize=11)
 
     plt.show()
+
+# Let's analyze the peak ratios:
+
+def analyze_peak_ratios(spectra_dict, peak1_range=(680, 720), peak2_range=(780, 820)):
+
+    results = []
+
+    for power_label, df in spectra_dict.items():
+
+        # Find max value for peak 1 (around 700 nm)
+        peak1_mask = (df["Wavelength_nm"] >= peak1_range[0]) & (df["Wavelength_nm"] <= peak1_range[1])
+        peak1_max = df.loc[peak1_mask, "Intensity_counts"].max()
+
+        # Find max value for peak 2 (around 800 nm)
+        peak2_mask = (df["Wavelength_nm"] >= peak2_range[0]) & (df["Wavelength_nm"] <= peak2_range[1])
+        peak2_max = df.loc[peak2_mask, "Intensity_counts"].max()
+
+        # Calculate ratio and store with power value
+        ratio = peak2_max / peak1_max
+        power = df.attrs["Power_W"]
+
+        results.append({
+            "Power_W": power,
+            "Peak1_max": peak1_max,
+            "Peak2_max": peak2_max,
+            "Peak_ratio": ratio
+        })
+
+    # Convert to DataFrame and sort by power
+    results_df = pd.DataFrame(results)
+    results_df = results_df.sort_values("Power_W")
+
+    return results_df
+
+def plot_peak_ratios(results_df):
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    ax.plot(results_df["Power_W"], results_df["Peak_ratio"],
+            "o-", markerfacecolor="none", color="teal",
+            label="Ratio between max(780,820) / max(680,720)"
+           )
+
+    ax.set_xscale('log')
+    ax.set_xlabel("Power [W]", fontsize=12)
+    ax.set_ylabel("Peak ratio", fontsize=12)
+    ax.set_title("Ratio of peak values vs power", fontsize=14)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=12, loc="best")
+
+    plt.tight_layout()
+    plt.show()
+
+    return fig, ax
