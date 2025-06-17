@@ -524,7 +524,7 @@ PowerRangeMin = PowerRange[1]
 #%% fMoveToPower
 
 #Desired ratio of the max power
-Ratio = 0.3
+Ratio = 0.1
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
