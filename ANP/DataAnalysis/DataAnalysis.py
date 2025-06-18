@@ -540,8 +540,16 @@ def plot_luminescence_vs_power(results_df, wl_min, wl_max, integration_time, rat
 
 def plot_all_power_curves(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
-    colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
+    # fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
+    # colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
+
+    fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
+
+    # Use Z for color coding
+    z_values = np.array([data.get("Z", 0) for data in datasets])
+    norm = plt.Normalize(vmin=-1000, vmax=0)
+    cmap = plt.cm.jet
+    colors = cmap(norm(z_values))
 
     for i, data in enumerate(datasets):
 
@@ -558,7 +566,12 @@ def plot_all_power_curves(datasets, int_start, int_end):
         results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
 
         config_label = f"{data.get('label', ''):<6}"  # Empty if not present
-        label = f"{config_label} | Int. time: {int_time:.1f} s | R: {ratio_start:.4f}–{ratio_stop:.2f}"
+        #label = f"{config_label} | Int. time: {int_time:.1f} s | R: {ratio_start:.4f}–{ratio_stop:.2f}"
+
+        label = (
+                 f"Int. time: {int_time:>1.2f} s | " 
+                 f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} | "
+                )
 
         ax.plot(
           results_df["Power_W"],
@@ -581,6 +594,12 @@ def plot_all_power_curves(datasets, int_start, int_end):
     ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_PowerCurves.png", dpi=300)
+
+    # Add colorbar
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label("Z parameter [mV]", fontsize=12)
 
     plt.show()
 
@@ -744,7 +763,7 @@ def plot_all_derivatives(datasets, int_start, int_end):
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
     colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
@@ -775,12 +794,18 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
         config_label = f"{data.get('label', ''):<7}"  # Empty if not present
 
+        # label = (
+        #          f"{config_label:<7} | "
+        #          f"Int. time: {int_time:>5.2f} s | "
+        #          f"R: {ratio_start:>7.4f} – {ratio_stop:>7.3f} | "
+        #          f"s ≈ {s_value:>6.2f} at {s_power:>10.6f} W | "
+        #          f"Spectrometer D: {spectrometer_hole_diameter:>4.2f} mm"
+        #         )
+
         label = (
-                 f"{config_label:<7} | "
-                 f"Int. time: {int_time:>5.2f} s | " 
-                 f"R: {ratio_start:>7.4f} – {ratio_stop:>7.3f} | "  
-                 f"s ≈ {s_value:>6.2f} at {s_power:>10.6f} W | "  
-                 f"Spectrometer D: {spectrometer_hole_diameter:>4.2f} mm"
+                 f"Int. time: {int_time:>1.2f} s | " 
+                 f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} | "  
+                 f"s ≈ {s_value:>1.2f} at {s_power:>1.6f} W"
                 )
 
         # Plot curve

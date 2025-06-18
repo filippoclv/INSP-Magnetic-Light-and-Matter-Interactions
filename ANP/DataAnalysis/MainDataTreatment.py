@@ -8,15 +8,301 @@ plt.close("all")
 # Each dictionary defines one dataset (this is for a standard, only forward power sweep)
 datasets = [
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\PinholeStudy_20250514\20250514101659",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618110710",
         "integration_time": 3,
-        "ratio_start": 0.0001,
-        "ratio_stop": 0.4,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
         "label": "NO TIR",
+        "Z": 0,  # In mV
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05 # In mm
+        "spectrometer_hole_diameter": 0.05  # In mm
     },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618110953",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -50,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618111201",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -100,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618111616",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -150,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112149",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -200,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122005",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": 0, # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122307",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -50,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122628",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -100,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618123201",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -150,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618123531",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -200,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112527",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -250,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112858",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -300,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113322",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -350,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113706",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -400,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113958",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -450,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618114324",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -500,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618114911",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -550,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115216",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -600,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115523",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -650,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115805",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -700,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120112",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -750,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120420",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -800,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120729",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -850,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121039",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -900,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121342",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -950,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121645",
+        "integration_time": 3,
+        "ratio_start": 0.0003,
+        "ratio_stop": 0.003,
+        "label": "NO TIR",
+        "Z": -1000,  # In mV
+        "power_shift_factor": 1.0,
+        "luminescence_shift_factor": 1.0,
+        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\PinholeStudy_20250514\20250514101659",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0001,
+    #     "ratio_stop": 0.4,
+    #     "label": "NO TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05 # In mm
+    # },
     # {
     #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\PinholeStudy_20250514\20250514095158",
     #     "integration_time": 1,
@@ -77,16 +363,16 @@ datasets = [
     #     "luminescence_shift_factor": 1.0,
     #     "spectrometer_hole_diameter": 2 # In mm
     # },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\PinholeStudy_20250514\20250514133121",
-        "integration_time": 2,
-        "ratio_start": 0.0001,
-        "ratio_stop": 0.8,
-        "label": "TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05 # In mm
-    },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\PinholeStudy_20250514\20250514133121",
+    #     "integration_time": 2,
+    #     "ratio_start": 0.0001,
+    #     "ratio_stop": 0.8,
+    #     "label": "TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05 # In mm
+    # },
     # {
     #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\PinholeStudy_20250514\20250514135011",
     #     "integration_time": 2,
@@ -250,51 +536,54 @@ datasets = [
 
 # Test:
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 12))
+#fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 12))
 
 # First dataset
-selected_data = datasets[0]
-power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
-power_info = pd.read_csv(power_info_file, sep="\t")
-power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-all_spectra = read_all_spectra(selected_data["folder"])
+#selected_data = datasets[0]
+#power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
+#power_info = pd.read_csv(power_info_file, sep="\t")
+#power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+#all_spectra = read_all_spectra(selected_data["folder"])
 
 int_start = 770
 int_end = 835
 
-plot_spectra_with_zoom(all_spectra,
-                      integration_time=selected_data["integration_time"],
-                      ratio_start=selected_data["ratio_start"],
-                      ratio_stop=selected_data["ratio_stop"],
-                      data=selected_data,
-                      zoom_wl_min=630,
-                      zoom_wl_max=760,
-                      integration_range=(int_start, int_end),
-                      fig=fig,
-                      ax=ax1)
+# plot_spectra_with_zoom(all_spectra,
+#                       integration_time=selected_data["integration_time"],
+#                       ratio_start=selected_data["ratio_start"],
+#                       ratio_stop=selected_data["ratio_stop"],
+#                       data=selected_data,
+#                       zoom_wl_min=630,
+#                       zoom_wl_max=760,
+#                       integration_range=(int_start, int_end),
+#                       fig=fig,
+#                       ax=ax1)
+#
+# plt.tight_layout()
+# plt.show()
 
-# Second dataset
-selected_data = datasets[1]
-power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
-power_info = pd.read_csv(power_info_file, sep="\t")
-power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-all_spectra = read_all_spectra(selected_data["folder"])
+# # Second dataset
+# selected_data = datasets[1]
+# power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
+# power_info = pd.read_csv(power_info_file, sep="\t")
+# power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+# all_spectra = read_all_spectra(selected_data["folder"])
+#
+# plot_spectra_with_zoom(all_spectra,
+#                       integration_time=selected_data["integration_time"],
+#                       ratio_start=selected_data["ratio_start"],
+#                       ratio_stop=selected_data["ratio_stop"],
+#                       data=selected_data,
+#                       zoom_wl_min=630,
+#                       zoom_wl_max=760,
+#                       integration_range=(int_start, int_end),
+#                       fig=fig,
+#                       ax=ax2)
+#
+# plt.tight_layout()
+# plt.show()
 
-plot_spectra_with_zoom(all_spectra,
-                      integration_time=selected_data["integration_time"],
-                      ratio_start=selected_data["ratio_start"],
-                      ratio_stop=selected_data["ratio_stop"],
-                      data=selected_data,
-                      zoom_wl_min=630,
-                      zoom_wl_max=760,
-                      integration_range=(int_start, int_end),
-                      fig=fig,
-                      ax=ax2)
-
-plt.tight_layout()
-plt.show()
-
-#plot_all_power_curves(datasets, int_start, int_end)
+plot_all_power_curves(datasets, int_start, int_end)
 
 # The derivative method is just a simple slope calculation between two points
 #derivative_df, s_value, s_power = calculate_derivative(results_df)
@@ -341,49 +630,49 @@ plt.show()
 
 # Peak ratio study:
 
-fig, ax = plt.subplots(figsize=(12, 8))
-
-# Process first dataset (NO TIR)
-selected_data = datasets[0]
-all_spectra = read_all_spectra(selected_data["folder"])
-ratios_df_no_tir = analyze_peak_ratios(all_spectra,
-                                       peak1_range=(680, 720),
-                                       peak2_range=(780, 820)
-                                      )
-
-# Plot first dataset
-ax.plot(ratios_df_no_tir["Power_W"], ratios_df_no_tir["Peak_ratio"],
-        "o-", markerfacecolor="none",
-        color="teal", label="NO TIR, ratio max(780,820) / max(680,720)"
-       )
-
-# Process second dataset (TIR)
-selected_data = datasets[1]
-all_spectra = read_all_spectra(selected_data["folder"])
-ratios_df_tir = analyze_peak_ratios(all_spectra,
-                                    peak1_range=(680, 720),
-                                    peak2_range=(780, 820)
-                                   )
-
-# Plot second dataset
-ax.plot(ratios_df_tir["Power_W"], ratios_df_tir["Peak_ratio"],
-        "o-", markerfacecolor="none",
-        color="coral", label="TIR, ratio max(780,820) / max(680,720)"
-       )
-
-# Configure plot
-ax.set_xscale('log')
-#ax.set_yscale('log')
-ax.set_xlabel("Power [W]", fontsize=12)
-ax.set_ylabel("Peak ratio", fontsize=12)
-ax.set_title("Ratio of peak intensities vs power", fontsize=14)
-ax.grid(True, which='both', linestyle='--', alpha=0.3)
-ax.legend(fontsize=12)
-
-plt.tight_layout()
-plt.show()
-
-print("\nNO TIR data:")
-print(ratios_df_no_tir)
-print("\nTIR data:")
-print(ratios_df_tir)
+# fig, ax = plt.subplots(figsize=(12, 8))
+#
+# # Process first dataset (NO TIR)
+# selected_data = datasets[0]
+# all_spectra = read_all_spectra(selected_data["folder"])
+# ratios_df_no_tir = analyze_peak_ratios(all_spectra,
+#                                        peak1_range=(680, 720),
+#                                        peak2_range=(780, 820)
+#                                       )
+#
+# # Plot first dataset
+# ax.plot(ratios_df_no_tir["Power_W"], ratios_df_no_tir["Peak_ratio"],
+#         "o-", markerfacecolor="none",
+#         color="teal", label="NO TIR, ratio max(780,820) / max(680,720)"
+#        )
+#
+# # Process second dataset (TIR)
+# selected_data = datasets[1]
+# all_spectra = read_all_spectra(selected_data["folder"])
+# ratios_df_tir = analyze_peak_ratios(all_spectra,
+#                                     peak1_range=(680, 720),
+#                                     peak2_range=(780, 820)
+#                                    )
+#
+# # Plot second dataset
+# ax.plot(ratios_df_tir["Power_W"], ratios_df_tir["Peak_ratio"],
+#         "o-", markerfacecolor="none",
+#         color="coral", label="TIR, ratio max(780,820) / max(680,720)"
+#        )
+#
+# # Configure plot
+# ax.set_xscale('log')
+# #ax.set_yscale('log')
+# ax.set_xlabel("Power [W]", fontsize=12)
+# ax.set_ylabel("Peak ratio", fontsize=12)
+# ax.set_title("Ratio of peak intensities vs power", fontsize=14)
+# ax.grid(True, which='both', linestyle='--', alpha=0.3)
+# ax.legend(fontsize=12)
+#
+# plt.tight_layout()
+# plt.show()
+#
+# print("\nNO TIR data:")
+# print(ratios_df_no_tir)
+# print("\nTIR data:")
+# print(ratios_df_tir)
