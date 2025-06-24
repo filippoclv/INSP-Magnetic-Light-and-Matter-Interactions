@@ -89,30 +89,10 @@ def read_all_spectraNF(folder_path):
 
             print(f"Error, skipping {file_path.name}: {str(e)}")
 
-    # Background subtraction, average of Z0
-    background_df = spectra.get("ref")
+    for label, df in spectra.items():
 
-    if background_df is not None:
-
-        # Choose a wavelength region where there's clearly no signal
-        background_region = background_df[
-                                          (background_df["Wavelength_nm"] >= 840) &
-                                          (background_df["Wavelength_nm"] <= 845)
-                                         ]
-
-        if not background_region.empty:
-
-            background_value = background_region["Intensity_counts"].mean()
-            #print(f"\nBackground counts (Z0 average in 840–845 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
-
-            for label, df in spectra.items():
-
-                df["Intensity_counts"] -= background_value
-                df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
-
-        else:
-
-            print(f"\nWarning: No data in 840–845 nm for Z0 in dataset '{file_path.parent.name}', skipping background subtraction.")
+        baseline = df["Intensity_counts"].min()
+        df["Intensity_counts"] -= baseline
 
     return spectra
 
@@ -133,6 +113,63 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
         height = df.attrs["Height"]
         color = height_to_color[height]
         ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color, linewidth=1, alpha=0.8)
+
+    cmap = ListedColormap(colors)
+    boundaries = np.append(sorted_heights, sorted_heights[-1] + 1)
+    norm = BoundaryNorm(boundaries=boundaries, ncolors=len(colors))
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+
+    cbar = plt.colorbar(sm, ax=ax, ticks=sorted_heights[::max(1, len(sorted_heights) // 10)])
+    cbar.set_label("Height (SensZ) [mV]", fontsize=16, labelpad=5)
+    cbar.ax.tick_params(labelsize=14)
+
+    # Main plot layout
+    ax.set_title("Intensity counts vs wavelength", fontsize=16)
+    ax.set_xlabel("Wavelength [nm]", fontsize=14)
+    ax.set_ylabel("Intensity [counts]", fontsize=14)
+    ax.grid(True, alpha=0.3)
+
+    # Get the first dataset to check if it's TIR or NO TIR
+    first_df = next(iter(spectra_dict.values()))
+    measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
+    power_percentage = data.get('power_percentage', 'Unknown')
+    stepZ = data.get('stepZ', 'Unknown')
+
+    parameters_text = (f"Type: {measurement_type}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power: {power_percentage}%\n"
+                       f"StepZ size: {stepZ} mV"
+                      )
+
+    ax.text(0.72, 0.95, parameters_text,
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    ax.set_ylim(bottom=0)
+
+    return fig, ax
+
+def plot_spectra_heights_norm(spectra_dict, integration_time, data, fig=None, ax=None):
+
+    if fig is None or ax is None:
+
+        fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    heights = [df.attrs["Height"] for df in spectra_dict.values()]
+    sorted_heights = np.sort(np.unique(heights))
+
+    colormap = cm.jet
+    colors = colormap(np.linspace(0, 1, len(sorted_heights)))
+    height_to_color = dict(zip(sorted_heights, colors))
+
+    for label, df in spectra_dict.items():
+        height = df.attrs["Height"]
+        color = height_to_color[height]
+        ax.plot(df["Wavelength_nm"], df["Intensity_counts"]/max(df["Intensity_counts"]), label=label, color=color, linewidth=1, alpha=0.8)
 
     cmap = ListedColormap(colors)
     boundaries = np.append(sorted_heights, sorted_heights[-1] + 1)

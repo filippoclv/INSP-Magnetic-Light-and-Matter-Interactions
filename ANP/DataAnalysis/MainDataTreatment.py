@@ -9,81 +9,116 @@ plt.close("all")
 # Each dictionary element defines one dataset (this is for a standard, only forward power sweep)
 
 datasets = [
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101016",
+    #     "integration_time": 2,
+    #     "ratio_start": 0.001,
+    #     "ratio_stop": 0.6,
+    #     "label": "NO TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101700",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.001,
+    #     "ratio_stop": 0.9,
+    #     "label": "NO TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623113319",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.001,
+    #     "ratio_stop": 0.09,
+    #     "label": "NO TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623122015",
+    #     "integration_time": 5,
+    #     "ratio_start": 0.001,
+    #     "ratio_stop": 0.09,
+    #     "label": "TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623131010",
+    #     "integration_time": 4,
+    #     "ratio_start": 0.05,
+    #     "ratio_stop": 0.9,
+    #     "label": "TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623131703",
+    #     "integration_time": 2,
+    #     "ratio_start": 0.01,
+    #     "ratio_stop": 0.99,
+    #     "label": "TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623133235",
+    #     "integration_time": 1,
+    #     "ratio_start": 0.05,
+    #     "ratio_stop": 0.99,
+    #     "label": "TIR",
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101016",
-        "integration_time": 2,
-        "ratio_start": 0.001,
-        "ratio_stop": 0.6,
-        "label": "NO TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101700",
-        "integration_time": 3,
-        "ratio_start": 0.001,
-        "ratio_stop": 0.9,
-        "label": "NO TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623113319",
-        "integration_time": 3,
-        "ratio_start": 0.001,
-        "ratio_stop": 0.09,
-        "label": "NO TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623122015",
-        "integration_time": 5,
-        "ratio_start": 0.001,
-        "ratio_stop": 0.09,
-        "label": "TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623131010",
-        "integration_time": 4,
-        "ratio_start": 0.05,
-        "ratio_stop": 0.9,
-        "label": "TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623131703",
-        "integration_time": 2,
-        "ratio_start": 0.01,
-        "ratio_stop": 0.99,
-        "label": "TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623133235",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
         "integration_time": 1,
-        "ratio_start": 0.05,
-        "ratio_stop": 0.99,
+        "power_percentage": 5,
+        "stepZ": -50, # In mV
         "label": "TIR",
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "integration_time": 2,
+        "power_percentage": 10,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "integration_time": 2,
+        "power_percentage": 20,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "integration_time": 2,
+        "power_percentage": 40,
+        "stepZ": -50, # In mV
+        "label": "TIR",
     },
     {
         "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
         "integration_time": 2,
         "power_percentage": 60,
-        "stepZ": -80, # In mV
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "integration_time": 2,
+        "power_percentage": 60,
+        "stepZ": -80,  # In mV
         "label": "TIR",
     },
     # {
@@ -296,6 +331,12 @@ all_spectra = read_all_spectraNF(selected_data["folder"])
 
 plot_spectra_heights(all_spectra, integration_time=selected_data["integration_time"], data=selected_data, fig=None, ax=None)
 plt.show()
+
+plot_spectra_heights_norm(all_spectra, integration_time=selected_data["integration_time"], data=selected_data, fig=None, ax=None)
+plt.show()
+
+selected_data = datasets[-1]
+all_spectra = read_all_spectraNF(selected_data["folder"])
 
 heights, wl_bins, intensity_map = integral_map_different_heights(all_spectra, integration_time=2, wl_start=760, wl_stop=840)
 plt.figure(figsize=(10, 6))
