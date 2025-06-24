@@ -82,6 +82,7 @@ datasets = [
     {
         "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
         "integration_time": 1,
+        "power_percentage": 5,
         "stepZ": -50, # In mV
         "label": "TIR",
     },
@@ -294,3 +295,4 @@ selected_data = datasets[-1]
 all_spectra = read_all_spectraNF(selected_data["folder"])
 
 plot_spectra_heights(all_spectra, integration_time=selected_data["integration_time"], data=selected_data, fig=None, ax=None)
+plt.show()

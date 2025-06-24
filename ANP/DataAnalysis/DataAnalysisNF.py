@@ -122,8 +122,8 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
         fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
     heights = [df.attrs["Height"] for df in spectra_dict.values()]
-    norm = LogNorm(vmin=min(heights), vmax=max(heights))
-    colormap = cm.turbo
+    norm = Normalize(vmin=min(heights), vmax=max(heights))
+    colormap = cm.jet
 
     # Main curve
     for label, df in spectra_dict.items():
@@ -148,9 +148,11 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
     # Get the first dataset to check if it's TIR or NO TIR
     first_df = next(iter(spectra_dict.values()))
     measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
+    power_percentage = data.get('power_percentage', 'Unknown')
 
     parameters_text = (f"Type: {measurement_type}\n"
                        f"Integration time: {integration_time} s\n"
+                       f"Power: {power_percentage}%"
                       )
 
     ax.text(0.72, 0.95, parameters_text,
