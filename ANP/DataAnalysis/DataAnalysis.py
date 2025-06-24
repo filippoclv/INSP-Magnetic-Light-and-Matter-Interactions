@@ -333,6 +333,68 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
 
     return fig, ax
 
+def plot_spectra_no_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, data, integration_range=None, fig=None, ax=None):
+
+    if fig is None or ax is None:
+
+        fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    powers = [df.attrs["Power_W"] for df in spectra_dict.values()]
+    norm = LogNorm(vmin=min(powers), vmax=max(powers))
+    colormap = cm.turbo
+
+    # Main curve
+    for label, df in spectra_dict.items():
+
+        power = df.attrs["Power_W"]
+        color = colormap(norm(power))
+        ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color)
+
+    if integration_range is not None:
+
+        wl_min, wl_max = integration_range
+
+
+        line1 = ax.axvline(x=wl_min, color='grey', linestyle='--', linewidth=1.2)
+        line2 = ax.axvline(x=wl_max, color='grey', linestyle='--', linewidth=1.2)
+
+        ax.legend([line1], ["Integration region"], loc="lower right", bbox_to_anchor=(1, 0.1), fontsize=11, frameon=True)
+
+    # Colorbar
+    sm = plt.cm.ScalarMappable(cmap=colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax)
+    #ticks_values = np.linspace(min(powers), max(powers), 6)  # Choose number of ticks
+    #cbar.set_ticks(ticks_values)
+    #cbar.set_ticklabels([f"{v:.1e}" for v in ticks_values])  # For scientific notation
+    cbar.set_label("Power [W] (log scale)", fontsize=16, labelpad=5)
+    cbar.ax.tick_params(labelsize=14)
+
+    # Main plot layout
+    ax.set_title("Intensity counts vs wavelength", fontsize=16)
+    ax.set_xlabel("Wavelength [nm]", fontsize=14)
+    ax.set_ylabel("Intensity [counts]", fontsize=14)
+    ax.grid(True, alpha=0.3)
+    #ax.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
+
+    # Get the first dataset to check if it's TIR or NO TIR
+    first_df = next(iter(spectra_dict.values()))
+    measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
+
+    parameters_text = (f"Type: {measurement_type}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}")
+
+    ax.text(0.72, 0.95, parameters_text,
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    return fig, ax
+
 # Let's try the same with spectra normalized by its max
 # Not sure if the following function makes sense
 
@@ -690,13 +752,11 @@ def plot_derivative(results_df):
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7)
            )
 
-    #plt.savefig("Derivative_Curve.png", dpi=300)
-
     plt.show()
 
 def plot_all_derivatives(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(14, 10), constrained_layout=True)
     colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
@@ -868,7 +928,7 @@ def calculate_derivative_fit(results_df, degree):
 
 def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
 
-    fig, ax = plt.subplots(figsize=(8, 6), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(14, 10), constrained_layout=True)
     colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
@@ -966,7 +1026,7 @@ def plot_all_derivatives_fit(datasets, int_start, int_end, degree):
 
 def check_all_fits(datasets, int_start, int_end, degree=3):
 
-    fig, ax = plt.subplots(figsize=(9, 6), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(14, 10), constrained_layout=True)
     colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
