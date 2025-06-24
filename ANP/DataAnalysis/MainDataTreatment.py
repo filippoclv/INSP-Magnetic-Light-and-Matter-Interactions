@@ -296,3 +296,5 @@ all_spectra = read_all_spectraNF(selected_data["folder"])
 
 plot_spectra_heights(all_spectra, integration_time=selected_data["integration_time"], data=selected_data, fig=None, ax=None)
 plt.show()
+
+print(integrate_peakNF(all_spectra, 780, 820, 2))
