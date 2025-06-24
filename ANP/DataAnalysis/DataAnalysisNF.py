@@ -172,3 +172,26 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
     ax.set_ylim(bottom=0)
 
     return fig, ax
+
+def integrate_peakNF(spectra_dict, wl_min, wl_max, integration_time):
+    # Integrating with trapeizoidal method
+
+    results = []
+
+    for label, df in spectra_dict.items():
+
+        height = df.attrs["height"]
+        filtered_dataframe = df[(df["Wavelength_nm"] >= wl_min) & (df["Wavelength_nm"] <= wl_max)]
+
+        if filtered_dataframe.empty:
+
+            print(f"Warning: {label} has no data in range {wl_min}-{wl_max} nm")
+
+            continue
+
+        integrated_counts = np.trapz(filtered_dataframe["Intensity_counts"], filtered_dataframe["Wavelength_nm"])
+        luminescence = integrated_counts / integration_time
+
+        results.append((height, luminescence, integrated_counts))
+
+    return pd.DataFrame(results, columns=["height_mV", "Luminescence_counts", "Integrated_counts"])
