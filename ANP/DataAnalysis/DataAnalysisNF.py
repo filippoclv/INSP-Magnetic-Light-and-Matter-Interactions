@@ -72,7 +72,26 @@ def read_all_spectraNF(folder_path):
 
     spectra = {} # Dictionary to store the power labels of each dataframe
 
-    # To sort the labels
+    # Load and prepare ref.txt
+    ref_file = folder / "ref.txt"
+    ref_df = None
+
+    if ref_file.exists():
+
+        try:
+
+            ref_df = read_dataNF(ref_file, height_map)
+            ref_counts = ref_df["Intensity_counts"].values
+
+        except Exception as e:
+
+            print(f"Error reading ref.txt: {e}")
+
+    else:
+
+        print("Warning: ref.txt not found in the folder.")
+
+    # Load spectra files
     files = sorted(
         folder.glob("Z*.txt"),
         key=lambda f: int(re.search(r"Z(\d+)", f.name).group(1))
@@ -83,16 +102,22 @@ def read_all_spectraNF(folder_path):
         try:
 
             df = read_dataNF(file_path, height_map)
+
+            if ref_df is not None and len(df) == len(ref_df):
+
+                df["Intensity_counts"] = df["Intensity_counts"].values / ref_counts
+
+            else:
+
+                print(f"Warning: Cannot normalize {file_path.name}, ref.txt missing or shape mismatch.")
+
+            df["Intensity_counts"] -= df["Intensity_counts"].min()
+
             spectra[df.attrs["Height_label"]] = df
 
         except Exception as e:
 
             print(f"Error, skipping {file_path.name}: {str(e)}")
-
-    for label, df in spectra.items():
-
-        baseline = df["Intensity_counts"].min()
-        df["Intensity_counts"] -= baseline
 
     return spectra
 
