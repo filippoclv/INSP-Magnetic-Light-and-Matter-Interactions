@@ -1,4 +1,5 @@
 from DataAnalysis import *
+from DataAnalysisNF import *
 import warnings
 
 warnings.simplefilter('ignore', np.RankWarning)
@@ -78,6 +79,12 @@ datasets = [
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
+        "integration_time": 1,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
     # {
     #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122307",
     #     "integration_time": 3,
@@ -112,13 +119,13 @@ datasets = [
 #     },
 # ]
 
-int_start = 770
-int_end = 835
+# int_start = 770
+# int_end = 835
 
 # For a specific spectra plot
 
-selected_data = datasets[-1]
-all_spectra = read_all_spectra(selected_data["folder"])
+# selected_data = datasets[-1]
+# all_spectra = read_all_spectra(selected_data["folder"])
 
 # Load power map
 # Check its use
@@ -138,13 +145,13 @@ all_spectra = read_all_spectra(selected_data["folder"])
 #                       integration_range=(int_start, int_end)
 #                      )
 
-plot_spectra_no_zoom(all_spectra,
-                     integration_time=selected_data["integration_time"],
-                     ratio_start=selected_data["ratio_start"],
-                     ratio_stop=selected_data["ratio_stop"],
-                     data=selected_data,
-                     integration_range=(int_start, int_end)
-                    )
+# plot_spectra_no_zoom(all_spectra,
+#                      integration_time=selected_data["integration_time"],
+#                      ratio_start=selected_data["ratio_start"],
+#                      ratio_stop=selected_data["ratio_stop"],
+#                      data=selected_data,
+#                      integration_range=(int_start, int_end)
+#                     )
 
 # 630 - 760 nm range is good to zoom on the smaller peaks
 
@@ -198,8 +205,9 @@ plot_spectra_no_zoom(all_spectra,
 # print(f"s ≈ {s_value:.2f} at power {s_power:.8f} W")
 # plot_derivative(derivative_df)
 
-#plot_all_derivatives(datasets, int_start, int_end)
-plot_all_power_curves_with_s(datasets, int_start, int_end)
+# plot_all_derivatives(datasets, int_start, int_end)
+
+# plot_all_power_curves_with_s(datasets, int_start, int_end)
 
 # Fitting instead of a simple derivative:
 
@@ -279,3 +287,10 @@ plot_all_power_curves_with_s(datasets, int_start, int_end)
 # print(ratios_df_no_tir)
 # print("\nTIR data:")
 # print(ratios_df_tir)
+
+# NF analysis:
+
+selected_data = datasets[-1]
+all_spectra = read_all_spectraNF(selected_data["folder"])
+
+plot_spectra_heights(all_spectra, integration_time=selected_data["integration_time"], data=selected_data, fig=None, ax=None)
