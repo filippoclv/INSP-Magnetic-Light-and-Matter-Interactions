@@ -264,3 +264,51 @@ def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_
         data_matrix.append(intensities)
 
     return np.array(heights), wl_centers + wl_step / 2, np.array(data_matrix)
+
+def plot_all_spectra_superimposed(datasets):
+
+    all_dicts = []
+    all_heights = []
+
+    # Collect all spectra and heights
+    for data in datasets:
+
+        spectra_dict = read_all_spectraNF(data["folder"])
+        all_dicts.append((spectra_dict, data))
+        all_heights.extend(df.attrs["Height"] for df in spectra_dict.values())
+
+    # Define global colormap and normalization
+    sorted_heights = np.sort(np.unique(all_heights))
+    colormap = cm.jet
+    colors = colormap(np.linspace(0, 1, len(sorted_heights)))
+    height_to_color = dict(zip(sorted_heights, colors))
+
+    cmap = ListedColormap(colors)
+    boundaries = np.append(sorted_heights, sorted_heights[-1] + 1)
+    norm = BoundaryNorm(boundaries=boundaries, ncolors=len(colors))
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    for spectra_dict, data in all_dicts:
+
+        for label, df in spectra_dict.items():
+
+            height = df.attrs["Height"]
+            color = height_to_color[height]
+            ax.plot(df["Wavelength_nm"], df["Intensity_counts"], color=color, linewidth=1, alpha=0.8)
+
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+
+    cbar = plt.colorbar(sm, ax=ax, ticks=sorted_heights[::max(1, len(sorted_heights) // 10)])
+    cbar.set_label("Height (SensZ) [mV]", fontsize=16, labelpad=5)
+    cbar.ax.tick_params(labelsize=14)
+
+    ax.set_title("Spectra of multiple datasets", fontsize=16)
+    ax.set_xlabel("Wavelength [nm]", fontsize=14)
+    ax.set_ylabel("Normalized Intensity", fontsize=14)
+    ax.grid(True, alpha=0.3)
+    ax.set_ylim(bottom=0)
+
+    plt.show()

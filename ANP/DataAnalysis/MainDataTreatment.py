@@ -80,35 +80,35 @@ datasets = [
     #     "spectrometer_hole_diameter": 0.05  # In mm
     # },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
         "integration_time": 1,
         "power_percentage": 5,
         "stepZ": -50, # In mV
         "label": "TIR",
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623145307",
         "integration_time": 2,
         "power_percentage": 10,
         "stepZ": -50, # In mV
         "label": "TIR",
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623150547",
         "integration_time": 2,
         "power_percentage": 20,
         "stepZ": -50, # In mV
         "label": "TIR",
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623152231",
         "integration_time": 2,
         "power_percentage": 40,
         "stepZ": -50, # In mV
         "label": "TIR",
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623153308",
         "integration_time": 2,
         "power_percentage": 60,
         "stepZ": -50, # In mV
@@ -335,9 +335,6 @@ plt.show()
 plot_spectra_heights_norm(all_spectra, integration_time=selected_data["integration_time"], data=selected_data, fig=None, ax=None)
 plt.show()
 
-selected_data = datasets[-1]
-all_spectra = read_all_spectraNF(selected_data["folder"])
-
 heights, wl_bins, intensity_map = integral_map_different_heights(all_spectra, integration_time=2, wl_start=760, wl_stop=840)
 plt.figure(figsize=(10, 6))
 plt.pcolormesh(wl_bins, heights, intensity_map, shading='auto', cmap='jet')
@@ -347,3 +344,5 @@ plt.title("2D map, integrated counts per 1 nm bin")
 cbar = plt.colorbar(label="Luminescence [counts/s]")
 plt.tight_layout()
 plt.show()
+
+#plot_all_spectra_superimposed(datasets)
