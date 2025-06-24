@@ -80,10 +80,10 @@ datasets = [
         "spectrometer_hole_diameter": 0.05  # In mm
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
-        "integration_time": 1,
-        "power_percentage": 5,
-        "stepZ": -50, # In mV
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
+        "integration_time": 2,
+        "power_percentage": 60,
+        "stepZ": -80, # In mV
         "label": "TIR",
     },
     # {

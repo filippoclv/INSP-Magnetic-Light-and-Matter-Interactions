@@ -4,6 +4,7 @@ from IPython.display import display
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import LogNorm
+from matplotlib.colors import ListedColormap, BoundaryNorm
 from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
@@ -89,7 +90,7 @@ def read_all_spectraNF(folder_path):
             print(f"Error, skipping {file_path.name}: {str(e)}")
 
     # Background subtraction, average of Z0
-    background_df = spectra.get("Z0")
+    background_df = spectra.get("ref")
 
     if background_df is not None:
 
@@ -122,20 +123,24 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
         fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
     heights = [df.attrs["Height"] for df in spectra_dict.values()]
-    norm = Normalize(vmin=min(heights), vmax=max(heights))
+    sorted_heights = np.sort(np.unique(heights))
+
     colormap = cm.jet
+    colors = colormap(np.linspace(0, 1, len(sorted_heights)))
+    height_to_color = dict(zip(sorted_heights, colors))
 
-    # Main curve
     for label, df in spectra_dict.items():
-
         height = df.attrs["Height"]
-        color = colormap(norm(height))
-        ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color)
+        color = height_to_color[height]
+        ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color, linewidth=1, alpha=0.8)
 
-    # Colorbar
-    sm = plt.cm.ScalarMappable(cmap=colormap, norm=norm)
+    cmap = ListedColormap(colors)
+    boundaries = np.append(sorted_heights, sorted_heights[-1] + 1)
+    norm = BoundaryNorm(boundaries=boundaries, ncolors=len(colors))
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax)
+
+    cbar = plt.colorbar(sm, ax=ax, ticks=sorted_heights[::max(1, len(sorted_heights) // 10)])
     cbar.set_label("Height (SensZ) [mV]", fontsize=16, labelpad=5)
     cbar.ax.tick_params(labelsize=14)
 
@@ -149,10 +154,12 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
     first_df = next(iter(spectra_dict.values()))
     measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
     power_percentage = data.get('power_percentage', 'Unknown')
+    stepZ = data.get('stepZ', 'Unknown')
 
     parameters_text = (f"Type: {measurement_type}\n"
                        f"Integration time: {integration_time} s\n"
-                       f"Power: {power_percentage}%"
+                       f"Power: {power_percentage}%\n"
+                       f"StepZ size: {stepZ} mV"
                       )
 
     ax.text(0.72, 0.95, parameters_text,
@@ -161,5 +168,7 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
             verticalalignment="top",
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    ax.set_ylim(bottom=0)
 
     return fig, ax
