@@ -763,7 +763,7 @@ def plot_all_derivatives(datasets, int_start, int_end):
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
-    fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(14, 10), constrained_layout=True)
     colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
 
     for i, data in enumerate(datasets):
@@ -794,18 +794,11 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
 
         config_label = f"{data.get('label', ''):<7}"  # Empty if not present
 
-        # label = (
-        #          f"{config_label:<7} | "
-        #          f"Int. time: {int_time:>5.2f} s | "
-        #          f"R: {ratio_start:>7.4f} – {ratio_stop:>7.3f} | "
-        #          f"s ≈ {s_value:>6.2f} at {s_power:>10.6f} W | "
-        #          f"Spectrometer D: {spectrometer_hole_diameter:>4.2f} mm"
-        #         )
-
         label = (
-                 f"Int. time: {int_time:>1.2f} s | " 
-                 f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} | "  
-                 f"s ≈ {s_value:>1.2f} at {s_power:>1.6f} W"
+                 f"{config_label:<7} | "
+                 f"Int. time: {int_time:>5.2f} s | "
+                 f"R: {ratio_start:>7.4f} – {ratio_stop:>7.3f} | "
+                 f"s ≈ {s_value:>6.2f} at {s_power:>10.6f} W"
                 )
 
         # Plot curve
@@ -836,7 +829,7 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
     ax.set_xlabel("Power [W]", fontsize=12)
     ax.set_ylabel("Luminescence [counts]", fontsize=12)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
-    ax.legend(fontsize=6, loc="best", prop={"family": "DejaVu Sans Mono"})
+    ax.legend(fontsize=14, loc="best", prop={"family": "DejaVu Sans Mono"})
 
     #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
     #plt.legend(bbox_to_anchor=(1.001, 0.5), loc='center left')

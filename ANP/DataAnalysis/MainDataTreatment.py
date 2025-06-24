@@ -6,293 +6,298 @@ warnings.simplefilter('ignore', np.RankWarning)
 plt.close("all")
 
 # Each dictionary defines one dataset (this is for a standard, only forward power sweep)
+
 datasets = [
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618110710",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101016",
+        "integration_time": 2,
+        "ratio_start": 0.001,
+        "ratio_stop": 0.6,
         "label": "NO TIR",
-        "Z": 0,  # In mV
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618110953",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101700",
         "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
+        "ratio_start": 0.001,
+        "ratio_stop": 0.9,
         "label": "NO TIR",
-        "Z": -50,  # In mV
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618111201",
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623113319",
         "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
+        "ratio_start": 0.001,
+        "ratio_stop": 0.09,
         "label": "NO TIR",
-        "Z": -100,  # In mV
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618111616",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -150,  # In mV
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623122015",
+        "integration_time": 5,
+        "ratio_start": 0.001,
+        "ratio_stop": 0.09,
+        "label": "TIR",
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112149",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -200,  # In mV
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623131010",
+        "integration_time": 4,
+        "ratio_start": 0.05,
+        "ratio_stop": 0.9,
+        "label": "TIR",
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122005",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": 0, # In mV
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623131703",
+        "integration_time": 2,
+        "ratio_start": 0.01,
+        "ratio_stop": 0.99,
+        "label": "TIR",
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
     {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122307",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -50,  # In mV
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623133235",
+        "integration_time": 1,
+        "ratio_start": 0.05,
+        "ratio_stop": 0.99,
+        "label": "TIR",
         "power_shift_factor": 1.0,
         "luminescence_shift_factor": 1.0,
         "spectrometer_hole_diameter": 0.05  # In mm
     },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122628",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -100,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618123201",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -150,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618123531",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -200,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112527",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -250,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112858",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -300,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113322",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -350,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113706",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -400,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113958",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -450,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618114324",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -500,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618114911",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -550,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115216",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -600,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115523",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -650,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115805",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -700,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120112",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -750,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120420",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -800,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120729",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -850,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121039",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -900,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121342",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -950,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121645",
-        "integration_time": 3,
-        "ratio_start": 0.0003,
-        "ratio_stop": 0.003,
-        "label": "NO TIR",
-        "Z": -1000,  # In mV
-        "power_shift_factor": 1.0,
-        "luminescence_shift_factor": 1.0,
-        "spectrometer_hole_diameter": 0.05  # In mm
-    },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122307",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -50,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618122628",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -100,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618123201",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -150,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618123531",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -200,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112527",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -250,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618112858",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -300,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113322",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -350,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113706",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -400,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618113958",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -450,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618114324",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -500,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618114911",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -550,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115216",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -600,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115523",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -650,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618115805",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -700,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120112",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -750,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120420",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -800,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618120729",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -850,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121039",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -900,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121342",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -950,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618121645",
+    #     "integration_time": 3,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "NO TIR",
+    #     "Z": -1000,  # In mV
+    #     "power_shift_factor": 1.0,
+    #     "luminescence_shift_factor": 1.0,
+    #     "spectrometer_hole_diameter": 0.05  # In mm
+    # },
     # {
     #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\PinholeStudy_20250514\20250514101659",
     #     "integration_time": 3,
@@ -583,7 +588,7 @@ int_end = 835
 # plt.tight_layout()
 # plt.show()
 
-plot_all_power_curves(datasets, int_start, int_end)
+#plot_all_power_curves(datasets, int_start, int_end)
 
 # The derivative method is just a simple slope calculation between two points
 #derivative_df, s_value, s_power = calculate_derivative(results_df)
@@ -593,7 +598,7 @@ plot_all_power_curves(datasets, int_start, int_end)
 
 #plot_all_derivatives(datasets, int_start, int_end)
 
-#plot_all_power_curves_with_s(datasets, int_start, int_end)
+plot_all_power_curves_with_s(datasets, int_start, int_end)
 
 # Degree of 100 gets a very smooth fit, but 10 seems good enough
 
