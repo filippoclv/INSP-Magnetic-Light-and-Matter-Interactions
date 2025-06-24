@@ -180,7 +180,7 @@ def integrate_peakNF(spectra_dict, wl_min, wl_max, integration_time):
 
     for label, df in spectra_dict.items():
 
-        height = df.attrs["height"]
+        height = df.attrs["Height"]
         filtered_dataframe = df[(df["Wavelength_nm"] >= wl_min) & (df["Wavelength_nm"] <= wl_max)]
 
         if filtered_dataframe.empty:
@@ -194,4 +194,36 @@ def integrate_peakNF(spectra_dict, wl_min, wl_max, integration_time):
 
         results.append((height, luminescence, integrated_counts))
 
-    return pd.DataFrame(results, columns=["height_mV", "Luminescence_counts", "Integrated_counts"])
+    return pd.DataFrame(results, columns=["Height_mV", "Luminescence_counts", "Integrated_counts"])
+
+def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_stop, wl_step=1.0):
+
+    heights = []
+    wl_centers = np.arange(wl_start, wl_stop, wl_step)
+    data_matrix = []
+
+    for label, df in sorted(spectra_dict.items(), key=lambda x: x[1].attrs["Height"]):
+
+        height = df.attrs["Height"]
+        heights.append(height)
+        intensities = []
+
+        for wl in wl_centers:
+
+            wl_min = wl
+            wl_max = wl + wl_step
+            window_df = df[(df["Wavelength_nm"] >= wl_min) & (df["Wavelength_nm"] < wl_max)]
+
+            if window_df.empty:
+
+                intensity = 0.0
+
+            else:
+
+                intensity = np.trapz(window_df["Intensity_counts"], window_df["Wavelength_nm"]) / integration_time
+
+            intensities.append(intensity)
+
+        data_matrix.append(intensities)
+
+    return np.array(heights), wl_centers + wl_step / 2, np.array(data_matrix)
