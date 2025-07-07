@@ -12,6 +12,43 @@ import re
 
 # If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
 
+def read_spectrum(file_path):
+
+    wavelengths = [] # In nm
+    intensities = [] # Counts
+
+    with open(file_path, "r") as file:
+
+        # To read the file line by line, ignoring non data lines and removing spaces
+        for line in file:
+
+            if "=" in line or not (";" in line and "," in line):
+
+                continue
+
+            line = line.strip()
+
+            if line:
+
+                # Splitting wavelengths and intensities
+                wavelength_only, intensity_only = line.split(";")
+
+                # Converting comma to dots
+                wavelength = float(wavelength_only.replace(",", "."))
+                intensity = int(intensity_only.strip())
+
+                wavelengths.append(wavelength)
+                intensities.append(intensity)
+
+    # Let's use pandas dataframes
+
+    df = pd.DataFrame({
+        "Wavelength_nm": wavelengths,
+        "Intensity_counts": intensities
+    })
+
+    return df
+
 def read_dataNF(file_path, height_map):
 
     height_label_check = re.search(r'Z(\d+)', file_path.name)
@@ -72,24 +109,7 @@ def read_all_spectraNF(folder_path):
 
     spectra = {} # Dictionary to store the power labels of each dataframe
 
-    # Load and prepare ref.txt
-    ref_file = folder / "ref.txt"
-    ref_df = None
-
-    if ref_file.exists():
-
-        try:
-
-            ref_df = read_dataNF(ref_file, height_map)
-            ref_counts = ref_df["Intensity_counts"].values
-
-        except Exception as e:
-
-            print(f"Error reading ref.txt: {e}")
-
-    else:
-
-        print("Warning: ref.txt not found in the folder.")
+    ref_df = read_spectrum(folder_path + "/ref.txt")
 
     # Load spectra files
     files = sorted(
@@ -99,25 +119,10 @@ def read_all_spectraNF(folder_path):
 
     for file_path in files:
 
-        try:
-
-            df = read_dataNF(file_path, height_map)
-
-            if ref_df is not None and len(df) == len(ref_df):
-
-                df["Intensity_counts"] = df["Intensity_counts"].values / ref_counts
-
-            else:
-
-                print(f"Warning: Cannot normalize {file_path.name}, ref.txt missing or shape mismatch.")
-
-            df["Intensity_counts"] -= df["Intensity_counts"].min()
-
-            spectra[df.attrs["Height_label"]] = df
-
-        except Exception as e:
-
-            print(f"Error, skipping {file_path.name}: {str(e)}")
+        df = read_dataNF(file_path, height_map)
+        #df["Intensity_counts"] = df["Intensity_counts"] / ref_df["Intensity_counts"]
+        df["Intensity_counts"] -= df["Intensity_counts"].min()
+        spectra[df.attrs["Height_label"]] = df
 
     return spectra
 
@@ -289,51 +294,3 @@ def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_
         data_matrix.append(intensities)
 
     return np.array(heights), wl_centers + wl_step / 2, np.array(data_matrix)
-
-def plot_all_spectra_superimposed(datasets):
-
-    all_dicts = []
-    all_heights = []
-
-    # Collect all spectra and heights
-    for data in datasets:
-
-        spectra_dict = read_all_spectraNF(data["folder"])
-        all_dicts.append((spectra_dict, data))
-        all_heights.extend(df.attrs["Height"] for df in spectra_dict.values())
-
-    # Define global colormap and normalization
-    sorted_heights = np.sort(np.unique(all_heights))
-    colormap = cm.jet
-    colors = colormap(np.linspace(0, 1, len(sorted_heights)))
-    height_to_color = dict(zip(sorted_heights, colors))
-
-    cmap = ListedColormap(colors)
-    boundaries = np.append(sorted_heights, sorted_heights[-1] + 1)
-    norm = BoundaryNorm(boundaries=boundaries, ncolors=len(colors))
-
-    # Plot
-    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
-
-    for spectra_dict, data in all_dicts:
-
-        for label, df in spectra_dict.items():
-
-            height = df.attrs["Height"]
-            color = height_to_color[height]
-            ax.plot(df["Wavelength_nm"], df["Intensity_counts"], color=color, linewidth=1, alpha=0.8)
-
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-
-    cbar = plt.colorbar(sm, ax=ax, ticks=sorted_heights[::max(1, len(sorted_heights) // 10)])
-    cbar.set_label("Height (SensZ) [mV]", fontsize=16, labelpad=5)
-    cbar.ax.tick_params(labelsize=14)
-
-    ax.set_title("Spectra of multiple datasets", fontsize=16)
-    ax.set_xlabel("Wavelength [nm]", fontsize=14)
-    ax.set_ylabel("Normalized Intensity", fontsize=14)
-    ax.grid(True, alpha=0.3)
-    ax.set_ylim(bottom=0)
-
-    plt.show()

@@ -10,21 +10,21 @@ plt.close("all")
 
 datasets = [
     # {
-    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101016",
-    #     "integration_time": 2,
-    #     "ratio_start": 0.001,
-    #     "ratio_stop": 0.6,
-    #     "label": "NO TIR",
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618105743",
+    #     "integration_time": 1,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "Non near-field",
     #     "power_shift_factor": 1.0,
     #     "luminescence_shift_factor": 1.0,
     #     "spectrometer_hole_diameter": 0.05  # In mm
     # },
     # {
-    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623101700",
-    #     "integration_time": 3,
-    #     "ratio_start": 0.001,
-    #     "ratio_stop": 0.9,
-    #     "label": "NO TIR",
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250618\20250618110710",
+    #     "integration_time": 1,
+    #     "ratio_start": 0.0003,
+    #     "ratio_stop": 0.003,
+    #     "label": "Near-field",
     #     "power_shift_factor": 1.0,
     #     "luminescence_shift_factor": 1.0,
     #     "spectrometer_hole_diameter": 0.05  # In mm
@@ -79,41 +79,41 @@ datasets = [
     #     "luminescence_shift_factor": 1.0,
     #     "spectrometer_hole_diameter": 0.05  # In mm
     # },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
-        "integration_time": 1,
-        "power_percentage": 5,
-        "stepZ": -50, # In mV
-        "label": "TIR",
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623145307",
-        "integration_time": 2,
-        "power_percentage": 10,
-        "stepZ": -50, # In mV
-        "label": "TIR",
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623150547",
-        "integration_time": 2,
-        "power_percentage": 20,
-        "stepZ": -50, # In mV
-        "label": "TIR",
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623152231",
-        "integration_time": 2,
-        "power_percentage": 40,
-        "stepZ": -50, # In mV
-        "label": "TIR",
-    },
-    {
-        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623153308",
-        "integration_time": 2,
-        "power_percentage": 60,
-        "stepZ": -50, # In mV
-        "label": "TIR",
-    },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
+    #     "integration_time": 1,
+    #     "power_percentage": 5,
+    #     "stepZ": -50, # In mV
+    #     "label": "TIR",
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623145307",
+    #     "integration_time": 2,
+    #     "power_percentage": 10,
+    #     "stepZ": -50, # In mV
+    #     "label": "TIR",
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623150547",
+    #     "integration_time": 2,
+    #     "power_percentage": 20,
+    #     "stepZ": -50, # In mV
+    #     "label": "TIR",
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623152231",
+    #     "integration_time": 2,
+    #     "power_percentage": 40,
+    #     "stepZ": -50, # In mV
+    #     "label": "TIR",
+    # },
+    # {
+    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623153308",
+    #     "integration_time": 2,
+    #     "power_percentage": 60,
+    #     "stepZ": -50, # In mV
+    #     "label": "TIR",
+    # },
     {
         "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
         "integration_time": 2,
@@ -160,7 +160,7 @@ datasets = [
 
 # For a specific spectra plot
 
-# selected_data = datasets[-1]
+# selected_data = datasets[0]
 # all_spectra = read_all_spectra(selected_data["folder"])
 
 # Load power map

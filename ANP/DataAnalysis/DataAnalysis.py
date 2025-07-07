@@ -852,14 +852,20 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
         # Compute s value and power
         derivative_df, s_value, s_power = calculate_derivative(results_df)
 
+        from matplotlib.cm import get_cmap
+
+        # Get a categorical colormap for more distinct colors
+        cmap = get_cmap("tab10")  # You can also try "tab20", "Set1", etc.
+        colors = [cmap(i % cmap.N) for i in range(len(datasets))]
+
         config_label = f"{data.get('label', ''):<7}"  # Empty if not present
 
         label = (
-                 f"{config_label:<7} | "
-                 f"Int. time: {int_time:>5.2f} s | "
-                 f"R: {ratio_start:>7.4f} – {ratio_stop:>7.3f} | "
-                 f"s ≈ {s_value:>6.2f} at {s_power:>10.6f} W"
-                )
+            f"{config_label:<7} | "
+            f"Int. time: {int_time:>5.2f} s | "
+            f"R: {ratio_start:.4f} - {ratio_stop:.3f} | "
+            f"s ≈ {s_value:.2f} at {s_power:.6f} W"
+        )
 
         # Plot curve
         ax.plot(
@@ -878,18 +884,28 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
         ax.axvline(
                    x=s_power,
                    linestyle="--",
-                   linewidth=1.2,
+                   linewidth=1.6,
                    color=colors[i],
                    alpha=0.5
                   )
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
-    ax.set_xlabel("Power [W]", fontsize=12)
-    ax.set_ylabel("Luminescence [counts]", fontsize=12)
+    ax.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=22)
+    ax.set_xlabel("Power [W]", fontsize=22)
+    ax.set_ylabel("Luminescence [counts]", fontsize=22)
+    ax.tick_params(axis='both', which='major', labelsize=20)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
-    ax.legend(fontsize=14, loc="best", prop={"family": "DejaVu Sans Mono"})
+
+    legend = ax.legend(
+        fontsize=22,
+        loc="best",
+        prop={"family": "DejaVu Sans Mono", "size": 22},
+        frameon=True,
+        fancybox=True
+    )
+    for text in legend.get_texts():
+        text.set_fontsize(14)
 
     #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
     #plt.legend(bbox_to_anchor=(1.001, 0.5), loc='center left')
