@@ -79,41 +79,41 @@ datasets = [
     #     "luminescence_shift_factor": 1.0,
     #     "spectrometer_hole_diameter": 0.05  # In mm
     # },
-    # {
-    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
-    #     "integration_time": 1,
-    #     "power_percentage": 5,
-    #     "stepZ": -50, # In mV
-    #     "label": "TIR",
-    # },
-    # {
-    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623145307",
-    #     "integration_time": 2,
-    #     "power_percentage": 10,
-    #     "stepZ": -50, # In mV
-    #     "label": "TIR",
-    # },
-    # {
-    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623150547",
-    #     "integration_time": 2,
-    #     "power_percentage": 20,
-    #     "stepZ": -50, # In mV
-    #     "label": "TIR",
-    # },
-    # {
-    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623152231",
-    #     "integration_time": 2,
-    #     "power_percentage": 40,
-    #     "stepZ": -50, # In mV
-    #     "label": "TIR",
-    # },
-    # {
-    #     "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623153308",
-    #     "integration_time": 2,
-    #     "power_percentage": 60,
-    #     "stepZ": -50, # In mV
-    #     "label": "TIR",
-    # },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623144114",
+        "integration_time": 1,
+        "power_percentage": 5,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623145307",
+        "integration_time": 2,
+        "power_percentage": 10,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623150547",
+        "integration_time": 2,
+        "power_percentage": 20,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623152231",
+        "integration_time": 2,
+        "power_percentage": 40,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
+    {
+        "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623153308",
+        "integration_time": 2,
+        "power_percentage": 60,
+        "stepZ": -50, # In mV
+        "label": "TIR",
+    },
     {
         "folder": r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\20250623154507",
         "integration_time": 2,
@@ -336,13 +336,75 @@ plot_spectra_heights_norm(all_spectra, integration_time=selected_data["integrati
 plt.show()
 
 heights, wl_bins, intensity_map = integral_map_different_heights(all_spectra, integration_time=2, wl_start=760, wl_stop=840)
-plt.figure(figsize=(10, 6))
-plt.pcolormesh(wl_bins, heights, intensity_map, shading='auto', cmap='jet')
-plt.xlabel("Wavelength [nm]")
-plt.ylabel("Height (SensZ) [mV]")
-plt.title("2D map, integrated counts per 1 nm bin")
-cbar = plt.colorbar(label="Luminescence [counts/s]")
+plt.figure(figsize=(12, 7))  # Slightly larger figure for better spacing
+pcm = plt.pcolormesh(
+    wl_bins,
+    heights,
+    intensity_map,
+    shading='auto',
+    cmap='jet'
+)
+
+# Axis labels
+plt.xlabel("Wavelength [nm]", fontsize=16)
+plt.ylabel("Height (SensZ) [mV]", fontsize=16)
+
+# Title
+plt.title("2D map: integrated counts per 1 nm bin", fontsize=18, pad=15)
+
+# Ticks font size
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+
+# Add colorbar with label
+cbar = plt.colorbar(pcm)
+cbar.set_label("Luminescence [counts/s]", fontsize=16)
+cbar.ax.tick_params(labelsize=14)
+
+# Grid (optional, can remove for cleaner image)
+plt.grid(False)
+
+# Improve layout
 plt.tight_layout()
 plt.show()
 
 #plot_all_spectra_superimposed(datasets)
+
+# # Define integration range
+# wl_min = 760
+# wl_max = 840
+# integration_time = selected_data["integration_time"]
+#
+# # Integrate each spectrum over the wavelength range
+# lum_df = integrate_peakNF(all_spectra, wl_min=wl_min, wl_max=wl_max, integration_time=integration_time)
+#
+# # Sort the DataFrame by height in descending order
+# lum_df = lum_df.sort_values("Height_mV", ascending=False)
+#
+# # Plot Luminescence vs Height
+# plt.figure(figsize=(9, 6))
+# plt.plot(
+#     lum_df["Height_mV"],
+#     lum_df["Luminescence_counts"],
+#     marker='o',
+#     markersize=8,
+#     markerfacecolor='white',
+#     markeredgewidth=2,
+#     linestyle='-',
+#     linewidth=2,
+#     color='tab:blue'
+# )
+#
+# plt.xlabel("Height (SensZ) [mV]", fontsize=16)
+# plt.ylabel("Luminescence [counts]", fontsize=16)
+# plt.title(f"Luminescence vs height", fontsize=18)
+#
+# plt.xticks(fontsize=14)
+# plt.yticks(fontsize=14)
+# plt.grid(True, linestyle="--", alpha=0.3)
+#
+# # Optional: reverse x-axis if height decreases upward
+# plt.gca().invert_xaxis()
+#
+# plt.tight_layout()
+# plt.show()
