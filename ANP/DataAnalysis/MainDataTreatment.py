@@ -163,13 +163,9 @@ datasets = [
 # selected_data = datasets[0]
 # all_spectra = read_all_spectra(selected_data["folder"])
 
-# Load power map
-# Check its use
 # power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
 # power_info = pd.read_csv(power_info_file, sep="\t")
 # power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-
-# Integration range, just for visualizing
 
 # plot_spectra_with_zoom(all_spectra,
 #                       integration_time=selected_data["integration_time"],
@@ -324,6 +320,8 @@ datasets = [
 # print("\nTIR data:")
 # print(ratios_df_tir)
 
+
+
 # NF analysis:
 
 selected_data = datasets[-1]
@@ -361,14 +359,14 @@ cbar = plt.colorbar(pcm)
 cbar.set_label("Luminescence [counts/s]", fontsize=16)
 cbar.ax.tick_params(labelsize=14)
 
-# Grid (optional, can remove for cleaner image)
 plt.grid(False)
-
-# Improve layout
 plt.tight_layout()
 plt.show()
 
 #plot_all_spectra_superimposed(datasets)
+
+
+# Attempt to plot luminescence enhancements (this is done to an emission experiment, it is more relevant to an excitation experiment):
 
 # Define integration range
 wl_min = 760
@@ -384,21 +382,20 @@ lum_df = lum_df.sort_values("Height_mV", ascending=False)
 # Plot Luminescence vs Height
 plt.figure(figsize=(9, 6))
 plt.plot(
-    lum_df["Height_mV"],
-    lum_df["Luminescence_counts"],
-    marker='o',
-    markersize=8,
-    markerfacecolor='white',
-    markeredgewidth=2,
-    linestyle='-',
-    linewidth=2,
-    color='tab:blue'
-)
+   lum_df["Height_mV"],
+         lum_df["Luminescence_counts"],
+         marker='o',
+         markersize=8,
+         markerfacecolor='white',
+         markeredgewidth=2,
+         linestyle='-',
+         linewidth=2,
+         color='tab:blue'
+        )
 
 plt.xlabel("Height (SensZ) [mV]", fontsize=16)
 plt.ylabel("Luminescence [counts]", fontsize=16)
 plt.title(f"Luminescence vs height", fontsize=18)
-
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.grid(True, linestyle="--", alpha=0.3)
