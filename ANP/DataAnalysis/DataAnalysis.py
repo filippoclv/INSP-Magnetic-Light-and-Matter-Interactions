@@ -11,9 +11,9 @@ import re
 
 # If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
 
-power_info_file = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144818\SetInfoPowerCurve.txt"
-power_info = pd.read_csv(power_info_file, sep="\t")
-power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+# power_info_file = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144818\SetInfoPowerCurve.txt"
+# power_info = pd.read_csv(power_info_file, sep="\t")
+# power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
 def read_data(file_path, power_map):
 
@@ -65,62 +65,6 @@ def read_data(file_path, power_map):
 
     return df
 
-# def read_all_spectra(folder_path):
-#
-#     folder = Path(folder_path)
-#
-#     # Load power map locally per folder
-#     power_info_file = folder / "SetInfoPowerCurve.txt"
-#     power_info = pd.read_csv(power_info_file, sep="\t")
-#     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-#
-#     spectra = {} # Dictionary to store the power labels of each dataframe
-#
-#     # To sort the labels
-#     files = sorted(
-#         folder.glob("P*.txt"),
-#         key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
-#     )
-#
-#     for file_path in files:
-#
-#         try:
-#
-#             df = read_data(file_path, power_map)
-#             spectra[df.attrs["Power_label"]] = df
-#
-#         except Exception as e:
-#
-#             print(f"Error, skipping {file_path.name}: {str(e)}")
-#
-#     # Background subtraction, average of P0
-#     background_df = spectra.get("P0")
-#
-#     if background_df is not None:
-#         # Choose a wavelength region where there's clearly no signal
-#         background_region = background_df[
-#             (background_df["Wavelength_nm"] >= 870) &
-#             (background_df["Wavelength_nm"] <= 900)
-#             ]
-#
-#         if not background_region.empty:
-#
-#             background_value = background_region["Intensity_counts"].mean()
-#             #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
-#
-#             for label, df in spectra.items():
-#
-#                 df["Intensity_counts"] -= background_value
-#                 df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
-#
-#         else:
-#
-#             print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
-#
-#     return spectra
-
-# Function read_all_spectra with a kind of masking system:
-
 def read_all_spectra(folder_path):
 
     folder = Path(folder_path)
@@ -130,32 +74,19 @@ def read_all_spectra(folder_path):
     power_info = pd.read_csv(power_info_file, sep="\t")
     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
 
-    spectra = {}  # Dictionary to store the power labels of each dataframe
+    spectra = {} # Dictionary to store the power labels of each dataframe
 
     # To sort the labels
     files = sorted(
-                   folder.glob("P*.txt"),
-                   key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
-                  )
+        folder.glob("P*.txt"),
+        key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
+    )
 
     for file_path in files:
 
         try:
 
             df = read_data(file_path, power_map)
-
-            # Add noise filtering for 680-720 nm range
-            mask = (df["Wavelength_nm"] >= 680) & (df["Wavelength_nm"] <= 720)
-
-            if any(mask):
-
-                window_size = 15
-                rolling_mean = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).mean()
-                rolling_std = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).std()
-                outliers = abs(df.loc[mask, "Intensity_counts"] - rolling_mean) > (2 * rolling_std)
-                df.loc[mask & outliers, "Intensity_counts"] = np.nan
-                df["Intensity_counts"] = df["Intensity_counts"].interpolate(method='linear')
-
             spectra[df.attrs["Power_label"]] = df
 
         except Exception as e:
@@ -167,7 +98,6 @@ def read_all_spectra(folder_path):
 
     if background_df is not None:
         # Choose a wavelength region where there's clearly no signal
-
         background_region = background_df[
             (background_df["Wavelength_nm"] >= 870) &
             (background_df["Wavelength_nm"] <= 900)
@@ -176,6 +106,7 @@ def read_all_spectra(folder_path):
         if not background_region.empty:
 
             background_value = background_region["Intensity_counts"].mean()
+            #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
 
             for label, df in spectra.items():
 
@@ -184,10 +115,79 @@ def read_all_spectra(folder_path):
 
         else:
 
-            print(
-                f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
+            print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
 
     return spectra
+
+# Function read_all_spectra with a kind of masking system:
+
+# def read_all_spectra(folder_path):
+#
+#     folder = Path(folder_path)
+#
+#     # Load power map locally per folder
+#     power_info_file = folder / "SetInfoPowerCurve.txt"
+#     power_info = pd.read_csv(power_info_file, sep="\t")
+#     power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+#
+#     spectra = {}  # Dictionary to store the power labels of each dataframe
+#
+#     # To sort the labels
+#     files = sorted(
+#                    folder.glob("P*.txt"),
+#                    key=lambda f: int(re.search(r"P(\d+)", f.name).group(1))
+#                   )
+#
+#     for file_path in files:
+#
+#         try:
+#
+#             df = read_data(file_path, power_map)
+#
+#             # Add noise filtering for 680-720 nm range
+#             mask = (df["Wavelength_nm"] >= 680) & (df["Wavelength_nm"] <= 720)
+#
+#             if any(mask):
+#
+#                 window_size = 15
+#                 rolling_mean = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).mean()
+#                 rolling_std = df.loc[mask, "Intensity_counts"].rolling(window=window_size, center=True).std()
+#                 outliers = abs(df.loc[mask, "Intensity_counts"] - rolling_mean) > (2 * rolling_std)
+#                 df.loc[mask & outliers, "Intensity_counts"] = np.nan
+#                 df["Intensity_counts"] = df["Intensity_counts"].interpolate(method='linear')
+#
+#             spectra[df.attrs["Power_label"]] = df
+#
+#         except Exception as e:
+#
+#             print(f"Error, skipping {file_path.name}: {str(e)}")
+#
+#     # Background subtraction, average of P0
+#     background_df = spectra.get("P0")
+#
+#     if background_df is not None:
+#         # Choose a wavelength region where there's clearly no signal
+#
+#         background_region = background_df[
+#             (background_df["Wavelength_nm"] >= 870) &
+#             (background_df["Wavelength_nm"] <= 900)
+#             ]
+#
+#         if not background_region.empty:
+#
+#             background_value = background_region["Intensity_counts"].mean()
+#
+#             for label, df in spectra.items():
+#
+#                 df["Intensity_counts"] -= background_value
+#                 df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
+#
+#         else:
+#
+#             print(
+#                 f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' - skipping background subtraction.")
+#
+#     return spectra
 
 def plot_spectra(spectra_dict):
 
@@ -216,7 +216,6 @@ def plot_spectra(spectra_dict):
     ax.set_xlabel("Wavelength [nm]", fontsize=12)
     ax.set_ylabel("Intensity [counts]", fontsize=12)
     ax.grid(True, alpha=0.3)
-    #ax.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
 
     plt.tight_layout()
     #plt.show()
@@ -224,25 +223,18 @@ def plot_spectra(spectra_dict):
 def print_power_values():
 
     for label, df in all_spectra.items():
+
         print(f"{label}: {df.attrs['Power_W']:.6e} W")
 
-data_folder = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144818"
-
-#Specific parameters of this measurement!
-integration_time = 3 # Integration time in s
-ratio_start = 0.0001
-ratio_stop = 0.08
-
-#all_spectra = read_all_spectra(data_folder)
+# data_folder = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\Test_ANP_20250401\20250401144818"
+# all_spectra = read_all_spectra(data_folder)
 
 # To display a certain dataframe
-#file_label = "P5" # Choose which spectrum to display
-#print(f"\nSpectrum ({file_label}):")
-#display(all_spectra[file_label])
+# file_label = "P5" # Choose which spectrum to display
+# print(f"\nSpectrum ({file_label}):")
+# display(all_spectra[file_label])
 
-#print_power_values()
-
-#plot_spectra(all_spectra)
+# print_power_values()
 
 # Trying now to zoom into little peaks
 
@@ -277,9 +269,6 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
     sm = plt.cm.ScalarMappable(cmap=colormap, norm=norm)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax)
-    #ticks_values = np.linspace(min(powers), max(powers), 6)  # Choose number of ticks
-    #cbar.set_ticks(ticks_values)
-    #cbar.set_ticklabels([f"{v:.1e}" for v in ticks_values])  # For scientific notation
     cbar.set_label("Power [W] (log scale)", fontsize=16, labelpad=5)
     cbar.ax.tick_params(labelsize=14)
 
@@ -313,7 +302,6 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
     ax.set_xlabel("Wavelength [nm]", fontsize=14)
     ax.set_ylabel("Intensity [counts]", fontsize=14)
     ax.grid(True, alpha=0.3)
-    #ax.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
 
     # Get the first dataset to check if it's TIR or NO TIR
     first_df = next(iter(spectra_dict.values()))
@@ -364,9 +352,6 @@ def plot_spectra_no_zoom(spectra_dict, integration_time, ratio_start, ratio_stop
     sm = plt.cm.ScalarMappable(cmap=colormap, norm=norm)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax)
-    #ticks_values = np.linspace(min(powers), max(powers), 6)  # Choose number of ticks
-    #cbar.set_ticks(ticks_values)
-    #cbar.set_ticklabels([f"{v:.1e}" for v in ticks_values])  # For scientific notation
     cbar.set_label("Power [W] (log scale)", fontsize=16, labelpad=5)
     cbar.ax.tick_params(labelsize=14)
 
@@ -375,7 +360,6 @@ def plot_spectra_no_zoom(spectra_dict, integration_time, ratio_start, ratio_stop
     ax.set_xlabel("Wavelength [nm]", fontsize=14)
     ax.set_ylabel("Intensity [counts]", fontsize=14)
     ax.grid(True, alpha=0.3)
-    #ax.legend(title="Power label", bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=10, ncol=2)
 
     # Get the first dataset to check if it's TIR or NO TIR
     first_df = next(iter(spectra_dict.values()))
@@ -488,17 +472,6 @@ def plot_normalized_spectra_with_zoom(spectra_dict, integration_time, ratio_star
 
     #plt.show()
 
-#plot_spectra_with_zoom(all_spectra,
-#                       integration_time=integration_time,
-#                       ratio_start=ratio_start,
-#                       ratio_stop=ratio_stop)
-
-#plot_normalized_spectra_with_zoom(all_spectra,
-#                                  integration_time=integration_time,
-#                                  ratio_start=ratio_start,
-#                                  ratio_stop=ratio_stop
-#                                  )
-
 # I should normalize each spectrum with its max value! Check previous function
 
 # Let's now handle the data and integrate the big peak
@@ -525,10 +498,6 @@ def integrate_peak(spectra_dict, wl_min, wl_max, integration_time):
         results.append((power, luminescence, integrated_counts))
 
     return pd.DataFrame(results, columns=["Power_W", "Luminescence_counts", "Integrated_counts"])
-
-#results_df = integrate_peak(all_spectra, wl_min=755, wl_max=860, integration_time=integration_time)
-
-#display(results_df)
 
 def plot_integrated_intensity_vs_power(results_df, wl_min, wl_max, integration_time, ratio_start, ratio_stop):
 
@@ -655,8 +624,6 @@ def plot_all_power_curves(datasets, int_start, int_end):
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
 
-    #plt.savefig("All_PowerCurves.png", dpi=300)
-
     # Add colorbar
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
@@ -664,26 +631,6 @@ def plot_all_power_curves(datasets, int_start, int_end):
     cbar.set_label("Z parameter [mV]", fontsize=12)
 
     plt.show()
-
-#plot_luminescence_vs_power(results_df,
-#                           wl_min=755,
-#                           wl_max=860,
-#                           integration_time=integration_time,
-#                           ratio_start=ratio_start,
-#                           ratio_stop=ratio_stop
-#                          )
-
-#plot_integrated_intensity_vs_power(results_df,
-#                                   wl_min=755,
-#                                   wl_max=860,
-#                                   integration_time=integration_time,
-#                                   ratio_start=ratio_start,
-#                                   ratio_stop=ratio_stop
-#                                   )
-
-
-# Remove the background, like P0, in the data (done). Then try again normalization
-# If I do the derivative of the power spectra I should get the non linearity parameter s
 
 def calculate_derivative(results_df):
 
@@ -818,7 +765,6 @@ def plot_all_derivatives(datasets, int_start, int_end):
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=4, loc="lower right", prop={"family": "DejaVu Sans Mono"})
 
-    #plt.savefig("All_Derivatives_Curves.png", dpi=300)
     plt.show()
 
 def plot_all_power_curves_with_s(datasets, int_start, int_end):
@@ -906,9 +852,6 @@ def plot_all_power_curves_with_s(datasets, int_start, int_end):
     )
     for text in legend.get_texts():
         text.set_fontsize(14)
-
-    #plt.savefig("All_PowerCurves_with_s.png", dpi=300)
-    #plt.legend(bbox_to_anchor=(1.001, 0.5), loc='center left')
 
     plt.show()
 
