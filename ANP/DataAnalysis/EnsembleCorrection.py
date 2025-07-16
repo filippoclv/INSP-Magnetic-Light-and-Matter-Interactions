@@ -202,7 +202,7 @@ plt.plot(single_anp['Phi_exc']*1.47, single_anp['Luminescence_counts'],
          '-o', label='Measured carpet of ANPs, normal incidence', color='red', markerfacecolor='none')
 #plt.plot(single_anp['Phi_exc_NOTIR']*1.47, single_anp['Ensemble_f_phi_exc_NOTIR'], # We actually want peak flux
 #         '-o', label='Theoretical carpet of ANPs, normal incidence', color='blue', markerfacecolor='none')
-plt.plot(single_anp['Phi_exc_TIR']*1.20, sing   le_anp['Ensemble_f_phi_exc_TIR'], # 1.20 is the assumed correction to obtain peak flux in TIR
+plt.plot(single_anp['Phi_exc_TIR']*1.20, single_anp['Ensemble_f_phi_exc_TIR'], # 1.20 is the assumed correction to obtain peak flux in TIR
          '-o', label='Theoretical carpet of ANPs, TIR', color='green', markerfacecolor='none')
 #plt.plot(single_anp['Phi_peak'], single_anp['Luminescence_counts'],
 #         '-o', label='Single ANP NO TIR correction', color='coral', markerfacecolor='none')
