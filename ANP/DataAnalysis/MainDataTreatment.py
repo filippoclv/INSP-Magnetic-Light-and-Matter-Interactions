@@ -370,41 +370,41 @@ plt.show()
 
 #plot_all_spectra_superimposed(datasets)
 
-# # Define integration range
-# wl_min = 760
-# wl_max = 840
-# integration_time = selected_data["integration_time"]
-#
-# # Integrate each spectrum over the wavelength range
-# lum_df = integrate_peakNF(all_spectra, wl_min=wl_min, wl_max=wl_max, integration_time=integration_time)
-#
-# # Sort the DataFrame by height in descending order
-# lum_df = lum_df.sort_values("Height_mV", ascending=False)
-#
-# # Plot Luminescence vs Height
-# plt.figure(figsize=(9, 6))
-# plt.plot(
-#     lum_df["Height_mV"],
-#     lum_df["Luminescence_counts"],
-#     marker='o',
-#     markersize=8,
-#     markerfacecolor='white',
-#     markeredgewidth=2,
-#     linestyle='-',
-#     linewidth=2,
-#     color='tab:blue'
-# )
-#
-# plt.xlabel("Height (SensZ) [mV]", fontsize=16)
-# plt.ylabel("Luminescence [counts]", fontsize=16)
-# plt.title(f"Luminescence vs height", fontsize=18)
-#
-# plt.xticks(fontsize=14)
-# plt.yticks(fontsize=14)
-# plt.grid(True, linestyle="--", alpha=0.3)
-#
-# # Optional: reverse x-axis if height decreases upward
-# plt.gca().invert_xaxis()
-#
-# plt.tight_layout()
-# plt.show()
+# Define integration range
+wl_min = 760
+wl_max = 840
+integration_time = selected_data["integration_time"]
+
+# Integrate each spectrum over the wavelength range
+lum_df = integrate_peakNF(all_spectra, wl_min=wl_min, wl_max=wl_max, integration_time=integration_time)
+
+# Sort the DataFrame by height in descending order
+lum_df = lum_df.sort_values("Height_mV", ascending=False)
+
+# Plot Luminescence vs Height
+plt.figure(figsize=(9, 6))
+plt.plot(
+    lum_df["Height_mV"],
+    lum_df["Luminescence_counts"],
+    marker='o',
+    markersize=8,
+    markerfacecolor='white',
+    markeredgewidth=2,
+    linestyle='-',
+    linewidth=2,
+    color='tab:blue'
+)
+
+plt.xlabel("Height (SensZ) [mV]", fontsize=16)
+plt.ylabel("Luminescence [counts]", fontsize=16)
+plt.title(f"Luminescence vs height", fontsize=18)
+
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+plt.grid(True, linestyle="--", alpha=0.3)
+
+# Optional: reverse x-axis if height decreases upward
+plt.gca().invert_xaxis()
+
+plt.tight_layout()
+plt.show()
