@@ -140,6 +140,7 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
     height_to_color = dict(zip(sorted_heights, colors))
 
     for label, df in spectra_dict.items():
+
         height = df.attrs["Height"]
         color = height_to_color[height]
         ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color, linewidth=1, alpha=0.8)
@@ -197,6 +198,7 @@ def plot_spectra_heights_norm(spectra_dict, integration_time, data, fig=None, ax
     height_to_color = dict(zip(sorted_heights, colors))
 
     for label, df in spectra_dict.items():
+
         height = df.attrs["Height"]
         color = height_to_color[height]
         ax.plot(df["Wavelength_nm"], df["Intensity_counts"]/max(df["Intensity_counts"]), label=label, color=color, linewidth=1, alpha=0.8)
@@ -219,7 +221,7 @@ def plot_spectra_heights_norm(spectra_dict, integration_time, data, fig=None, ax
 
     # Get the first dataset to check if it's TIR or NO TIR
     first_df = next(iter(spectra_dict.values()))
-    measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
+    measurement_type = data.get('label', 'Unknown')  # Gets TIR or NO TIR from the data dictionary
     power_percentage = data.get('power_percentage', 'Unknown')
     stepZ = data.get('stepZ', 'Unknown')
 
