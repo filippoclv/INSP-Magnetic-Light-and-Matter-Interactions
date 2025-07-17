@@ -1,4 +1,4 @@
-from file_reader import *
+from FileReader import *
 from DataAnalysis import *
 from DataAnalysisNF import *
 import warnings
