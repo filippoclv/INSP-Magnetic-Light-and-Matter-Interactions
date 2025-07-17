@@ -6,25 +6,25 @@ import json
 warnings.simplefilter('ignore', np.RankWarning)
 plt.close("all")
 
-with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\powercurves_metadata.json", "r") as power_curves:
+with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\powercurves_metadata.json", "r") as powercurves:
 
-    power_curves_datasets = json.load(power_curves)
+    powercurves_datasets = json.load(powercurves)
 
-selected_dataset = power_curves_datasets[0]
+selected_dataset = powercurves_datasets[0]
 all_spectra = read_all_spectra(selected_dataset["folder"])
 
 int_start = 770
 int_end = 835
 
 plot_spectra_with_zoom(all_spectra,
-                      integration_time=selected_dataset["integration_time"],
-                      ratio_start=selected_dataset["ratio_start"],
-                      ratio_stop=selected_dataset["ratio_stop"],
-                      data_label=selected_dataset,
-                      zoom_wl_min=630,
-                      zoom_wl_max=760,
-                      integration_range=(int_start, int_end)
-                     )
+                       integration_time=selected_dataset["integration_time"],
+                       ratio_start=selected_dataset["ratio_start"],
+                       ratio_stop=selected_dataset["ratio_stop"],
+                       data_label=selected_dataset,
+                       zoom_wl_min=630,
+                       zoom_wl_max=760,
+                       integration_range=(int_start, int_end)
+                      )
 
 # plot_spectra_no_zoom(all_spectra,
 #                      integration_time=selected_data["integration_time"],
