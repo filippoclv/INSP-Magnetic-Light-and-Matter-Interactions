@@ -238,7 +238,16 @@ def print_power_values():
 
 # Trying now to zoom into little peaks
 
-def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_stop, data, zoom_wl_min=630, zoom_wl_max=760, integration_range=None, fig=None, ax=None):
+def plot_spectra_with_zoom(spectra_dict,
+                           integration_time,
+                           ratio_start,
+                           ratio_stop,
+                           data_label,
+                           zoom_wl_min=None,
+                           zoom_wl_max=None,
+                           integration_range=None,
+                           fig=None,
+                           ax=None):
 
     if fig is None or ax is None:
 
@@ -305,7 +314,7 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
 
     # Get the first dataset to check if it's TIR or NO TIR
     first_df = next(iter(spectra_dict.values()))
-    measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
+    measurement_type = data_label.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
 
     parameters_text = (f"Type: {measurement_type}\n"
                        f"Integration time: {integration_time} s\n"
@@ -318,6 +327,8 @@ def plot_spectra_with_zoom(spectra_dict, integration_time, ratio_start, ratio_st
             verticalalignment="top",
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    plt.show()
 
     return fig, ax
 
