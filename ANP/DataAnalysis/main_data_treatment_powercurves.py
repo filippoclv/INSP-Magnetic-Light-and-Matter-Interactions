@@ -26,6 +26,8 @@ plot_spectra_with_zoom(all_spectra,
                        integration_range=(int_start, int_end)
                       )
 
+print(all_spectra)
+
 # plot_spectra_no_zoom(all_spectra,
 #                      integration_time=selected_data["integration_time"],
 #                      ratio_start=selected_data["ratio_start"],
