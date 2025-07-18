@@ -1,4 +1,5 @@
 from FileReader import *
+from Plotter import *
 from DataAnalysis import *
 from DataAnalysisNF import *
 import warnings
@@ -17,7 +18,15 @@ all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"], backgr
 int_start = 770
 int_end = 835
 
-plot_spectra_with_zoom(all_spectra_dict,
+# plot_all_spectra(all_spectra_dict,
+#                  integration_time=selected_dataset["integration_time"],
+#                  ratio_start=selected_dataset["ratio_start"],
+#                  ratio_stop=selected_dataset["ratio_stop"],
+#                  data_label=selected_dataset,
+#                  integration_range=(int_start, int_end)
+#                 )
+
+plot_all_spectra_with_zoom(all_spectra_dict,
                        integration_time=selected_dataset["integration_time"],
                        ratio_start=selected_dataset["ratio_start"],
                        ratio_stop=selected_dataset["ratio_stop"],
@@ -27,13 +36,6 @@ plot_spectra_with_zoom(all_spectra_dict,
                        integration_range=(int_start, int_end)
                       )
 
-# plot_spectra_no_zoom(all_spectra,
-#                      integration_time=selected_data["integration_time"],
-#                      ratio_start=selected_data["ratio_start"],
-#                      ratio_stop=selected_data["ratio_stop"],
-#                      data=selected_data,
-#                      integration_range=(int_start, int_end)
-#                     )
 
 # 630 - 760 nm range is good to zoom on the smaller peaks
 
