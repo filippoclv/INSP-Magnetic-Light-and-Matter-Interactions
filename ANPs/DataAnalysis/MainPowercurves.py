@@ -12,7 +12,7 @@ with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\p
     powercurves_datasets = json.load(powercurves)
 
 selected_dataset = powercurves_datasets[0]
-all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"])
+all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"], background_subtraction_range=(875, 900))
 
 int_start = 770
 int_end = 835

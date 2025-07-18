@@ -39,7 +39,7 @@ def read_spectrum_txt_to_dataframe(spectrum_path, power_map=None):
 
     return spectrum
 
-def all_spectra_dataframe_dict(folder_path):
+def all_spectra_dataframe_dict(folder_path, background_subtraction_range=None):
 
     folder = Path(folder_path)
 
@@ -56,29 +56,32 @@ def all_spectra_dataframe_dict(folder_path):
         data = read_spectrum_txt_to_dataframe(file_path, power_map)
         spectra_dict[data.attrs["Power_label"]] = data
 
+    if background_subtraction_range is not None:
 
-    # # Background subtraction, average of P0
-    # background_df = spectra.get("P0")
-    #
-    # if background_df is not None:
-    #     # Choose a wavelength region where there's clearly no signal
-    #     background_region = background_df[
-    #         (background_df["Wavelength_nm"] >= 870) &
-    #         (background_df["Wavelength_nm"] <= 900)
-    #         ]
-    #
-    #     if not background_region.empty:
-    #
-    #         background_value = background_region["Intensity_counts"].mean()
-    #         #print(f"\nBackground counts (P0 average in 870–900 nm) in dataset '{file_path.parent.name}': {background_value:.2f} counts")
-    #
-    #         for label, df in spectra.items():
-    #
-    #             df["Intensity_counts"] -= background_value
-    #             df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
-    #
-    #     else:
-    #
-    #         print(f"\nWarning: No data in 870–900 nm for P0 in dataset '{file_path.parent.name}' — skipping background subtraction.")
+        first_spectrum = spectra_dict.get("P0")
+
+        if first_spectrum is not None:
+
+            bg_min, bg_max = background_subtraction_range
+
+            background_region = first_spectrum[(first_spectrum["Wavelength_nm"] >= bg_min) &
+                                               (first_spectrum["Wavelength_nm"] <= bg_max)]
+
+            if not background_region.empty:
+
+                background_mean = background_region["Intensity_counts"].mean()
+                #print(f"\nBackground counts (P0 average in {bg_min}–{bg_max} nm) in dataset '{file_path.parent.name}': {background_mean:.2f} counts")
+
+                for label, data in spectra_dict.items():
+
+                    data["Intensity_counts"] -= background_mean
+                    data["Intensity_counts"] = data["Intensity_counts"].clip(lower=0)
+
+            else:
+
+                print(f"\nWarning: No data in {bg_min}–{bg_max} nm for P0 in dataset '{file_path.parent.name}', skipping background subtraction.")
+        else:
+
+            print(f"\nWarning: No P0 spectrum found in dataset '{file_path.parent.name}', skipping background subtraction.")
 
     return spectra_dict
