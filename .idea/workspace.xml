@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates" />
+    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/FileReader.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/FileReader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/MainPowercurves.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/MainPowercurves.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,11 +59,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.DataAnalysis.executor": "Run",
     "Python.DataAnalysisNF.executor": "Run",
     "Python.EnsembleCorrection.executor": "Run",
     "Python.MainDataTreatment.executor": "Run",
     "Python.MainDataTreatmentNew.executor": "Run",
+    "Python.MainPowercurves.executor": "Run",
     "Python.PiezoStageControl.executor": "Run",
     "Python.SavingScript.executor": "Run",
     "Python.main_data_treatment_powercurves.executor": "Run",
@@ -75,6 +82,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Python\PythonLabCode\INSP-Magnetic-Light-and-Matter-Interactions\ANPs\DataAnalysis\GaussianCorrectionTIR" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -128,14 +140,7 @@
       <workItem from="1752664928109" duration="2290000" />
       <workItem from="1752667257807" duration="6175000" />
       <workItem from="1752754468870" duration="5868000" />
-    </task>
-    <task id="LOCAL-00078" summary="updates">
-      <option name="closed" value="true" />
-      <created>1745843262125</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1745843262125</updated>
+      <workItem from="1752829739869" duration="2573000" />
     </task>
     <task id="LOCAL-00079" summary="updates">
       <option name="closed" value="true" />
@@ -521,7 +526,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752767195537</updated>
     </task>
-    <option name="localTasksCounter" value="127" />
+    <task id="LOCAL-00127" summary="updates">
+      <option name="closed" value="true" />
+      <created>1752829893469</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1752829893469</updated>
+    </task>
+    <option name="localTasksCounter" value="128" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -535,6 +548,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainDataTreatmentNew.coverage" NAME="MainDataTreatmentNew Coverage Results" MODIFIED="1744794226365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/DataAnalysis" />
+    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainPowercurves.coverage" NAME="MainPowercurves Coverage Results" MODIFIED="1752832103298" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$SavingScript.coverage" NAME="SavingScript Coverage Results" MODIFIED="1745408690155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/Interfacing" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainDataTreatment.coverage" NAME="MainDataTreatment Coverage Results" MODIFIED="1752766384608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$main_data_treatment_powercurves.coverage" NAME="main_data_treatment_powercurves Coverage Results" MODIFIED="1752767011869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/DataAnalysis" />
