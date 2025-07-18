@@ -138,6 +138,11 @@ with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\s
 selected_dataset = NF_spectra_scanZ_datasets[-1]
 all_spectra_dict = read_all_spectraNF(selected_dataset["folder"])
 ref_df = read_spectrum(Path(selected_dataset["folder"]) / "ref.txt")
+background_region = ref_df[(ref_df["Wavelength_nm"] >= 843) & (ref_df["Wavelength_nm"] <= 844)]
+background_mean = background_region["Intensity_counts"].mean()
+ref_df["Intensity_counts"] -= background_mean
+ref_df["Intensity_counts"] = ref_df["Intensity_counts"].clip(lower=0)
+
 print(all_spectra_dict)
 
 plot_spectra_heights(all_spectra_dict, integration_time=selected_dataset["integration_time"], data=selected_dataset, fig=None, ax=None)

@@ -299,9 +299,10 @@ def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_
         intensities = np.array(intensities)
 
         if ref_integrated is not None:
-            # Set NaN where numerator is 0
             with np.errstate(divide='ignore', invalid='ignore'):
-                intensities = np.where(intensities >= 500, intensities / ref_integrated, np.nan)
+                ratio = intensities / ref_integrated
+                ratio[ratio <= 0.5] = np.nan  # Apply threshold to ratio
+                intensities = ratio
 
         data_matrix.append(intensities)
 
