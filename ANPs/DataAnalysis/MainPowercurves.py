@@ -18,13 +18,13 @@ all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"], backgr
 int_start = 770
 int_end = 835
 
-# plot_all_spectra(all_spectra_dict,
-#                  integration_time=selected_dataset["integration_time"],
-#                  ratio_start=selected_dataset["ratio_start"],
-#                  ratio_stop=selected_dataset["ratio_stop"],
-#                  data_label=selected_dataset,
-#                  integration_range=(int_start, int_end)
-#                 )
+plot_all_spectra(all_spectra_dict,
+                 integration_time=selected_dataset["integration_time"],
+                 ratio_start=selected_dataset["ratio_start"],
+                 ratio_stop=selected_dataset["ratio_stop"],
+                 data_label=selected_dataset,
+                 integration_range=(int_start, int_end)
+                )
 
 plot_all_spectra_with_zoom(all_spectra_dict,
                        integration_time=selected_dataset["integration_time"],
@@ -35,47 +35,6 @@ plot_all_spectra_with_zoom(all_spectra_dict,
                        zoom_wl_max=760,
                        integration_range=(int_start, int_end)
                       )
-
-
-# 630 - 760 nm range is good to zoom on the smaller peaks
-
-# Multiple dataset's spectra:
-
-# fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 12))
-#
-# selected_data = datasets[0] # First dataset
-# power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
-# power_info = pd.read_csv(power_info_file, sep="\t")
-# power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-# all_spectra = read_all_spectra(selected_data["folder"])
-#
-# plot_spectra_with_zoom(all_spectra,
-#                       integration_time=selected_data["integration_time"],
-#                       ratio_start=selected_data["ratio_start"],
-#                       ratio_stop=selected_data["ratio_stop"],
-#                       data=selected_data,
-#                       zoom_wl_min=630,
-#                       zoom_wl_max=760,
-#                       integration_range=(int_start, int_end),
-#                       fig=fig,
-#                       ax=ax1)
-#
-# selected_data = datasets[1] # Second dataset
-# power_info_file = Path(selected_data["folder"]) / "SetInfoPowerCurve.txt"
-# power_info = pd.read_csv(power_info_file, sep="\t")
-# power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-# all_spectra = read_all_spectra(selected_data["folder"])
-#
-# plot_spectra_with_zoom(all_spectra,
-#                       integration_time=selected_data["integration_time"],
-#                       ratio_start=selected_data["ratio_start"],
-#                       ratio_stop=selected_data["ratio_stop"],
-#                       data=selected_data,
-#                       zoom_wl_min=630,
-#                       zoom_wl_max=760,
-#                       integration_range=(int_start, int_end),
-#                       fig=fig,
-#                       ax=ax2)
 
 # plot_all_power_curves(datasets, int_start, int_end) # Check this function
 
