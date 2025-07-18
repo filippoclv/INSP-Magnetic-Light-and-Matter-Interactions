@@ -102,14 +102,16 @@ def read_all_spectraNF(folder_path):
 
     folder = Path(folder_path)
 
-    # Load power map locally per folder
+    # Load power map
     height_info_file = folder / "SetInfoScanHeight.txt"
     height_info = pd.read_csv(height_info_file, sep="\t")
     height_map = dict(zip(height_info["Zindex"], height_info["Height"]))
 
-    spectra = {} # Dictionary to store the power labels of each dataframe
+    spectra = {}
 
+    # Load reference spectrum
     ref_df = read_spectrum(folder_path + "/ref.txt")
+    ref_intensity = ref_df["Intensity_counts"].values
 
     # Load spectra files
     files = sorted(
@@ -117,14 +119,30 @@ def read_all_spectraNF(folder_path):
         key=lambda f: int(re.search(r"Z(\d+)", f.name).group(1))
     )
 
-    for file_path in files:
+    background_mean = None
+
+    for i, file_path in enumerate(files):
 
         df = read_dataNF(file_path, height_map)
-        #df["Intensity_counts"] = df["Intensity_counts"] / ref_df["Intensity_counts"]
-        df["Intensity_counts"] -= df["Intensity_counts"].min()
+
+        # # Normalize by reference spectrum
+        # df["Intensity_counts"] = df["Intensity_counts"] / ref_intensity
+        #
+        # Compute background from the first spectrum only
+        if i == 0:
+            background_region = df[(df["Wavelength_nm"] >= 840) & (df["Wavelength_nm"] <= 844)]
+            background_mean = background_region["Intensity_counts"].mean()
+
+        # Subtract and clip background
+        df["Intensity_counts"] -= background_mean
+        df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
+
+        # Store in dictionary
         spectra[df.attrs["Height_label"]] = df
 
     return spectra
+
+
 
 def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None):
 
@@ -165,7 +183,7 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
     first_df = next(iter(spectra_dict.values()))
     measurement_type = data.get('label', 'Unknown')  # Gets 'TIR' or 'NO TIR' from the data dictionary
     power_percentage = data.get('power_percentage', 'Unknown')
-    stepZ = data.get('stepZ', 'Unknown')
+    stepZ = data.get('stepZ_mV', 'Unknown')
 
     parameters_text = (f"Type: {measurement_type}\n"
                        f"Integration time: {integration_time} s\n"
@@ -265,33 +283,33 @@ def integrate_peakNF(spectra_dict, wl_min, wl_max, integration_time):
 
     return pd.DataFrame(results, columns=["Height_mV", "Luminescence_counts", "Integrated_counts"])
 
-def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_stop, wl_step=1.0):
-
+def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_stop, wl_step=1.0, ref_df=None):
     heights = []
     wl_centers = np.arange(wl_start, wl_stop, wl_step)
     data_matrix = []
 
-    for label, df in sorted(spectra_dict.items(), key=lambda x: x[1].attrs["Height"]):
+    ref_integrated = None
+    if ref_df is not None:
+        ref_integrated = []
+        for wl in wl_centers:
+            ref_window = ref_df[(ref_df["Wavelength_nm"] >= wl) & (ref_df["Wavelength_nm"] < wl + wl_step)]
+            val = np.trapz(ref_window["Intensity_counts"], ref_window["Wavelength_nm"]) / integration_time
+            ref_integrated.append(val)
+        ref_integrated = np.array(ref_integrated)
 
+    for label, df in sorted(spectra_dict.items(), key=lambda x: x[1].attrs["Height"]):
         height = df.attrs["Height"]
         heights.append(height)
         intensities = []
 
         for wl in wl_centers:
+            window = df[(df["Wavelength_nm"] >= wl) & (df["Wavelength_nm"] < wl + wl_step)]
+            val = np.trapz(window["Intensity_counts"], window["Wavelength_nm"]) / integration_time
+            intensities.append(val)
 
-            wl_min = wl
-            wl_max = wl + wl_step
-            window_df = df[(df["Wavelength_nm"] >= wl_min) & (df["Wavelength_nm"] < wl_max)]
-
-            if window_df.empty:
-
-                intensity = 0.0
-
-            else:
-
-                intensity = np.trapz(window_df["Intensity_counts"], window_df["Wavelength_nm"]) / integration_time
-
-            intensities.append(intensity)
+        intensities = np.array(intensities)
+        if ref_integrated is not None:
+            intensities = intensities / ref_integrated
 
         data_matrix.append(intensities)
 
