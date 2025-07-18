@@ -99,7 +99,6 @@ def read_dataNF(file_path, height_map):
     return df
 
 def read_all_spectraNF(folder_path):
-
     folder = Path(folder_path)
 
     # Load power map
@@ -113,36 +112,26 @@ def read_all_spectraNF(folder_path):
     ref_df = read_spectrum(folder_path + "/ref.txt")
     ref_intensity = ref_df["Intensity_counts"].values
 
+    # Compute background from a fixed wavelength window in the reference
+    background_region = ref_df[(ref_df["Wavelength_nm"] >= 843) & (ref_df["Wavelength_nm"] <= 844)]
+    background_mean = background_region["Intensity_counts"].mean()
+
     # Load spectra files
     files = sorted(
         folder.glob("Z*.txt"),
         key=lambda f: int(re.search(r"Z(\d+)", f.name).group(1))
     )
 
-    background_mean = None
-
-    for i, file_path in enumerate(files):
-
+    for file_path in files:
         df = read_dataNF(file_path, height_map)
 
-        # # Normalize by reference spectrum
-        # df["Intensity_counts"] = df["Intensity_counts"] / ref_intensity
-        #
-        # Compute background from the first spectrum only
-        if i == 0:
-            background_region = df[(df["Wavelength_nm"] >= 840) & (df["Wavelength_nm"] <= 844)]
-            background_mean = background_region["Intensity_counts"].mean()
-
-        # Subtract and clip background
+        # Subtract background (same value for all spectra)
         df["Intensity_counts"] -= background_mean
         df["Intensity_counts"] = df["Intensity_counts"].clip(lower=0)
 
-        # Store in dictionary
         spectra[df.attrs["Height_label"]] = df
 
     return spectra
-
-
 
 def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None):
 
@@ -308,9 +297,13 @@ def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_
             intensities.append(val)
 
         intensities = np.array(intensities)
+
         if ref_integrated is not None:
-            intensities = intensities / ref_integrated
+            # Set NaN where numerator is 0
+            with np.errstate(divide='ignore', invalid='ignore'):
+                intensities = np.where(intensities >= 500, intensities / ref_integrated, np.nan)
 
         data_matrix.append(intensities)
 
     return np.array(heights), wl_centers + wl_step / 2, np.array(data_matrix)
+

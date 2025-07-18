@@ -135,7 +135,7 @@ with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\s
 
     NF_spectra_scanZ_datasets = json.load(NF_spectra_scanZ)
 
-selected_dataset = NF_spectra_scanZ_datasets[3]
+selected_dataset = NF_spectra_scanZ_datasets[-1]
 all_spectra_dict = read_all_spectraNF(selected_dataset["folder"])
 ref_df = read_spectrum(Path(selected_dataset["folder"]) / "ref.txt")
 print(all_spectra_dict)
@@ -146,8 +146,8 @@ plt.show()
 heights, wl_bins, intensity_map = integral_map_different_heights(
     spectra_dict=all_spectra_dict,
     integration_time=selected_dataset["integration_time"],
-    wl_start=760,
-    wl_stop=840,
+    wl_start=759,
+    wl_stop=844,
     ref_df=ref_df
 )
 
