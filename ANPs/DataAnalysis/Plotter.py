@@ -287,7 +287,6 @@ def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min,
     ax.axvline(x=s_point["Power_W"].values[0], color='crimson', linestyle='--', linewidth=1.5, alpha=0.7)
 
     ax.set_xscale("log")
-    ax.set_yscale("log")
     ax.set_xlabel("Power [W]", fontsize=16)
     ax.set_ylabel("d(logL) / d(logP)", fontsize=16)
     ax.set_title(f"Derivative of luminescence vs power, log-scale\n({wl_min}–{wl_max} nm peak)", fontsize=18)
