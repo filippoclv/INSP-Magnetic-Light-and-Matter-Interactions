@@ -9,68 +9,65 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 import re
 
-def plot_all_power_curves(datasets, int_start, int_end):
-
-    # fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
-    # colors = plt.cm.viridis(np.linspace(0, 1, len(datasets)))
-
-    fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
-
-    # Use Z for color coding
-    z_values = np.array([data.get("Z", 0) for data in datasets])
-    norm = plt.Normalize(vmin=-1000, vmax=0)
-    cmap = plt.cm.jet
-    colors = cmap(norm(z_values))
-
-    for i, data in enumerate(datasets):
-
-        folder = data["folder"]
-        int_time = data["integration_time"]
-        ratio_start = data["ratio_start"]
-        ratio_stop = data["ratio_stop"]
-
-        power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
-        power_info = pd.read_csv(power_info_file, sep="\t")
-        power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
-
-        all_spectra = read_all_spectra(folder)
-        results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
-
-        config_label = f"{data.get('label', ''):<6}"  # Empty if not present
-        #label = f"{config_label} | Int. time: {int_time:.1f} s | R: {ratio_start:.4f}–{ratio_stop:.2f}"
-
-        label = (
-                 f"Int. time: {int_time:>1.2f} s | " 
-                 f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} | "
-                )
-
-        ax.plot(
-          results_df["Power_W"],
-                results_df["Luminescence_counts"],
-                marker="o",
-                markersize=6,
-                markerfacecolor="none",
-                linestyle="-",
-                linewidth=2,
-                label=label,
-                color=colors[i]
-               )
-
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
-    ax.set_xlabel("Power [W]")
-    ax.set_ylabel("Luminescence [counts]")
-    ax.grid(True, which='both', linestyle='--', alpha=0.3)
-    ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
-
-    # Add colorbar
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax)
-    cbar.set_label("Z parameter [mV]", fontsize=12)
-
-    plt.show()
+# def plot_all_power_curvesNF(datasets, int_start, int_end):
+#
+#     fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
+#
+#     # Use Z for color coding
+#     z_values = np.array([data.get("Z_mV", 0) for data in datasets])
+#     norm = plt.Normalize(vmin=-1000, vmax=0)
+#     cmap = plt.cm.jet
+#     colors = cmap(norm(z_values))
+#
+#     for i, data in enumerate(datasets):
+#
+#         folder = data["folder"]
+#         int_time = data["integration_time"]
+#         ratio_start = data["ratio_start"]
+#         ratio_stop = data["ratio_stop"]
+#
+#         power_info_file = Path(folder) / "SetInfoPowerCurve.txt"
+#         power_info = pd.read_csv(power_info_file, sep="\t")
+#         power_map = dict(zip(power_info["Pindex"], power_info["CurrentPower"]))
+#
+#         all_spectra = read_all_spectra(folder)
+#         results_df = integrate_peak(all_spectra, int_start, int_end, integration_time=int_time)
+#
+#         config_label = f"{data.get('label', ''):<6}"  # Empty if not present
+#         #label = f"{config_label} | Int. time: {int_time:.1f} s | R: {ratio_start:.4f}–{ratio_stop:.2f}"
+#
+#         label = (
+#                  f"Int. time: {int_time:>1.2f} s | "
+#                  f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} | "
+#                 )
+#
+#         ax.plot(
+#           results_df["Power_W"],
+#                 results_df["Luminescence_counts"],
+#                 marker="o",
+#                 markersize=6,
+#                 markerfacecolor="none",
+#                 linestyle="-",
+#                 linewidth=2,
+#                 label=label,
+#                 color=colors[i]
+#                )
+#
+#     ax.set_xscale("log")
+#     ax.set_yscale("log")
+#     ax.set_title(f"log-log scale: luminescence vs power\n({int_start}–{int_end} nm peak)", fontsize=14)
+#     ax.set_xlabel("Power [W]")
+#     ax.set_ylabel("Luminescence [counts]")
+#     ax.grid(True, which='both', linestyle='--', alpha=0.3)
+#     ax.legend(fontsize=10, loc="best", prop={"family": "DejaVu Sans Mono"})
+#
+#     # Add colorbar
+#     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+#     sm.set_array([])
+#     cbar = plt.colorbar(sm, ax=ax)
+#     cbar.set_label("Z parameter [mV]", fontsize=12)
+#
+#     plt.show()
 
 def calculate_derivative(results_df):
 
