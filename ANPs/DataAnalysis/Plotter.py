@@ -207,7 +207,7 @@ def plot_powercurve(powercurve_dataset, data_label, wl_min, wl_max):
 
     plt.show()
 
-def plot_all_power_curves_from_json(powercurves_datasets,
+def plot_all_powercurves_from_json(powercurves_datasets,
                                     background_subtraction_range,
                                     int_start,
                                     int_end):
