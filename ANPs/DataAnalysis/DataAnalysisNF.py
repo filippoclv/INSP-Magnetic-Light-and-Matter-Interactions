@@ -310,10 +310,11 @@ def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_
         #         intensities = ratio
 
         if ref_integrated is not None:
-            min_ref_threshold = 1000  # Adjust based on your data (e.g., 5-20 counts/s per bin, considering noise)
+            min_ref_threshold = 100  # Adjust based on your data (e.g., 5-20 counts/s per bin, considering noise)
+            min_signal_threshold = 150  # New threshold for signal luminescence; adjust as needed
             with np.errstate(divide='ignore', invalid='ignore'):
                 ratio = intensities / ref_integrated
-                mask = (ref_integrated >= min_ref_threshold) & (ratio > 0.9)
+                mask = (intensities >= min_signal_threshold)
                 ratio[~mask] = np.nan
                 intensities = ratio
 

@@ -158,14 +158,21 @@ heights, wl_bins, intensity_map = integral_map_different_heights(
     ref_df=ref_df
 )
 
-plt.figure(figsize=(12, 7))  # Slightly larger figure for better spacing
+plt.figure(figsize=(12, 7))
 pcm = plt.pcolormesh(
     wl_bins,
     heights,
     intensity_map,
     shading='auto',
-    cmap='jet'
+    cmap='jet',
+    vmin=1,  # Minimum value for color mapping (e.g., for ratios)
+    vmax=1.5   # Maximum value
 )
+
+# Add colorbar with extensions for values outside vmin/vmax
+cbar = plt.colorbar(pcm, extend='both')
+cbar.set_label("$L_A / L_0$", fontsize=16)
+cbar.ax.tick_params(labelsize=14)
 
 # Axis labels
 plt.xlabel("Wavelength [nm]", fontsize=16)
@@ -177,11 +184,6 @@ plt.title("2D map: integrated counts per 1 nm bin", fontsize=18, pad=15)
 # Ticks font size
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
-
-# Add colorbar with label
-cbar = plt.colorbar(pcm)
-cbar.set_label("Luminescence [counts/s]", fontsize=16)
-cbar.ax.tick_params(labelsize=14)
 
 plt.grid(False)
 plt.tight_layout()
