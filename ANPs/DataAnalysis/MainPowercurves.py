@@ -49,6 +49,8 @@ plot_single_derivative_powercurve(derivative_powercurve, selected_dataset, wl_mi
 
 plot_all_derivatives_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
 
+plot_all_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
+
 # selected_data = datasets[0]
 # all_spectra = read_all_spectra(selected_data["folder"])
 

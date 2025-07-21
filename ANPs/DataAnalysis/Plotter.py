@@ -212,7 +212,7 @@ def plot_all_powercurves_from_json(powercurves_datasets,
                                    int_start,
                                    int_end):
 
-    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
 
     colors = plt.cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
 
@@ -280,7 +280,7 @@ def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min,
             marker='o',
             color='crimson',
             markersize=8,
-            label=f"s ≈ {s_point['Derivative_values'].values[0]:.2f}, at P = {s_point['Power_W'].values[0]:.6f} W"
+            label=f"s ≈ {s_point['Derivative_values'].values[0]:.2f}, at P = {s_point['Power_W'].values[0]:.4f} W"
            )
 
     ax.legend(fontsize=16, loc="upper right")
@@ -332,7 +332,7 @@ def plot_all_derivatives_from_json(powercurves_datasets,
 
         label = (f"Int. time: {int_time:>1.2f} s | "
                  f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} |\n{config_label}\n"
-                 f"s ≈ {s_value:.2f} at {s_power:.6f} W"
+                 f"s ≈ {s_value:.2f} at {s_power:.4f} W"
                 )
 
         ax.plot(derivative_powercurve["Power_W"],
@@ -369,5 +369,76 @@ def plot_all_derivatives_from_json(powercurves_datasets,
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=16, loc="best", bbox_to_anchor=(1, 0.99))
     ax.tick_params(axis='both', which='major', labelsize=14)
+
+    plt.show()
+
+def plot_all_powercurves_with_s_from_json(powercurves_datasets,
+                                          background_subtraction_range,
+                                          int_start,
+                                          int_end):
+
+    fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
+
+    colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
+
+    for i, dataset in enumerate(powercurves_datasets):
+
+        folder = dataset["folder"]
+        int_time = dataset["integration_time"]
+        ratio_start = dataset["ratio_start"]
+        ratio_stop = dataset["ratio_stop"]
+
+        all_spectra_dict = all_spectra_dataframe_dict(folder, background_subtraction_range=background_subtraction_range)
+        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=int_time)
+
+        derivative_powercurve, s_value, s_power = calculate_single_derivative(powercurve)
+
+        config_label = f"{dataset.get('label', ''):<7}"
+
+        label = (f"Int. time: {int_time:>5.2f} s | "
+                 f"R: {ratio_start:.4f} - {ratio_stop:.3f} | "
+                 f"\ns ≈ {s_value:.2f} at {s_power:.4f} W\n"
+                 f"{config_label:<7}")
+
+        ax.plot(powercurve["Power_W"],
+                powercurve["Luminescence_counts/s"],
+                marker="o",
+                markersize=6,
+                markerfacecolor="none",
+                linestyle="-",
+                linewidth=2,
+                color=colors[i],
+                label=label
+               )
+
+        # Vertical dotted line at s_power
+        ax.axvline(x=s_power,
+                   linestyle="--",
+                   linewidth=1.6,
+                   color=colors[i],
+                   alpha=0.6
+                  )
+
+        s_point = derivative_powercurve[derivative_powercurve["Non-linearity s parameter"]]
+        ax.plot(s_point["Power_W"],
+                s_point["Luminescence_counts/s"],
+                marker="o",
+                color=colors[i],
+                markersize=8,
+                markeredgecolor="black"
+               )
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_title(f"Luminescence vs power, log-scale\n({int_start}–{int_end} nm peak)", fontsize=18)
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+
+    legend = ax.legend(fontsize=16,
+                       loc="best",
+                       bbox_to_anchor=(1, 0.99)
+                      )
 
     plt.show()
