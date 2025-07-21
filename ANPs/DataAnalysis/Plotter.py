@@ -30,7 +30,7 @@ def plot_all_spectra(spectra_dict,
                      data_label,
                      integration_range=None):
 
-    fig, ax = plt.subplots(figsize=(12, 7))
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
     power_values = [data.attrs["Power_W"] for data in spectra_dict.values()]
     color_normalization = LogNorm(vmin=min(power_values), vmax=max(power_values))
@@ -78,7 +78,6 @@ def plot_all_spectra(spectra_dict,
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    plt.tight_layout()
     plt.show()
 
 def plot_all_spectra_with_zoom(spectra_dict,
@@ -90,7 +89,7 @@ def plot_all_spectra_with_zoom(spectra_dict,
                                zoom_wl_max,
                                integration_range=None):
 
-    fig, ax = plt.subplots(figsize=(12, 7))
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
     power_values = [data.attrs["Power_W"] for data in spectra_dict.values()]
     color_normalization = LogNorm(vmin=min(power_values), vmax=max(power_values))
@@ -162,5 +161,46 @@ def plot_all_spectra_with_zoom(spectra_dict,
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    plt.tight_layout()
+    plt.show()
+
+def plot_powercurve(powercurve_dataset, data_label, wl_min, wl_max):
+
+    measurement_label = data_label["label"]
+    integration_time = data_label["integration_time"]
+    ratio_start = data_label["ratio_start"]
+    ratio_stop = data_label["ratio_stop"]
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    ax.plot(
+            powercurve_dataset["Power_W"],
+            powercurve_dataset["Luminescence_counts/s"],
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='crimson',
+            linestyle='-',
+            linewidth=2,
+            color='teal',
+            label="Luminescence [counts/s]"
+           )
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.set_title(f"Luminescence vs power, log-scale\n({wl_min}–{wl_max} nm peak)", fontsize=18)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+    parameters_text = (f"Type: {measurement_label}\nIntegration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}")
+
+    ax.text(0.6, 0.2, parameters_text,
+            transform=ax.transAxes,
+            fontsize=16,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
     plt.show()

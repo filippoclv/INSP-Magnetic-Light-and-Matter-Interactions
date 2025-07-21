@@ -1,5 +1,6 @@
 from FileReader import *
 from Plotter import *
+from Analyzer import *
 from DataAnalysis import *
 from DataAnalysisNF import *
 import warnings
@@ -35,6 +36,10 @@ plot_all_spectra_with_zoom(all_spectra_dict,
                        zoom_wl_max=760,
                        integration_range=(int_start, int_end)
                       )
+
+powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=selected_dataset["integration_time"])
+
+plot_powercurve(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
 
 # plot_all_power_curves(datasets, int_start, int_end) # Check this function
 

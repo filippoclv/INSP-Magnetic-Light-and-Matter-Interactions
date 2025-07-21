@@ -16,16 +16,22 @@ def integrate_all_spectra(spectra_dict, wl_min, wl_max, integration_time):
 
     results = []
 
-    for data in spectra_dict.items():
+    for label, data in spectra_dict.items():
 
         power = data.attrs["Power_W"]
         filtered_dataframe = data[(data["Wavelength_nm"] >= wl_min) & (data["Wavelength_nm"] <= wl_max)]
+
+        if filtered_dataframe.empty:
+
+            print(f"Warning: {label} has no data in range {wl_min}-{wl_max} nm")
+
+            continue
 
         integrated_counts = np.trapz(filtered_dataframe["Intensity_counts"], filtered_dataframe["Wavelength_nm"])
         luminescence = integrated_counts / integration_time
 
         results.append((power, luminescence))
 
-    pd.DataFrame(results, columns=["Power_W", "Luminescence_counts/s"])
+    powercurve_dataset = pd.DataFrame(results, columns=["Power_W", "Luminescence_counts/s"])
 
     return powercurve_dataset
