@@ -35,3 +35,19 @@ def integrate_all_spectra(spectra_dict, wl_min, wl_max, integration_time):
     powercurve_dataset = pd.DataFrame(results, columns=["Power_W", "Luminescence_counts/s"])
 
     return powercurve_dataset
+
+def calculate_single_derivative(powercurve_dataset):
+
+    power = powercurve_dataset["Power_W"].values
+    luminescence = powercurve_dataset["Luminescence_counts/s"].values
+
+    derivatives = np.gradient(np.log(luminescence), np.log(power))
+    powercurve_dataset["Derivative_values"] = derivatives
+
+    s_parameter_index = powercurve_dataset["Derivative_values"].idxmax()
+    powercurve_dataset["Non-linearity s parameter"] = False
+    powercurve_dataset.loc[s_parameter_index, "Non-linearity s parameter"] = True
+    s_value = powercurve_dataset.loc[s_parameter_index, "Derivative_values"]
+    s_power = powercurve_dataset.loc[s_parameter_index, "Power_W"]
+
+    return powercurve_dataset, s_value, s_power

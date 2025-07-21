@@ -39,10 +39,13 @@ plot_all_spectra_with_zoom(all_spectra_dict,
                            integration_range=(int_start, int_end)
                           )
 
-# powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=selected_dataset["integration_time"])
-# plot_powercurve(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
+powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=selected_dataset["integration_time"])
+plot_powercurve(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
 
 plot_all_powercurves_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
+
+derivative_powercurve, s_value, s_power = calculate_single_derivative(powercurve)
+plot_single_derivative_powercurve(derivative_powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
 
 # selected_data = datasets[0]
 # all_spectra = read_all_spectra(selected_data["folder"])

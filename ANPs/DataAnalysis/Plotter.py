@@ -208,9 +208,9 @@ def plot_powercurve(powercurve_dataset, data_label, wl_min, wl_max):
     plt.show()
 
 def plot_all_powercurves_from_json(powercurves_datasets,
-                                    background_subtraction_range,
-                                    int_start,
-                                    int_end):
+                                   background_subtraction_range,
+                                   int_start,
+                                   int_end):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
@@ -251,5 +251,59 @@ def plot_all_powercurves_from_json(powercurves_datasets,
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.legend(fontsize=16, loc="best", bbox_to_anchor=(1, 0.85))
     ax.tick_params(axis='both', which='major', labelsize=14)
+
+    plt.show()
+
+def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min, wl_max):
+
+    integration_time = data_label["integration_time"]
+    ratio_start = data_label["ratio_start"]
+    ratio_stop = data_label["ratio_stop"]
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    ax.plot(derivative_powercurve["Power_W"],
+            derivative_powercurve["Derivative_values"],
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='crimson',
+            linestyle='-',
+            linewidth=2,
+            color='teal',
+            label="d(logL) / d(logP)"
+           )
+
+    s_point = derivative_powercurve[derivative_powercurve["Non-linearity s parameter"]]
+    ax.plot(s_point["Power_W"],
+            s_point["Derivative_values"],
+            marker='o',
+            color='crimson',
+            markersize=8,
+            label=f"s ≈ {s_point['Derivative_values'].values[0]:.2f}, at P = {s_point['Power_W'].values[0]:.6f} W"
+           )
+
+    ax.legend(fontsize=16, loc="upper right")
+    ax.axvline(x=s_point["Power_W"].values[0], color='crimson', linestyle='--', linewidth=1.5, alpha=0.7)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("d(logL) / d(logP)", fontsize=16)
+    ax.set_title(f"Derivative of luminescence vs power, log-scale\n({wl_min}–{wl_max} nm peak)", fontsize=18)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+    parameters_text = (f"Type: {data_label.get('label', 'Unknown')}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}")
+
+    ax.text(0.6, 0.2, parameters_text,
+            transform=ax.transAxes,
+            fontsize=16,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
     plt.show()
