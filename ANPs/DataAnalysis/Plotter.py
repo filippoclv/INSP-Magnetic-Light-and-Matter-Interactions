@@ -144,3 +144,56 @@ def plot_all_spectra_with_zoom(spectra_dict,
 
     plt.tight_layout()
     plt.show()
+
+
+def plot_single_spectrum(data,
+                         label=None,
+                         integration_time=None,
+                         integration_range=None,
+                         show_power=True,
+                         ax=None):
+    """
+    Plot a single spectrum with optional annotations.
+
+    Parameters:
+    - data: pd.DataFrame with "Wavelength_nm" and "Intensity_counts"
+    - label: Optional label for the title
+    - integration_time: Optional, shown in the plot annotations
+    - integration_range: Tuple (start, stop) in nm, to show vertical integration limits
+    - show_power: If True and 'Power_W' is in data.attrs, show power in the title
+    - ax: Optional matplotlib axis; if None, creates a new figure
+    """
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.plot(data["Wavelength_nm"], data["Intensity_counts"], color="blue", linewidth=1.8)
+
+    # Add integration region markers if requested
+    if integration_range:
+        wl_min, wl_max = integration_range
+        ax.axvline(x=wl_min, color="grey", linestyle="--", linewidth=1.2)
+        ax.axvline(x=wl_max, color="grey", linestyle="--", linewidth=1.2)
+
+    ax.set_title(f"Ref {label or ''}".strip(), fontsize=16)
+    ax.set_xlabel("Wavelength [nm]", fontsize=14)
+    ax.set_ylabel("Intensity [counts]", fontsize=14)
+    ax.grid(True, alpha=0.3)
+    ax.tick_params(axis='both', which='major', labelsize=12)
+
+    # Optional metadata annotation
+    annotations = []
+    if integration_time:
+        annotations.append(f"Integration time: {integration_time} s")
+    if show_power and "Power_W" in data.attrs:
+        annotations.append(f"Power: {data.attrs['Power_W']:.2e} W")
+    if annotations:
+        ax.text(0.03, 0.95, "\n".join(annotations),
+                transform=ax.transAxes,
+                fontsize=12,
+                verticalalignment="top",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.6))
+
+    if ax is None:
+        plt.tight_layout()
+        plt.show()

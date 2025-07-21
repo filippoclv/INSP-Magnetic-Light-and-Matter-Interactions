@@ -148,6 +148,8 @@ print(all_spectra_dict)
 plot_spectra_heights(all_spectra_dict, integration_time=selected_dataset["integration_time"], data=selected_dataset, fig=None, ax=None)
 plt.show()
 
+plot_single_spectrum(ref_df)
+
 heights, wl_bins, intensity_map = integral_map_different_heights(
     spectra_dict=all_spectra_dict,
     integration_time=selected_dataset["integration_time"],
