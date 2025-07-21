@@ -14,7 +14,9 @@ with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\p
     powercurves_datasets = json.load(powercurves)
 
 selected_dataset = powercurves_datasets[0]
-all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"], background_subtraction_range=(875, 900))
+background_subtraction_range = (875, 900)
+all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"],
+                                              background_subtraction_range=background_subtraction_range)
 
 int_start = 770
 int_end = 835
@@ -28,18 +30,20 @@ plot_all_spectra(all_spectra_dict,
                 )
 
 plot_all_spectra_with_zoom(all_spectra_dict,
-                       integration_time=selected_dataset["integration_time"],
-                       ratio_start=selected_dataset["ratio_start"],
-                       ratio_stop=selected_dataset["ratio_stop"],
-                       data_label=selected_dataset,
-                       zoom_wl_min=630,
-                       zoom_wl_max=760,
-                       integration_range=(int_start, int_end)
-                      )
+                           integration_time=selected_dataset["integration_time"],
+                           ratio_start=selected_dataset["ratio_start"],
+                           ratio_stop=selected_dataset["ratio_stop"],
+                           data_label=selected_dataset,
+                           zoom_wl_min=630,
+                           zoom_wl_max=760,
+                           integration_range=(int_start, int_end)
+                          )
 
 powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=selected_dataset["integration_time"])
 
 plot_powercurve(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
+
+plot_all_power_curves_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
 
 # plot_all_power_curves(datasets, int_start, int_end) # Check this function
 

@@ -1,7 +1,10 @@
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from FileReader import *
+from Analyzer import *
 
 def plot_single_spectrum(data,
                          title=None):
@@ -172,8 +175,7 @@ def plot_powercurve(powercurve_dataset, data_label, wl_min, wl_max):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
-    ax.plot(
-            powercurve_dataset["Power_W"],
+    ax.plot(powercurve_dataset["Power_W"],
             powercurve_dataset["Luminescence_counts/s"],
             marker='o',
             markersize=7,
@@ -202,5 +204,52 @@ def plot_powercurve(powercurve_dataset, data_label, wl_min, wl_max):
             verticalalignment="top",
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    plt.show()
+
+def plot_all_power_curves_from_json(powercurves_datasets,
+                                    background_subtraction_range,
+                                    int_start,
+                                    int_end):
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    colors = plt.cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
+
+    for i, dataset in enumerate(powercurves_datasets):
+
+        folder = dataset["folder"]
+        int_time = dataset["integration_time"]
+        ratio_start = dataset["ratio_start"]
+        ratio_stop = dataset["ratio_stop"]
+
+        all_spectra_dict = all_spectra_dataframe_dict(folder, background_subtraction_range=background_subtraction_range)
+        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=int_time)
+
+        config_label = f"{dataset.get('label', ''):<6}"
+
+        label = (f"Int. time: {int_time:>1.2f} s | "
+                 f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} |\n{config_label} "
+                )
+
+        ax.plot(powercurve["Power_W"],
+                powercurve["Luminescence_counts/s"],
+                marker="o",
+                markersize=6,
+                markerfacecolor="none",
+                linestyle="-",
+                linewidth=2,
+                label=label,
+                color=colors[i]
+               )
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_title(f"Luminescence vs power, log-scale\n({int_start}–{int_end} nm peak)", fontsize=18)
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=16, loc="best", bbox_to_anchor=(1, 0.85))
+    ax.tick_params(axis='both', which='major', labelsize=14)
 
     plt.show()
