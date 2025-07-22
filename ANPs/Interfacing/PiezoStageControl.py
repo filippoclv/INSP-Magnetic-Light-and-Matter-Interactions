@@ -240,13 +240,13 @@ def launch_gui():
 
 PiezoStage = Piezoconcept(port = "COM9")
 
-#%% Testing:
+#%%
 
-PiezoStage.MOVEX(20, "u")
+PiezoStage.MOVEX(15, "u")
 
 #%%
 
-PiezoStage.MOVEY(25, "u")
+PiezoStage.MOVEY(15, "u")
 
 #%%
 
