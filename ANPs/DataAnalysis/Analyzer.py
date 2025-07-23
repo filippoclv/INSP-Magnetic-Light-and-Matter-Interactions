@@ -53,7 +53,7 @@ def calculate_single_derivative(powercurve_dataset):
     return powercurve_dataset, s_value, s_power
 
 
-def fit_powercurve(powercurve_dataset, degree=5, fine_points=300):
+def fit_powercurve(powercurve_dataset, degree=10, fine_points=500):
 
     power = powercurve_dataset["Power_W"].values
     luminescence = powercurve_dataset["Luminescence_counts/s"].values
@@ -70,15 +70,19 @@ def fit_powercurve(powercurve_dataset, degree=5, fine_points=300):
     fit_coefficients = np.polyfit(log_power, log_luminescence, deg=degree)
     polynomial_fit = np.poly1d(fit_coefficients)
 
-    powercurve_dataset["Fitted_luminescence_counts/s"] = np.exp(polynomial_fit(np.log(power)))
+    log_luminescence_original_values = polynomial_fit(np.log(power))
+    log_luminescence_original_values = np.clip(log_luminescence_original_values, None, 700)
+    powercurve_dataset["Fitted_luminescence_counts/s"] = np.exp(log_luminescence_original_values)
 
     log_power_fine_points = np.linspace(log_power.min(), log_power.max(), fine_points)
     power_fine_points = np.exp(log_power_fine_points)
-    luminescence_fine_points = np.exp(polynomial_fit(log_power_fine_points))
+    log_luminescence_fine_points = polynomial_fit(log_power_fine_points)
+    log_luminescence_fine_points = np.clip(log_luminescence_fine_points, None, 700)
+    luminescence_fine_points = np.exp(log_luminescence_fine_points)
 
     return powercurve_dataset, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points
 
-def calculate_derivative_from_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, degree=5):
+def calculate_derivative_from_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, degree=10):
 
     polynomial_fit_derivative = np.polyder(polynomial_fit)
     derivative_fine_points = polynomial_fit_derivative(log_power_fine_points)
