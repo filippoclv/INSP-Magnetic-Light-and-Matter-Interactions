@@ -52,6 +52,7 @@ plot_powercurve(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
 derivative_powercurve, s_value, s_power = calculate_single_derivative(powercurve)
 plot_single_derivative_powercurve(derivative_powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
 
+plot_single_powercurve_with_s(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
 # plot_all_derivatives_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
 
 # plot_all_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
