@@ -10,8 +10,6 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 import re
 
-# If some data importing/displaying doesn't work, check the formatting of the digits in the functions!
-
 def read_spectrum(file_path):
 
     wavelengths = [] # In nm
