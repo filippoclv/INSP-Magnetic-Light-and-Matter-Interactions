@@ -9,32 +9,35 @@ from DataAnalysisNF import *
 warnings.simplefilter("ignore", np.RankWarning)
 plt.close("all")
 
-with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250722\scanZ_metadata.json", "r") as NF_spectra_scanZ:
+with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250722\scanZ_metadata.json", "r") as scan_height:
 
-    NF_spectra_scanZ_datasets = json.load(NF_spectra_scanZ)
+    scan_height_datasets = json.load(scan_height)
 
-selected_dataset = NF_spectra_scanZ_datasets[5]
+selected_dataset = scan_height_datasets[5]
 all_spectra_dict = read_all_spectraNF(selected_dataset["folder"])
 
-ref_df = read_spectrum_txt_to_dataframe(Path(selected_dataset["folder"]) / "ref.txt")
-background_region = ref_df[(ref_df["Wavelength_nm"] >= 843) & (ref_df["Wavelength_nm"] <= 844)]
+reference_spectrum = read_spectrum_txt_to_dataframe(Path(selected_dataset["folder"]) / "ref.txt")
+background_region = reference_spectrum[(reference_spectrum["Wavelength_nm"] >= 843) &
+                                       (reference_spectrum["Wavelength_nm"] <= 844)]
+
 background_mean = background_region["Intensity_counts"].mean()
-ref_df["Intensity_counts"] -= background_mean
-ref_df["Intensity_counts"] = ref_df["Intensity_counts"].clip(lower=0)
+reference_spectrum["Intensity_counts"] -= background_mean
+reference_spectrum["Intensity_counts"] = reference_spectrum["Intensity_counts"].clip(lower=0)
 
-
-plot_spectra_heights(all_spectra_dict, integration_time=selected_dataset["integration_time"], data=selected_dataset, fig=None, ax=None)
+plot_spectra_heights(all_spectra_dict,
+                     integration_time=selected_dataset["integration_time"],
+                     data=selected_dataset)
 
 whitelight_df = read_spectrum_txt_to_dataframe(Path(selected_dataset["folder"]).parent / "whitelightref.txt")
 plot_single_spectrum(whitelight_df)
 
-plot_single_spectrum(ref_df, title="Reference spectrum")
+plot_single_spectrum(reference_spectrum, title="Reference spectrum")
 
 heights, wl_bins, intensity_map = integral_map_different_heights(spectra_dict=all_spectra_dict,
                                                                  integration_time=selected_dataset["integration_time"],
                                                                  wl_start=759,
                                                                  wl_stop=844,
-                                                                 ref_df=ref_df)
+                                                                 ref_df=reference_spectrum)
 
 plt.figure(figsize=(12, 7))
 pcm = plt.pcolormesh(wl_bins,
