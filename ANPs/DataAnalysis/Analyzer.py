@@ -51,3 +51,48 @@ def calculate_single_derivative(powercurve_dataset):
     s_power = powercurve_dataset.loc[s_parameter_index, "Power_W"]
 
     return powercurve_dataset, s_value, s_power
+
+
+def fit_powercurve(powercurve_dataset, degree=5, fine_points=300):
+
+    power = powercurve_dataset["Power_W"].values
+    luminescence = powercurve_dataset["Luminescence_counts/s"].values
+
+    positive_luminescence_mask = luminescence > 0
+
+    if np.sum(positive_luminescence_mask) < degree + 1:
+
+        raise ValueError("Not enough points for fitting.")
+
+    log_power = np.log(power[positive_luminescence_mask])
+    log_luminescence = np.log(luminescence[positive_luminescence_mask])
+
+    fit_coefficients = np.polyfit(log_power, log_luminescence, deg=degree)
+    polynomial_fit = np.poly1d(fit_coefficients)
+
+    powercurve_dataset["Fitted_luminescence_counts/s"] = np.exp(polynomial_fit(np.log(power)))
+
+    log_power_fine_points = np.linspace(log_power.min(), log_power.max(), fine_points)
+    power_fine_points = np.exp(log_power_fine_points)
+    luminescence_fine_points = np.exp(polynomial_fit(log_power_fine_points))
+
+    return powercurve_dataset, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points
+
+def calculate_derivative_from_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, degree=5):
+
+    polynomial_fit_derivative = np.polyder(polynomial_fit)
+    derivative_fine_points = polynomial_fit_derivative(log_power_fine_points)
+
+    log_power_original_values = np.log(powercurve_dataset["Power_W"].values)
+    derivative_original_values = np.interp(log_power_original_values, log_power_fine_points, derivative_fine_points)
+    powercurve_dataset["Derivative_values"] = derivative_original_values
+
+    s_index = np.argmax(derivative_fine_points)
+    s_value = derivative_fine_points[s_index]
+    s_power = np.exp(log_power_fine_points[s_index])
+
+    closest_index = np.argmin(np.abs(powercurve_dataset["Power_W"] - s_power))
+    powercurve_dataset["Non-linearity s parameter"] = False
+    powercurve_dataset.loc[closest_index, "Non-linearity s parameter"] = True
+
+    return powercurve_dataset, s_value, s_power

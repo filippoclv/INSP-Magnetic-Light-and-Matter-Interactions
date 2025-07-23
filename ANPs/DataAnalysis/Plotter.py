@@ -527,3 +527,243 @@ def plot_all_powercurves_with_s_from_json(powercurves_datasets,
                        bbox_to_anchor=(1, 0.99))
 
     plt.show()
+
+
+def plot_single_powercurve_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, data_label, wl_min, wl_max, degree=5):
+
+    measurement_label = data_label["label"]
+    integration_time = data_label["integration_time"]
+    ratio_start = data_label["ratio_start"]
+    ratio_stop = data_label["ratio_stop"]
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    ax.plot(powercurve_dataset["Power_W"],
+            powercurve_dataset["Luminescence_counts/s"],
+            marker='o', markersize=7, markerfacecolor='none', markeredgecolor='crimson',
+            linestyle='none', color='teal', label="Data")
+
+    luminescence_fine_points = np.exp(polynomial_fit(log_power_fine_points))
+    ax.plot(np.exp(log_power_fine_points), luminescence_fine_points, '-', linewidth=2, color='crimson', label=f"Polynomial fit (deg={degree})")
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.set_title(f"Luminescence vs power (with fit), log-scale\n({wl_min}–{wl_max} nm peak)", fontsize=18)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    ax.legend(fontsize=16, loc="lower right")
+
+    parameters_text = (f"Type: {measurement_label}\n"
+                       f"Fit degree: {degree}"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}\n")
+
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
+
+    ax.text(0.03, 0.95, parameters_text, transform=ax.transAxes, fontsize=16,
+            verticalalignment="top", horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    plt.show()
+
+
+def plot_single_derivative_from_fit(powercurve_dataset, log_power_fine, derivative_fine, s_value, s_power, fwhm_power,
+                                    data_label, wl_min, wl_max, degree=5):
+    """
+    Plot derivative from fit, with 's' and optional FWHM.
+    """
+    measurement_label = data_label["label"]
+    integration_time = data_label["integration_time"]
+    ratio_start = data_label["ratio_start"]
+    ratio_stop = data_label["ratio_stop"]
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    # Derivative on fine grid
+    ax.plot(np.exp(log_power_fine), derivative_fine, '-', linewidth=2, color='teal', label="d(logL)/d(logP) from fit")
+
+    # Highlight 's'
+    ax.plot(s_power, s_value, marker='o', color='crimson', markersize=8,
+            label=f"s ≈ {s_value:.2f} at P = {s_power:.4f} W")
+    ax.axvline(x=s_power, color='crimson', linestyle='--', linewidth=1.5, alpha=0.7)
+
+    if fwhm_power is not None:
+        ax.axhline(y=s_value / 2, color='grey', linestyle='--', label=f"FWHM ≈ {fwhm_power:.8f} W")
+
+    ax.set_xscale("log")
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("d(logL) / d(logP)", fontsize=16)
+    ax.set_title(f"Derivative (from fit) of luminescence vs power\n({wl_min}–{wl_max} nm peak, deg={degree})",
+                 fontsize=18)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    ax.legend(fontsize=16, loc="upper right")
+
+    parameters_text = (f"Type: {measurement_label}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}\n"
+                       f"Fit degree: {degree}")
+
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
+
+    ax.text(0.03, 0.95, parameters_text, transform=ax.transAxes, fontsize=16,
+            verticalalignment="top", horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    plt.show()
+
+
+def plot_single_powercurve_with_s_from_fit(powercurve_dataset, poly, log_power_fine, s_value, s_power, data_label,
+                                           wl_min, wl_max, degree=5):
+    """
+    Like plot_single_powercurve_with_s, but using 's' from fit, and overlay fit curve.
+    """
+    measurement_label = data_label["label"]
+    integration_time = data_label["integration_time"]
+    ratio_start = data_label["ratio_start"]
+    ratio_stop = data_label["ratio_stop"]
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    # Original data
+    ax.plot(powercurve_dataset["Power_W"],
+            powercurve_dataset["Luminescence_counts/s"],
+            marker='o', markersize=7, markerfacecolor='none', markeredgecolor='teal',
+            linestyle='none', color='teal', label="Data")
+
+    # Fitted curve (fine)
+    lum_fine = np.exp(poly(log_power_fine))
+    ax.plot(np.exp(log_power_fine), lum_fine, '-', linewidth=2, color='crimson', label=f"Fit (deg={degree})")
+
+    # Highlight 's'
+    s_lum = np.exp(poly(np.log(s_power)))
+    ax.plot(s_power, s_lum, marker='o', color='crimson', markersize=8, markeredgecolor='black',
+            label=f"s ≈ {s_value:.2f} at {s_power:.4f} W")
+    ax.axvline(x=s_power, color='crimson', linestyle='--', linewidth=1.5, alpha=0.7)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.set_title(f"Luminescence vs power (with fit and s), log-scale\n({wl_min}–{wl_max} nm peak)", fontsize=18)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    ax.legend(fontsize=16, loc="lower right")
+
+    parameters_text = (f"Type: {measurement_label}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}\n"
+                       f"Fit degree: {degree}")
+
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
+
+    ax.text(0.03, 0.95, parameters_text, transform=ax.transAxes, fontsize=16,
+            verticalalignment="top", horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
+
+    plt.show()
+
+
+# Bonus: Multi-dataset versions (adapted from your old code)
+def plot_all_powercurve_fits_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end,
+                                       degree=5):
+    """
+    Like check_all_fits: Overlay data + fits for multiple datasets.
+    """
+    fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
+    colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
+
+    for i, dataset in enumerate(powercurves_datasets):
+        folder = dataset["folder"]
+        int_time = dataset["integration_time"]
+
+        all_spectra_dict = all_spectra_dataframe_dict(folder, background_subtraction_range=background_subtraction_range)
+        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end,
+                                           integration_time=int_time)
+
+        powercurve, poly, log_power_fine, power_fine, lum_fine = fit_powercurve(powercurve, degree=degree)
+
+        config_label = f"{dataset.get('label', ''):<6}"
+        label = f"{config_label} | Int. time: {int_time:.2f} s | Fit deg={degree}"
+
+        # Plot data + fit
+        ax.plot(powercurve["Power_W"], powercurve["Luminescence_counts/s"], "o", color=colors[i], alpha=0.6)
+        ax.plot(power_fine, lum_fine, "-", color=colors[i], label=label)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_title(f"Power curves and fits (deg={degree})\n({int_start}–{int_end} nm peak)", fontsize=18)
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=16, loc="best", bbox_to_anchor=(1, 0.85))
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+    plt.show()
+
+
+def plot_all_derivatives_from_fit_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end,
+                                            degree=5):
+    """
+    Like plot_all_derivatives_fit: Overlay fitted derivatives for multiple datasets, with 's' and FWHM.
+    """
+    fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
+    colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
+
+    for i, dataset in enumerate(powercurves_datasets):
+        folder = dataset["folder"]
+        int_time = dataset["integration_time"]
+        ratio_start = dataset["ratio_start"]
+        ratio_stop = dataset["ratio_stop"]
+
+        all_spectra_dict = all_spectra_dataframe_dict(folder, background_subtraction_range=background_subtraction_range)
+        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end,
+                                           integration_time=int_time)
+
+        powercurve, poly, log_power_fine, _, _ = fit_powercurve(powercurve, degree=degree)
+        powercurve, s_value, s_power, fwhm_power = calculate_derivative_from_fit(powercurve, poly, log_power_fine,
+                                                                                 degree=degree)
+
+        # Derivative fine
+        poly_der = np.polyder(poly)
+        derivative_fine = poly_der(log_power_fine)
+
+        fwhm_str = f"{fwhm_power:.8f} W" if fwhm_power else "N/A"
+
+        config_label = f"{dataset.get('label', ''):<6}"
+        label = (f"Int. time: {int_time:.2f} s | "
+                 f"R: {ratio_start:.4f} – {ratio_stop:.3f} |\n{config_label}\n"
+                 f"s ≈ {s_value:.2f} at {s_power:.4f} W\n"
+                 f"FWHM ≈ {fwhm_str}")
+
+        height_if_near_field = dataset.get("Z_mV")
+        if height_if_near_field is not None:
+            label += f"\nHeight: {height_if_near_field} mV"
+
+        ax.plot(np.exp(log_power_fine), derivative_fine, "-", linewidth=2, color=colors[i], label=label)
+
+        ax.plot(s_power, s_value, marker="o", color=colors[i], markersize=8, markeredgecolor="black")
+        ax.axvline(x=s_power, linestyle="--", linewidth=1.2, color=colors[i], alpha=0.6)
+
+    ax.set_xscale("log")
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("d(logL) / d(logP)", fontsize=16)
+    ax.set_title(
+        f"Derivative curves (from fit) of luminescence vs power\n({int_start}–{int_end} nm peak, deg={degree})",
+        fontsize=18)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+    ax.legend(fontsize=16, loc="best", bbox_to_anchor=(1, 0.99))
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+    plt.show()
