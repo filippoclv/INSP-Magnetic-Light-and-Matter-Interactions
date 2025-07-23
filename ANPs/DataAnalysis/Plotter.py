@@ -17,7 +17,10 @@ def plot_single_spectrum(data,
 
         ax.set_title(title, fontsize=18)
 
-    ax.set_title("Spectrum", fontsize=18)
+    else:
+
+        ax.set_title("Spectrum", fontsize=18)
+
     ax.set_xlabel("Wavelength [nm]", fontsize=16)
     ax.set_ylabel("Intensity [counts]", fontsize=16)
     ax.grid(True, alpha=0.3)

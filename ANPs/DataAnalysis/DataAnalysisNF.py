@@ -150,7 +150,7 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
 
         height = df.attrs["Height"]
         color = height_to_color[height]
-        ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color, linewidth=1, alpha=0.8)
+        ax.plot(df["Wavelength_nm"], df["Intensity_counts"], label=label, color=color, linewidth=0.6, alpha=0.8)
 
     cmap = ListedColormap(colors)
     boundaries = np.append(sorted_heights, sorted_heights[-1] + 1)
@@ -163,10 +163,12 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
     cbar.ax.tick_params(labelsize=14)
 
     # Main plot layout
-    ax.set_title("Intensity counts vs wavelength", fontsize=16)
-    ax.set_xlabel("Wavelength [nm]", fontsize=14)
-    ax.set_ylabel("Intensity [counts]", fontsize=14)
+    ax.set_title("Intensity counts vs wavelength", fontsize=18)
+    ax.set_xlabel("Wavelength [nm]", fontsize=16)
+    ax.set_ylabel("Intensity [counts]", fontsize=16)
     ax.grid(True, alpha=0.3)
+
+    ax.tick_params(axis='both', which='major', labelsize=14)
 
     # Get the first dataset to check if it's TIR or NO TIR
     first_df = next(iter(spectra_dict.values()))
@@ -180,9 +182,9 @@ def plot_spectra_heights(spectra_dict, integration_time, data, fig=None, ax=None
                        f"StepZ size: {stepZ} mV"
                       )
 
-    ax.text(0.72, 0.95, parameters_text,
+    ax.text(0.68, 0.95, parameters_text,
             transform=ax.transAxes,
-            fontsize=14,
+            fontsize=18,
             verticalalignment="top",
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
@@ -366,7 +368,7 @@ def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_
 
         if ref_integrated is not None:
 
-            min_signal_threshold = 150
+            min_signal_threshold = 7
 
             with np.errstate(divide='ignore', invalid='ignore'):
                 ratio = intensities / ref_integrated
