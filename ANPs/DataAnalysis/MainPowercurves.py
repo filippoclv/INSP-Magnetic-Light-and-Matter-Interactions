@@ -31,8 +31,7 @@ all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"],
 #                  ratio_start=selected_dataset["ratio_start"],
 #                  ratio_stop=selected_dataset["ratio_stop"],
 #                  data_label=selected_dataset,
-#                  integration_range=(int_start, int_end)
-#                 )
+#                  integration_range=(int_start, int_end))
 
 # plot_all_spectra_with_zoom(all_spectra_dict,
 #                            integration_time=selected_dataset["integration_time"],
@@ -41,8 +40,7 @@ all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"],
 #                            data_label=selected_dataset,
 #                            zoom_wl_min=630,
 #                            zoom_wl_max=760,
-#                            integration_range=(int_start, int_end)
-#                           )
+#                            integration_range=(int_start, int_end))
 
 # powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=selected_dataset["integration_time"])
 # plot_powercurve(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
@@ -71,15 +69,13 @@ all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"],
 # Forward and backward sweep plotting:
 
 # plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
-#                                 int_start=770,
-#                                 int_end=835,
-#                                 integration_time=selected_data["integration_time"],
-#                                 title_note="- TIR configuration"
-#                                )
-#
+#                                  int_start=770,
+#                                  int_end=835,
+#                                  integration_time=selected_data["integration_time"],
+#                                  title_note="- TIR configuration")
+
 # plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
-#                                 int_start=770,
-#                                 int_end=835,
-#                                 integration_time=selected_data["integration_time"],
-#                                 title_note="- NO TIR configuration, same parameters"
-#                                )
+#                                  int_start=770,
+#                                  int_end=835,
+#                                  integration_time=selected_data["integration_time"],
+#                                  title_note="- NO TIR configuration, same parameters")

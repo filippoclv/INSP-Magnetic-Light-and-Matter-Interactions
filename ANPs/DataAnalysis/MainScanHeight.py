@@ -34,8 +34,7 @@ heights, wl_bins, intensity_map = integral_map_different_heights(spectra_dict=al
                                                                  integration_time=selected_dataset["integration_time"],
                                                                  wl_start=759,
                                                                  wl_stop=844,
-                                                                 ref_df=ref_df
-                                                                )
+                                                                 ref_df=ref_df)
 
 plt.figure(figsize=(12, 7))
 pcm = plt.pcolormesh(wl_bins,
@@ -43,9 +42,8 @@ pcm = plt.pcolormesh(wl_bins,
                      intensity_map,
                      shading='auto',
                      cmap='jet',
-                     vmin=1,  # Minimum value for color mapping (e.g., for ratios)
-                     vmax=1.5   # Maximum value
-                    )
+                     vmin=1,
+                     vmax=1.5)
 
 cbar = plt.colorbar(pcm)
 cbar.set_label("$L_A / L_0$", fontsize=16)

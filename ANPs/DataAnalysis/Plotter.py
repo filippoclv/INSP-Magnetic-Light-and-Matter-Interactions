@@ -187,8 +187,7 @@ def plot_powercurve(powercurve_dataset, data_label, wl_min, wl_max):
             linestyle='-',
             linewidth=2,
             color='teal',
-            label="Luminescence [counts/s]"
-           )
+            label="Luminescence [counts/s]")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -232,8 +231,7 @@ def plot_all_powercurves_from_json(powercurves_datasets,
         config_label = f"{dataset.get('label', ''):<6}"
 
         label = (f"Int. time: {int_time:>1.2f} s | "
-                 f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} |\n{config_label} "
-                )
+                 f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} |\n{config_label}")
 
         ax.plot(powercurve["Power_W"],
                 powercurve["Luminescence_counts/s"],
@@ -243,8 +241,7 @@ def plot_all_powercurves_from_json(powercurves_datasets,
                 linestyle="-",
                 linewidth=2,
                 label=label,
-                color=colors[i]
-               )
+                color=colors[i])
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -259,6 +256,7 @@ def plot_all_powercurves_from_json(powercurves_datasets,
 
 def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min, wl_max):
 
+    measurement_label = data_label["label"]
     integration_time = data_label["integration_time"]
     ratio_start = data_label["ratio_start"]
     ratio_stop = data_label["ratio_stop"]
@@ -274,8 +272,7 @@ def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min,
             linestyle='-',
             linewidth=2,
             color='teal',
-            label="d(logL) / d(logP)"
-           )
+            label="d(logL) / d(logP)")
 
     s_point = derivative_powercurve[derivative_powercurve["Non-linearity s parameter"]]
     ax.plot(s_point["Power_W"],
@@ -283,8 +280,7 @@ def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min,
             marker='o',
             color='crimson',
             markersize=8,
-            label=f"s ≈ {s_point['Derivative_values'].values[0]:.2f}, at P = {s_point['Power_W'].values[0]:.4f} W"
-           )
+            label=f"s ≈ {s_point['Derivative_values'].values[0]:.2f}, at P = {s_point['Power_W'].values[0]:.4f} W")
 
     ax.legend(fontsize=16, loc="upper right")
     ax.axvline(x=s_point["Power_W"].values[0], color='crimson', linestyle='--', linewidth=1.5, alpha=0.7)
@@ -296,7 +292,7 @@ def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min,
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.tick_params(axis='both', which='major', labelsize=14)
 
-    parameters_text = (f"Type: {data_label.get('label', 'Unknown')}\n"
+    parameters_text = (f"Type: {measurement_label}\n"
                        f"Integration time: {integration_time} s\n"
                        f"Power ratio start: {ratio_start}\n"
                        f"Power ratio stop: {ratio_stop}")
@@ -335,8 +331,7 @@ def plot_all_derivatives_from_json(powercurves_datasets,
 
         label = (f"Int. time: {int_time:>1.2f} s | "
                  f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} |\n{config_label}\n"
-                 f"s ≈ {s_value:.2f} at {s_power:.4f} W"
-                )
+                 f"s ≈ {s_value:.2f} at {s_power:.4f} W")
 
         ax.plot(derivative_powercurve["Power_W"],
                 derivative_powercurve["Derivative_values"],
@@ -346,8 +341,7 @@ def plot_all_derivatives_from_json(powercurves_datasets,
                 linestyle="-",
                 linewidth=2,
                 label=label,
-                color=colors[i]
-               )
+                color=colors[i])
 
         s_point = derivative_powercurve[derivative_powercurve["Non-linearity s parameter"]]
         ax.plot(s_point["Power_W"],
@@ -355,15 +349,13 @@ def plot_all_derivatives_from_json(powercurves_datasets,
                 marker="o",
                 color=colors[i],
                 markersize=8,
-                markeredgecolor="black"
-               )
+                markeredgecolor="black")
 
         ax.axvline(x=s_power,
                    linestyle="--",
                    linewidth=1.2,
                    color=colors[i],
-                   alpha=0.6
-                  )
+                   alpha=0.6)
 
     ax.set_xscale("log")
     ax.set_xlabel("Power [W]", fontsize=16)
@@ -395,8 +387,7 @@ def plot_single_powercurve_with_s(powercurve_dataset, data_label, wl_min, wl_max
             linestyle='-',
             linewidth=2,
             color='teal',
-            label="Luminescence [counts/s]"
-           )
+            label="Luminescence [counts/s]")
 
     s_point = derivative_df[derivative_df["Non-linearity s parameter"]]
     ax.plot(s_point["Power_W"],
@@ -405,15 +396,13 @@ def plot_single_powercurve_with_s(powercurve_dataset, data_label, wl_min, wl_max
             color='crimson',
             markersize=8,
             markeredgecolor='black',
-            label=f"s ≈ {s_value:.2f} at {s_power:.4f} W"
-        )
+            label=f"s ≈ {s_value:.2f} at {s_power:.4f} W")
 
     ax.axvline(x=s_power,
                color='crimson',
                linestyle='--',
                linewidth=1.5,
-               alpha=0.7
-              )
+               alpha=0.7)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -473,16 +462,13 @@ def plot_all_powercurves_with_s_from_json(powercurves_datasets,
                 linestyle="-",
                 linewidth=2,
                 color=colors[i],
-                label=label
-               )
+                label=label)
 
-        # Vertical dotted line at s_power
         ax.axvline(x=s_power,
                    linestyle="--",
                    linewidth=1.6,
                    color=colors[i],
-                   alpha=0.6
-                  )
+                   alpha=0.6)
 
         s_point = derivative_powercurve[derivative_powercurve["Non-linearity s parameter"]]
         ax.plot(s_point["Power_W"],
@@ -490,8 +476,7 @@ def plot_all_powercurves_with_s_from_json(powercurves_datasets,
                 marker="o",
                 color=colors[i],
                 markersize=8,
-                markeredgecolor="black"
-               )
+                markeredgecolor="black")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -503,7 +488,6 @@ def plot_all_powercurves_with_s_from_json(powercurves_datasets,
 
     legend = ax.legend(fontsize=16,
                        loc="best",
-                       bbox_to_anchor=(1, 0.99)
-                      )
+                       bbox_to_anchor=(1, 0.99))
 
     plt.show()
