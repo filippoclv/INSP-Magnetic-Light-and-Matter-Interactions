@@ -539,8 +539,13 @@ def plot_single_powercurve_fit(powercurve_dataset, polynomial_fit, log_power_fin
 
     ax.plot(powercurve_dataset["Power_W"],
             powercurve_dataset["Luminescence_counts/s"],
-            marker='o', markersize=7, markerfacecolor='none', markeredgecolor='crimson',
-            linestyle='none', color='teal', label="Data")
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='crimson',
+            linestyle='none',
+            color='teal',
+            label="Data")
 
     luminescence_fine_points = np.exp(polynomial_fit(log_power_fine_points))
     ax.plot(np.exp(log_power_fine_points), luminescence_fine_points, '-', linewidth=2, color='crimson', label=f"Polynomial fit (deg={degree})")
@@ -569,15 +574,15 @@ def plot_single_powercurve_fit(powercurve_dataset, polynomial_fit, log_power_fin
 
     plt.show()
 
-def plot_single_derivative_from_fit(powercurve_dataset,
-                                    log_power_fine_points,
-                                    derivative_fine_points,
-                                    s_value,
-                                    s_power,
-                                    data_label,
-                                    wl_min,
-                                    wl_max,
-                                    degree=10):
+def plot_single_derivative_of_fit(powercurve_dataset,
+                                  log_power_fine_points,
+                                  derivative_fine_points,
+                                  s_value,
+                                  s_power,
+                                  data_label,
+                                  wl_min,
+                                  wl_max,
+                                  degree=10):
 
     measurement_label = data_label["label"]
     integration_time = data_label["integration_time"]
@@ -591,7 +596,7 @@ def plot_single_derivative_from_fit(powercurve_dataset,
             '-',
             linewidth=2,
             color='teal',
-            label="d(logL)/d(logP) from fit")
+            label="Derivative of fitted powercurve")
 
     ax.plot(s_power,
             s_value,
@@ -609,7 +614,7 @@ def plot_single_derivative_from_fit(powercurve_dataset,
     ax.set_xscale("log")
     ax.set_xlabel("Power [W]", fontsize=16)
     ax.set_ylabel("d(logL) / d(logP)", fontsize=16)
-    ax.set_title(f"Derivative (from fit) of luminescence vs power\n({wl_min}–{wl_max} nm peak, deg={degree})", fontsize=18)
+    ax.set_title(f"Derivative of luminescence vs power, fitted\n({wl_min}–{wl_max} nm peak, deg={degree})", fontsize=18)
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.tick_params(axis='both', which='major', labelsize=14)
     ax.legend(fontsize=16, loc="upper right")
@@ -617,8 +622,7 @@ def plot_single_derivative_from_fit(powercurve_dataset,
     parameters_text = (f"Type: {measurement_label}\n"
                        f"Integration time: {integration_time} s\n"
                        f"Power ratio start: {ratio_start}\n"
-                       f"Power ratio stop: {ratio_stop}\n"
-                       f"Fit degree: {degree}")
+                       f"Power ratio stop: {ratio_stop}")
 
     height_if_near_field = data_label.get("Z_mV")
     if height_if_near_field is not None:
@@ -630,15 +634,15 @@ def plot_single_derivative_from_fit(powercurve_dataset,
 
     plt.show()
 
-def plot_single_powercurve_with_s_from_fit(powercurve_dataset,
-                                           polynomial_fit,
-                                           log_power_fine_points,
-                                           s_value,
-                                           s_power,
-                                           data_label,
-                                           wl_min,
-                                           wl_max,
-                                           degree=10):
+def plot_single_powercurve_with_s_fitted(powercurve_dataset,
+                                         polynomial_fit,
+                                         log_power_fine_points,
+                                         s_value,
+                                         s_power,
+                                         data_label,
+                                         wl_min,
+                                         wl_max,
+                                         degree=10):
 
     measurement_label = data_label["label"]
     integration_time = data_label["integration_time"]
@@ -660,7 +664,7 @@ def plot_single_powercurve_with_s_from_fit(powercurve_dataset,
     log_luminescence_fine_points = polynomial_fit(log_power_fine_points)
     log_luminescence_fine_points = np.clip(log_luminescence_fine_points, None, 700)  # Prevent exp overflow
     luminescence_fine_points = np.exp(log_luminescence_fine_points)
-    ax.plot(np.exp(log_power_fine_points), luminescence_fine_points, '-', linewidth=2, color='crimson', label=f"Fit (deg={degree})")
+    ax.plot(np.exp(log_power_fine_points), luminescence_fine_points, '-', linewidth=2, color='crimson', label=f"Polynomial fit (deg={degree})")
 
     log_s_luminescence = polynomial_fit(np.log(s_power))
     log_s_luminescence = np.clip(log_s_luminescence, None, 700)
@@ -679,7 +683,7 @@ def plot_single_powercurve_with_s_from_fit(powercurve_dataset,
     ax.set_yscale("log")
     ax.set_xlabel("Power [W]", fontsize=16)
     ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
-    ax.set_title(f"Luminescence vs power (with fit and s), log-scale\n({wl_min}–{wl_max} nm peak)", fontsize=18)
+    ax.set_title(f"Luminescence vs power, fitted, log-scale\n({wl_min}–{wl_max} nm peak)", fontsize=18)
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.tick_params(axis='both', which='major', labelsize=14)
     ax.legend(fontsize=16, loc="lower right")
@@ -687,8 +691,7 @@ def plot_single_powercurve_with_s_from_fit(powercurve_dataset,
     parameters_text = (f"Type: {measurement_label}\n"
                        f"Integration time: {integration_time} s\n"
                        f"Power ratio start: {ratio_start}\n"
-                       f"Power ratio stop: {ratio_stop}\n"
-                       f"Fit degree: {degree}")
+                       f"Power ratio stop: {ratio_stop}")
 
     height_if_near_field = data_label.get("Z_mV")
     if height_if_near_field is not None:
@@ -700,11 +703,11 @@ def plot_single_powercurve_with_s_from_fit(powercurve_dataset,
 
     plt.show()
 
-def plot_all_powercurve_fits_from_json(powercurves_datasets,
-                                       background_subtraction_range,
-                                       int_start,
-                                       int_end,
-                                       degree=10):
+def plot_all_powercurves_fitted_from_json(powercurves_datasets,
+                                          background_subtraction_range,
+                                          int_start,
+                                          int_end,
+                                          degree=10):
 
     fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
     colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
@@ -720,14 +723,14 @@ def plot_all_powercurve_fits_from_json(powercurves_datasets,
         powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
 
         config_label = f"{dataset.get('label', ''):<6}"
-        label = f"{config_label} | Int. time: {int_time:.2f} s | Fit deg={degree}"
+        label = f"{config_label} | Int. time: {int_time:.2f} s\nFit deg={degree}"
 
         ax.plot(powercurve["Power_W"], powercurve["Luminescence_counts/s"], "o", color=colors[i], alpha=0.6)
         ax.plot(power_fine_points, luminescence_fine_points, "-", color=colors[i], label=label)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_title(f"Power curves and fits (deg={degree})\n({int_start}–{int_end} nm peak)", fontsize=18)
+    ax.set_title(f"Luminescence vs power, fitted, log-scale\n(deg={degree})\n({int_start}–{int_end} nm peak)", fontsize=18)
     ax.set_xlabel("Power [W]", fontsize=16)
     ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
@@ -736,11 +739,11 @@ def plot_all_powercurve_fits_from_json(powercurves_datasets,
 
     plt.show()
 
-def plot_all_derivatives_from_fit_from_json(powercurves_datasets,
-                                            background_subtraction_range,
-                                            int_start,
-                                            int_end,
-                                            degree=5):
+def plot_all_derivatives_of_fits_from_json(powercurves_datasets,
+                                           background_subtraction_range,
+                                           int_start,
+                                           int_end,
+                                           degree=5):
 
     fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
     colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
@@ -756,7 +759,7 @@ def plot_all_derivatives_from_fit_from_json(powercurves_datasets,
         powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=int_time)
 
         powercurve, polynomial_fit, log_power_fine_points, _, _ = fit_powercurve(powercurve, degree=degree)
-        powercurve, s_value, s_power, fwhm_power = calculate_derivative_from_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
+        powercurve, s_value, s_power = calculate_derivative_of_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
 
         polynomial_fit_derivative = np.polyder(polynomial_fit)
         derivative_fine_points = polynomial_fit_derivative(log_power_fine_points)
@@ -764,8 +767,7 @@ def plot_all_derivatives_from_fit_from_json(powercurves_datasets,
         config_label = f"{dataset.get('label', ''):<6}"
         label = (f"Int. time: {int_time:.2f} s | "
                  f"R: {ratio_start:.4f} – {ratio_stop:.3f} |\n{config_label}\n"
-                 f"s ≈ {s_value:.2f} at {s_power:.4f} W\n"
-                 f"FWHM ≈ {fwhm_str}")
+                 f"s ≈ {s_value:.2f} at {s_power:.4f} W")
 
         height_if_near_field = dataset.get("Z_mV")
         if height_if_near_field is not None:
@@ -780,7 +782,7 @@ def plot_all_derivatives_from_fit_from_json(powercurves_datasets,
     ax.set_xlabel("Power [W]", fontsize=16)
     ax.set_ylabel("d(logL) / d(logP)", fontsize=16)
     ax.set_title(
-        f"Derivative curves (from fit) of luminescence vs power\n({int_start}–{int_end} nm peak, deg={degree})",
+        f"Derivative curves of fitted luminescence vs power\n({int_start}–{int_end} nm peak, deg={degree})",
         fontsize=18)
     ax.grid(True, which="both", linestyle="--", alpha=0.3)
     ax.legend(fontsize=16, loc="best", bbox_to_anchor=(1, 0.99))

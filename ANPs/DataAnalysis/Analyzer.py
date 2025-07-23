@@ -82,7 +82,7 @@ def fit_powercurve(powercurve_dataset, degree=10, fine_points=500):
 
     return powercurve_dataset, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points
 
-def calculate_derivative_from_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, degree=10):
+def calculate_derivative_of_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, degree=10):
 
     polynomial_fit_derivative = np.polyder(polynomial_fit)
     derivative_fine_points = polynomial_fit_derivative(log_power_fine_points)
