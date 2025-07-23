@@ -844,7 +844,7 @@ def plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets,
 
         ax.axvline(x=s_power,
                    linestyle="--",
-                   linewidth=1.2,
+                   linewidth=1.6,
                    color=colors[i],
                    alpha=0.6)
 
