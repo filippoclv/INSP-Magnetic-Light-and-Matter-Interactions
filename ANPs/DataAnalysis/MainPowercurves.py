@@ -41,7 +41,7 @@ all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"],
 #                            zoom_wl_max=760,
 #                            integration_range=(int_start, int_end))
 
-powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=selected_dataset["integration_time"])
+# powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=selected_dataset["integration_time"])
 # plot_powercurve(powercurve, selected_dataset, wl_min=int_start, wl_max=int_end)
 
 # plot_all_powercurves_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
@@ -53,24 +53,26 @@ powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=in
 
 # plot_all_derivatives_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
 
-# plot_all_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
-
-
+plot_all_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
 
 degree = 10
 
-powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
-powercurve, s_value, s_power = calculate_derivative_of_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
+# powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
+# powercurve, s_value, s_power = calculate_derivative_of_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
+#
+# plot_single_powercurve_fit(powercurve, polynomial_fit, log_power_fine_points, selected_dataset, int_start, int_end, degree=degree)
+#
+# derivative_fine_points = np.polyder(polynomial_fit)(log_power_fine_points)
+# plot_single_derivative_of_fit(powercurve, log_power_fine_points, derivative_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
+#
+# plot_single_powercurve_with_s_fitted(powercurve, polynomial_fit, log_power_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
+#
+# plot_all_powercurves_fitted_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
+# plot_all_derivatives_of_fits_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 
-plot_single_powercurve_fit(powercurve, polynomial_fit, log_power_fine_points, selected_dataset, int_start, int_end, degree=degree)
+plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 
-derivative_fine_points = np.polyder(polynomial_fit)(log_power_fine_points)
-plot_single_derivative_of_fit(powercurve, log_power_fine_points, derivative_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
 
-plot_single_powercurve_with_s_fitted(powercurve, polynomial_fit, log_power_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
-
-plot_all_powercurves_fitted_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
-plot_all_derivatives_of_fits_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 
 # Forward and backward sweep plotting:
 

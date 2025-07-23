@@ -789,3 +789,72 @@ def plot_all_derivatives_of_fits_from_json(powercurves_datasets,
     ax.tick_params(axis='both', which='major', labelsize=14)
 
     plt.show()
+
+def plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets,
+                                                 background_subtraction_range,
+                                                 int_start,
+                                                 int_end,
+                                                 degree=10):
+
+    fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
+    colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
+
+    for i, dataset in enumerate(powercurves_datasets):
+
+        folder = dataset["folder"]
+        int_time = dataset["integration_time"]
+        ratio_start = dataset["ratio_start"]
+        ratio_stop = dataset["ratio_stop"]
+
+        all_spectra_dict = all_spectra_dataframe_dict(folder, background_subtraction_range=background_subtraction_range)
+        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=int_time)
+
+        powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
+        powercurve, s_value, s_power = calculate_derivative_of_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
+
+        config_label = f"{dataset.get('label', ''):<6}"
+        label = (f"Int. time: {int_time:.2f} s | "
+                 f"R: {ratio_start:.4f} – {ratio_stop:.3f} |\n{config_label}\n"
+                 f"s ≈ {s_value:.2f} at {s_power:.4f} W")
+
+        height_if_near_field = dataset.get("Z_mV")
+        if height_if_near_field is not None:
+            label += f"\nHeight: {height_if_near_field} mV"
+
+        ax.plot(powercurve["Power_W"],
+                powercurve["Luminescence_counts/s"],
+                marker="o",
+                markersize=6,
+                markerfacecolor="none",
+                linestyle="none",
+                color=colors[i],
+                label=label)
+
+        ax.plot(power_fine_points, luminescence_fine_points, "-", linewidth=2, color=colors[i])
+
+        log_s_luminescence = polynomial_fit(np.log(s_power))
+        log_s_luminescence = np.clip(log_s_luminescence, None, 700)
+        s_luminescence = np.exp(log_s_luminescence)
+        ax.plot(s_power,
+                s_luminescence,
+                marker='o',
+                color=colors[i],
+                markersize=8,
+                markeredgecolor='black')
+
+        ax.axvline(x=s_power,
+                   linestyle="--",
+                   linewidth=1.2,
+                   color=colors[i],
+                   alpha=0.6)
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_title(f"Luminescence vs power, fitted, log-scale\n({int_start}–{int_end} nm peak, deg={degree})", fontsize=18)
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=16, loc="best", bbox_to_anchor=(1, 0.99))
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+    plt.show()
