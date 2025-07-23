@@ -301,7 +301,7 @@ def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min,
                        f"Power ratio start: {ratio_start}\n"
                        f"Power ratio stop: {ratio_stop}")
 
-    ax.text(0.6, 0.2, parameters_text,
+    ax.text(0.72, 0.75, parameters_text,
             transform=ax.transAxes,
             fontsize=16,
             verticalalignment="top",
