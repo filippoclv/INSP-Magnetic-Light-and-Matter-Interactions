@@ -77,6 +77,10 @@ def plot_all_spectra(spectra_dict,
                        f"Power ratio start: {ratio_start}\n"
                        f"Power ratio stop: {ratio_stop}")
 
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
+
     ax.text(0.03, 0.95, parameters_text,
             transform=ax.transAxes,
             fontsize=16,
@@ -125,7 +129,7 @@ def plot_all_spectra_with_zoom(spectra_dict,
 
     ax_inset = inset_axes(ax, width="45%", height="45%",
                           loc="lower left",
-                          bbox_to_anchor=(0.1, 0.25, 1, 1),
+                          bbox_to_anchor=(0.1, 0.21, 1, 1),
                           bbox_transform=ax.transAxes,
                           borderpad=0)
 
@@ -159,6 +163,10 @@ def plot_all_spectra_with_zoom(spectra_dict,
                        f"Integration time: {integration_time} s\n"
                        f"Power ratio start: {ratio_start}\n"
                        f"Power ratio stop: {ratio_stop}")
+
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
 
     ax.text(0.03, 0.95, parameters_text,
             transform=ax.transAxes,
@@ -197,10 +205,16 @@ def plot_powercurve(powercurve_dataset, data_label, wl_min, wl_max):
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.tick_params(axis='both', which='major', labelsize=14)
 
-    parameters_text = (f"Type: {measurement_label}\nIntegration time: {integration_time} s\n"
-                       f"Power ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}")
+    parameters_text = (f"Type: {measurement_label}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}")
 
-    ax.text(0.6, 0.2, parameters_text,
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
+
+    ax.text(0.03, 0.95, parameters_text,
             transform=ax.transAxes,
             fontsize=16,
             verticalalignment="top",
@@ -232,6 +246,10 @@ def plot_all_powercurves_from_json(powercurves_datasets,
 
         label = (f"Int. time: {int_time:>1.2f} s | "
                  f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} |\n{config_label}")
+
+        height_if_near_field = dataset.get("Z_mV")
+        if height_if_near_field is not None:
+            label += f"\nHeight: {height_if_near_field} mV"
 
         ax.plot(powercurve["Power_W"],
                 powercurve["Luminescence_counts/s"],
@@ -297,7 +315,11 @@ def plot_single_derivative_powercurve(derivative_powercurve, data_label, wl_min,
                        f"Power ratio start: {ratio_start}\n"
                        f"Power ratio stop: {ratio_stop}")
 
-    ax.text(0.72, 0.75, parameters_text,
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
+
+    ax.text(0.03, 0.95, parameters_text,
             transform=ax.transAxes,
             fontsize=16,
             verticalalignment="top",
@@ -332,6 +354,10 @@ def plot_all_derivatives_from_json(powercurves_datasets,
         label = (f"Int. time: {int_time:>1.2f} s | "
                  f"R: {ratio_start:>1.4f} – {ratio_stop:>1.3f} |\n{config_label}\n"
                  f"s ≈ {s_value:.2f} at {s_power:.4f} W")
+
+        height_if_near_field = dataset.get("Z_mV")
+        if height_if_near_field is not None:
+            label += f"\nHeight: {height_if_near_field} mV"
 
         ax.plot(derivative_powercurve["Power_W"],
                 derivative_powercurve["Derivative_values"],
@@ -412,17 +438,23 @@ def plot_single_powercurve_with_s(powercurve_dataset, data_label, wl_min, wl_max
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.tick_params(axis='both', which='major', labelsize=14)
 
-    parameters_text = (f"Type: {measurement_label}\nIntegration time: {integration_time} s\n"
-                       f"Power ratio start: {ratio_start}\nPower ratio stop: {ratio_stop}")
+    parameters_text = (f"Type: {measurement_label}\n"
+                       f"Integration time: {integration_time} s\n"
+                       f"Power ratio start: {ratio_start}\n"
+                       f"Power ratio stop: {ratio_stop}")
 
-    ax.text(0.6, 0.2, parameters_text,
+    height_if_near_field = data_label.get("Z_mV")
+    if height_if_near_field is not None:
+        parameters_text += f"\nHeight: {height_if_near_field} mV"
+
+    ax.text(0.03, 0.95, parameters_text,
             transform=ax.transAxes,
             fontsize=16,
             verticalalignment="top",
             horizontalalignment="left",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
-    ax.legend(fontsize=16, loc="upper left")
+    ax.legend(fontsize=16, loc="lower right")
 
     plt.show()
 
@@ -453,6 +485,10 @@ def plot_all_powercurves_with_s_from_json(powercurves_datasets,
                  f"R: {ratio_start:.4f} - {ratio_stop:.3f} | "
                  f"\ns ≈ {s_value:.2f} at {s_power:.4f} W\n"
                  f"{config_label:<7}")
+
+        height_if_near_field = dataset.get("Z_mV")
+        if height_if_near_field is not None:
+            label += f"\nHeight: {height_if_near_field} mV"
 
         ax.plot(powercurve["Power_W"],
                 powercurve["Luminescence_counts/s"],
