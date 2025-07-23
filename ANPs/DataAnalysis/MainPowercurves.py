@@ -58,12 +58,12 @@ plot_single_powercurve_with_s(powercurve, selected_dataset, wl_min=int_start, wl
 
 
 
-# degree = 5
-# powercurve, polynomial_fit, log_power_fine_points, log_power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
-# powercurve, s_value, s_power = calculate_derivative_from_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
-#
-# plot_single_powercurve_fit(powercurve, polynomial_fit, log_power_fine_points, selected_dataset, wl_min=int_start, wl_max=int_end, degree=degree)
-#
+degree = 5
+powercurve, polynomial_fit, log_power_fine_points, log_power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
+powercurve, s_value, s_power = calculate_derivative_from_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
+
+plot_single_powercurve_fit(powercurve, polynomial_fit, log_power_fine_points, selected_dataset, wl_min=int_start, wl_max=int_end, degree=degree)
+
 # plot_single_powercurve_with_s_from_fit(powercurve, poly, log_power_fine, s_value, s_power, selected_dataset, wl_min=int_start, wl_max=int_end, degree=degree)
 
 # For multi-dataset:
