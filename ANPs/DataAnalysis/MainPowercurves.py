@@ -59,14 +59,14 @@ degree = 10
 
 # powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
 # powercurve, s_value, s_power = calculate_derivative_of_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
-#
+
 # plot_single_powercurve_fit(powercurve, polynomial_fit, log_power_fine_points, selected_dataset, int_start, int_end, degree=degree)
-#
+
 # derivative_fine_points = np.polyder(polynomial_fit)(log_power_fine_points)
 # plot_single_derivative_of_fit(powercurve, log_power_fine_points, derivative_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
-#
+
 # plot_single_powercurve_with_s_fitted(powercurve, polynomial_fit, log_power_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
-#
+
 # plot_all_powercurves_fitted_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 # plot_all_derivatives_of_fits_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 
