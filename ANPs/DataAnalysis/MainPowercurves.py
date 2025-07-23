@@ -58,7 +58,7 @@ plot_single_powercurve_with_s(powercurve, selected_dataset, wl_min=int_start, wl
 
 
 
-degree = 5
+degree = 3
 powercurve, polynomial_fit, log_power_fine_points, log_power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
 powercurve, s_value, s_power = calculate_derivative_from_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
 

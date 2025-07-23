@@ -556,7 +556,7 @@ def plot_single_powercurve_fit(powercurve_dataset, polynomial_fit, log_power_fin
     ax.legend(fontsize=16, loc="lower right")
 
     parameters_text = (f"Type: {measurement_label}\n"
-                       f"Fit degree: {degree}"
+                       f"Fit degree: {degree}\n"
                        f"Integration time: {integration_time} s\n"
                        f"Power ratio start: {ratio_start}\n"
                        f"Power ratio stop: {ratio_stop}\n")
