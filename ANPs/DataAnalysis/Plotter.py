@@ -528,7 +528,6 @@ def plot_all_powercurves_with_s_from_json(powercurves_datasets,
 
     plt.show()
 
-
 def plot_single_powercurve_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, data_label, wl_min, wl_max, degree=10):
 
     measurement_label = data_label["label"]
@@ -569,7 +568,6 @@ def plot_single_powercurve_fit(powercurve_dataset, polynomial_fit, log_power_fin
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
     plt.show()
-
 
 def plot_single_derivative_from_fit(powercurve_dataset,
                                     log_power_fine_points,
@@ -632,12 +630,16 @@ def plot_single_derivative_from_fit(powercurve_dataset,
 
     plt.show()
 
+def plot_single_powercurve_with_s_from_fit(powercurve_dataset,
+                                           polynomial_fit,
+                                           log_power_fine_points,
+                                           s_value,
+                                           s_power,
+                                           data_label,
+                                           wl_min,
+                                           wl_max,
+                                           degree=10):
 
-def plot_single_powercurve_with_s_from_fit(powercurve_dataset, polynomial_fit, log_power_fine_points, s_value, s_power,
-                                           data_label, wl_min, wl_max, degree=5):
-    """
-    Like plot_single_powercurve_with_s, but using 's' from fit, and overlay fit curve.
-    """
     measurement_label = data_label["label"]
     integration_time = data_label["integration_time"]
     ratio_start = data_label["ratio_start"]
@@ -645,25 +647,32 @@ def plot_single_powercurve_with_s_from_fit(powercurve_dataset, polynomial_fit, l
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
-    # Original data
     ax.plot(powercurve_dataset["Power_W"],
             powercurve_dataset["Luminescence_counts/s"],
-            marker='o', markersize=7, markerfacecolor='none', markeredgecolor='teal',
-            linestyle='none', color='teal', label="Data")
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='teal',
+            linestyle='none',
+            color='teal',
+            label="Data")
 
-    # Fitted curve (fine) with clip
-    log_lum_fine_points = polynomial_fit(log_power_fine_points)
-    log_lum_fine_points = np.clip(log_lum_fine_points, None, 700)  # Prevent exp overflow
-    luminescence_fine_points = np.exp(log_lum_fine_points)
-    ax.plot(np.exp(log_power_fine_points), luminescence_fine_points, '-', linewidth=2, color='crimson',
-            label=f"Fit (deg={degree})")
+    log_luminescence_fine_points = polynomial_fit(log_power_fine_points)
+    log_luminescence_fine_points = np.clip(log_luminescence_fine_points, None, 700)  # Prevent exp overflow
+    luminescence_fine_points = np.exp(log_luminescence_fine_points)
+    ax.plot(np.exp(log_power_fine_points), luminescence_fine_points, '-', linewidth=2, color='crimson', label=f"Fit (deg={degree})")
 
-    # Highlight 's' with clip
-    log_s_lum = polynomial_fit(np.log(s_power))
-    log_s_lum = np.clip(log_s_lum, None, 700)
-    s_lum = np.exp(log_s_lum)
-    ax.plot(s_power, s_lum, marker='o', color='crimson', markersize=8, markeredgecolor='black',
+    log_s_luminescence = polynomial_fit(np.log(s_power))
+    log_s_luminescence = np.clip(log_s_luminescence, None, 700)
+    s_luminescence = np.exp(log_s_luminescence)
+    ax.plot(s_power,
+            s_luminescence,
+            marker='o',
+            color='crimson',
+            markersize=8,
+            markeredgecolor='black',
             label=f"s ≈ {s_value:.2f} at {s_power:.4f} W")
+
     ax.axvline(x=s_power, color='crimson', linestyle='--', linewidth=1.5, alpha=0.7)
 
     ax.set_xscale("log")
@@ -691,31 +700,28 @@ def plot_single_powercurve_with_s_from_fit(powercurve_dataset, polynomial_fit, l
 
     plt.show()
 
+def plot_all_powercurve_fits_from_json(powercurves_datasets,
+                                       background_subtraction_range,
+                                       int_start,
+                                       int_end,
+                                       degree=10):
 
-# Bonus: Multi-dataset versions (adapted from your old code)
-def plot_all_powercurve_fits_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end,
-                                       degree=5):
-    """
-    Like check_all_fits: Overlay data + fits for multiple datasets.
-    """
     fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
     colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
 
     for i, dataset in enumerate(powercurves_datasets):
+
         folder = dataset["folder"]
         int_time = dataset["integration_time"]
 
         all_spectra_dict = all_spectra_dataframe_dict(folder, background_subtraction_range=background_subtraction_range)
-        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end,
-                                           integration_time=int_time)
+        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=int_time)
 
-        powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(
-            powercurve, degree=degree)
+        powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
 
         config_label = f"{dataset.get('label', ''):<6}"
         label = f"{config_label} | Int. time: {int_time:.2f} s | Fit deg={degree}"
 
-        # Plot data + fit
         ax.plot(powercurve["Power_W"], powercurve["Luminescence_counts/s"], "o", color=colors[i], alpha=0.6)
         ax.plot(power_fine_points, luminescence_fine_points, "-", color=colors[i], label=label)
 
@@ -730,34 +736,30 @@ def plot_all_powercurve_fits_from_json(powercurves_datasets, background_subtract
 
     plt.show()
 
-
-def plot_all_derivatives_from_fit_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end,
+def plot_all_derivatives_from_fit_from_json(powercurves_datasets,
+                                            background_subtraction_range,
+                                            int_start,
+                                            int_end,
                                             degree=5):
-    """
-    Like plot_all_derivatives_fit: Overlay fitted derivatives for multiple datasets, with 's' and FWHM.
-    """
+
     fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
     colors = cm.jet(np.linspace(0, 1, len(powercurves_datasets)))
 
     for i, dataset in enumerate(powercurves_datasets):
+
         folder = dataset["folder"]
         int_time = dataset["integration_time"]
         ratio_start = dataset["ratio_start"]
         ratio_stop = dataset["ratio_stop"]
 
         all_spectra_dict = all_spectra_dataframe_dict(folder, background_subtraction_range=background_subtraction_range)
-        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end,
-                                           integration_time=int_time)
+        powercurve = integrate_all_spectra(all_spectra_dict, wl_min=int_start, wl_max=int_end, integration_time=int_time)
 
         powercurve, polynomial_fit, log_power_fine_points, _, _ = fit_powercurve(powercurve, degree=degree)
-        powercurve, s_value, s_power, fwhm_power = calculate_derivative_from_fit(powercurve, polynomial_fit,
-                                                                                 log_power_fine_points, degree=degree)
+        powercurve, s_value, s_power, fwhm_power = calculate_derivative_from_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
 
-        # Derivative fine
         polynomial_fit_derivative = np.polyder(polynomial_fit)
         derivative_fine_points = polynomial_fit_derivative(log_power_fine_points)
-
-        fwhm_str = f"{fwhm_power:.8f} W" if fwhm_power else "N/A"
 
         config_label = f"{dataset.get('label', ''):<6}"
         label = (f"Int. time: {int_time:.2f} s | "
