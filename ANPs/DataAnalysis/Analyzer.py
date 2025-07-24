@@ -101,34 +101,6 @@ def calculate_derivative_of_fit(powercurve_dataset, polynomial_fit, log_power_fi
 
     return powercurve_dataset, s_value, s_power
 
-def integrate_all_spectra_nearfield_heights(spectra_dict, wl_min, wl_max, integration_time):
-
-    results = []
-
-    for label, data in spectra_dict.items():
-
-        if label == "Reference":
-
-            continue
-
-        height = data.attrs["Height_mV"]
-        filtered_dataframe = data[(data["Wavelength_nm"] >= wl_min) & (data["Wavelength_nm"] <= wl_max)]
-
-        if filtered_dataframe.empty:
-
-            print(f"Warning: {label} has no data in range {wl_min}-{wl_max} nm")
-
-            continue
-
-        integrated_counts = np.trapz(filtered_dataframe["Intensity_counts"], filtered_dataframe["Wavelength_nm"])
-        luminescence = integrated_counts / integration_time
-
-        results.append((height, luminescence))
-
-    heightcurve_dataset = pd.DataFrame(results, columns=["Height_mV", "Luminescence_counts/s"])
-
-    return heightcurve_dataset
-
 def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_stop, wl_step=1.0, reference_key="Reference"):
 
     heights = []
