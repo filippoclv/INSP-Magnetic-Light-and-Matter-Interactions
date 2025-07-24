@@ -25,7 +25,8 @@ def multi_gaussian(x, *params):
     return y
 
 
-def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_guesses=None, bounds=None):
+def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_guesses=None, bounds=None,
+                 bg_mean=0.0, dark_rate=0.1, read_noise=5.0, integration_time=3.0):
     """
     Fit the spectrum dataframe to num_gaussians Gaussians in the given wavelength range.
 
@@ -35,6 +36,10 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
     - num_gaussians: Number of Gaussian components (3-4 recommended for Tm3+ band).
     - initial_guesses: List of [amp1, ctr1, sig1, ...]; if None, auto-generates based on data and literature.
     - bounds: Tuple of (lower, upper) lists; if None, defaults to positive amps, centers in range, sigmas 1-20 nm.
+    - bg_mean: Mean background counts per wavelength bin (from subtraction range, e.g., 843-844 nm).
+    - dark_rate: Dark current rate in counts/pixel/second (typical 0.01-0.1 for cooled CCDs).
+    - read_noise: Read noise in counts (typical 5-10 for CCD spectrometers).
+    - integration_time: Exposure time in seconds (e.g., 3 s from your measurements).
 
     Returns:
     - popt: Optimized parameters [amp1, ctr1, sig1, ...]
@@ -60,8 +65,14 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
         upper = [np.inf, wl_max, 20] * num_gaussians
         bounds = (lower, upper)
 
+    # Compute variance for each data point
+    dark_counts = dark_rate * integration_time
+    variance = y_data + 2 * bg_mean + dark_counts + read_noise**2
+    sigma = np.sqrt(variance)
+    sigma = np.clip(sigma, 1e-6, None)  # Prevent zero or negative sigma
+
     try:
-        popt, pcov = curve_fit(multi_gaussian, x_data, y_data, p0=initial_guesses, bounds=bounds, maxfev=5000)
+        popt, pcov = curve_fit(multi_gaussian, x_data, y_data, p0=initial_guesses, bounds=bounds, sigma=sigma, absolute_sigma=True, maxfev=5000)
         perr = np.sqrt(np.diag(pcov))
     except Exception as e:
         print(f"Fitting failed: {e}")
@@ -70,7 +81,7 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
     # Compute goodness of fit (reduced chi-squared)
     y_fit = multi_gaussian(x_data, *popt)
     residuals = y_data - y_fit
-    chi2 = np.sum(residuals ** 2 / y_fit)  # Approximate, assuming Poisson noise ~sqrt(y_fit) but simplified
+    chi2 = np.sum((residuals / sigma)**2)
     dof = len(x_data) - len(popt)
     reduced_chi2 = chi2 / dof
     print(f"Reduced chi-squared: {reduced_chi2:.2f}")
@@ -100,18 +111,20 @@ def plot_fit(spectrum_df, popt, wl_min=760, wl_max=840, num_gaussians=3, title="
         y_comp = multi_gaussian(x_data, amp, ctr, wid)
         ax1.plot(x_data, y_comp, '--', color=colors[i], label=f'G{i + 1}: μ={ctr:.1f} nm, σ={wid:.1f} nm')
 
-    ax1.set_ylabel('Intensity (counts)')
-    ax1.set_title(title)
-    ax1.legend()
+    ax1.set_ylabel('Intensity (counts)', fontsize=16)
+    ax1.set_title(title, fontsize=18)
+    ax1.legend(fontsize=14)
     ax1.grid(True, alpha=0.3)
+    ax1.tick_params(axis='both', which='major', labelsize=14)
 
     # Residuals
     residuals = y_data - y_fit
     ax2.plot(x_data, residuals, 'k.', label='Residuals')
     ax2.axhline(0, color='r', linestyle='--')
-    ax2.set_xlabel('Wavelength (nm)')
-    ax2.set_ylabel('Residuals')
+    ax2.set_xlabel('Wavelength [nm]', fontsize=16)
+    ax2.set_ylabel('Residuals', fontsize=16)
     ax2.grid(True, alpha=0.3)
+    ax2.tick_params(axis='both', which='major', labelsize=14)
 
     plt.tight_layout()
     plt.show()
@@ -128,11 +141,12 @@ if __name__ == "__main__":
     test_df = pd.DataFrame({'Wavelength_nm': wl, 'Intensity_counts': intensity})
 
     # Fit with 4 Gaussians (adjust num_gaussians as needed)
-    popt, perr = fit_spectrum(test_df, num_gaussians=4)
+    # Example noise params: bg_mean=5 (from your subtraction range), dark_rate=0.1, read_noise=5, integration_time=3
+    popt, perr = fit_spectrum(test_df, num_gaussians=4, bg_mean=5.0, dark_rate=0.1, read_noise=5.0, integration_time=3.0)
     if popt is not None:
         print("Fitted parameters (amp, center, sigma ± err):")
         for i in range(0, len(popt), 3):
             print(f"Gaussian {i // 3 + 1}: amp={popt[i]:.2f} ± {perr[i]:.2f}, "
                   f"center={popt[i + 1]:.2f} ± {perr[i + 1]:.2f} nm, "
                   f"sigma={popt[i + 2]:.2f} ± {perr[i + 2]:.2f} nm")
-        plot_fit(test_df, popt, num_gaussians=4, title="Test Fit to Simulated Tm3+ Spectrum")
+        plot_fit(test_df, popt, num_gaussians=4, title="Test fit to simulated Tm3+ spectrum")
