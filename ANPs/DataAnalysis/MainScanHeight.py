@@ -35,9 +35,9 @@ plot_all_spectra_nearfield_heights(all_spectra_dict,
                                    integration_time=selected_dataset["integration_time"],
                                    data_label=selected_dataset)
 
-plot_all_spectra_nearfield_heights_normalized(all_spectra_dict,
-                                              integration_time=selected_dataset["integration_time"],
-                                              data_label=selected_dataset)
+# plot_all_spectra_nearfield_heights_normalized(all_spectra_dict,
+#                                               integration_time=selected_dataset["integration_time"],
+#                                               data_label=selected_dataset)
 
 heights, wl_bins, intensity_map = integral_map_different_heights(all_spectra_dict,
                                                                  integration_time=selected_dataset["integration_time"],

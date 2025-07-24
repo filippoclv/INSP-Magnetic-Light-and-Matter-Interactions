@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import Normalize
 
-
 def plot_all_spectra_nearfield_heights(spectra_dict, integration_time, data_label, integration_range=None):
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
