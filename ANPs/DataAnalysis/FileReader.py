@@ -163,6 +163,7 @@ def all_spectra_dataframe_dict_nearfield_heights(folder_path, reference_backgrou
                 reference_spectrum["Intensity_counts"] = reference_spectrum["Intensity_counts"].clip(lower=0)
 
                 for label, data in spectra_dict.items():
+
                     data["Intensity_counts"] -= background_mean
                     data["Intensity_counts"] = data["Intensity_counts"].clip(lower=0)
 
