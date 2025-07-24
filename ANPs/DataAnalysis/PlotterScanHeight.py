@@ -70,26 +70,23 @@ def plot_all_spectra_nearfield_heights_normalized(spectra_dict, integration_time
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
     height_values = [data.attrs["Height_mV"] for label, data in spectra_dict.items() if label != "Reference"]
-    sorted_heights = np.sort(np.unique(height_values))
-
+    color_normalization = Normalize(vmin=min(height_values), vmax=max(height_values))
     colormap = cm.jet
-    colors = colormap(np.linspace(0, 1, len(sorted_heights)))
-    height_to_color = dict(zip(sorted_heights, colors))
 
     for label, data in spectra_dict.items():
+
         if label == "Reference":
+
             continue
+
         height = data.attrs["Height_mV"]
-        color = height_to_color[height]
+        color = colormap(color_normalization(height))
         ax.plot(data["Wavelength_nm"], data["Intensity_counts"]/data["Intensity_counts"].max(), label=label, color=color, linewidth=1, alpha=0.8)
 
-    cmap = ListedColormap(colors)
-    boundaries = np.append(sorted_heights, sorted_heights[-1] + 1)
-    norm = BoundaryNorm(boundaries=boundaries, ncolors=len(colors))
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm = plt.cm.ScalarMappable(cmap=colormap, norm=color_normalization)
     sm.set_array([])
 
-    cbar = plt.colorbar(sm, ax=ax, ticks=sorted_heights[::max(1, len(sorted_heights) // 10)])
+    cbar = plt.colorbar(sm, ax=ax)
     cbar.set_label("Height (SensZ) [mV]", fontsize=16, labelpad=5)
     cbar.ax.tick_params(labelsize=14)
 
