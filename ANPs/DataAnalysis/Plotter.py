@@ -112,6 +112,7 @@ def plot_all_spectra_with_zoom(spectra_dict,
         ax.plot(data["Wavelength_nm"], data["Intensity_counts"], label=label, color=color)
 
     if integration_range is not None:
+
         wl_min, wl_max = integration_range
         line1 = plt.axvline(x=wl_min, color="grey", linestyle="--", linewidth=1.2)
         line2 = plt.axvline(x=wl_max, color="grey", linestyle="--", linewidth=1.2)

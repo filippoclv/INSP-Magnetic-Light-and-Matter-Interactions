@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates" />
+    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/MainPowercurves.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/MainPowercurves.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/MainScanHeight.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/MainScanHeight.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/Plotter.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/Plotter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/PlotterScanHeight.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/PlotterScanHeight.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -65,6 +71,7 @@
     "Python.MainScanHeight.executor": "Run",
     "Python.PiezoStageControl.executor": "Run",
     "Python.Plotter.executor": "Run",
+    "Python.PlotterScanHeight.executor": "Run",
     "Python.SavingScript.executor": "Run",
     "Python.main_data_treatment_powercurves.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -139,15 +146,7 @@
       <workItem from="1752667257807" duration="6175000" />
       <workItem from="1752754468870" duration="5868000" />
       <workItem from="1752829739869" duration="8738000" />
-      <workItem from="1753261103286" duration="25810000" />
-    </task>
-    <task id="LOCAL-00122" summary="updates">
-      <option name="closed" value="true" />
-      <created>1752667051211</created>
-      <option name="number" value="00122" />
-      <option name="presentableId" value="LOCAL-00122" />
-      <option name="project" value="LOCAL" />
-      <updated>1752667051211</updated>
+      <workItem from="1753261103286" duration="27781000" />
     </task>
     <task id="LOCAL-00123" summary="updates">
       <option name="closed" value="true" />
@@ -533,7 +532,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753363304929</updated>
     </task>
-    <option name="localTasksCounter" value="171" />
+    <task id="LOCAL-00171" summary="updates">
+      <option name="closed" value="true" />
+      <created>1753364277868</created>
+      <option name="number" value="00171" />
+      <option name="presentableId" value="LOCAL-00171" />
+      <option name="project" value="LOCAL" />
+      <updated>1753364277868</updated>
+    </task>
+    <option name="localTasksCounter" value="172" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -546,10 +553,11 @@
     <option name="LAST_COMMIT_MESSAGE" value="updates" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainScanHeight.coverage" NAME="MainScanHeight Coverage Results" MODIFIED="1753275294023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
-    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainPowercurves.coverage" NAME="MainPowercurves Coverage Results" MODIFIED="1753360784488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
+    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainScanHeight.coverage" NAME="MainScanHeight Coverage Results" MODIFIED="1753365354570" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
+    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainPowercurves.coverage" NAME="MainPowercurves Coverage Results" MODIFIED="1753364817623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$main_data_treatment_powercurves.coverage" NAME="main_data_treatment_powercurves Coverage Results" MODIFIED="1752767011869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$PiezoStageControl.coverage" NAME="PiezoStageControl Coverage Results" MODIFIED="1745408527015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/Interfacing" />
+    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$PlotterScanHeight.coverage" NAME="PlotterScanHeight Coverage Results" MODIFIED="1753364434760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$Plotter.coverage" NAME="Plotter Coverage Results" MODIFIED="1753358234696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainDataTreatmentNew.coverage" NAME="MainDataTreatmentNew Coverage Results" MODIFIED="1744794226365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$SavingScript.coverage" NAME="SavingScript Coverage Results" MODIFIED="1745408690155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/Interfacing" />
