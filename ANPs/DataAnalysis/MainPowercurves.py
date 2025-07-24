@@ -1,12 +1,7 @@
-import warnings
 import json
 from FileReader import *
 from Plotter import *
 from Analyzer import *
-from DataAnalysisNF import *
-
-warnings.simplefilter("ignore", np.RankWarning)
-plt.close("all")
 
 with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\powercurves_metadata.json", "r") as powercurves:
 
