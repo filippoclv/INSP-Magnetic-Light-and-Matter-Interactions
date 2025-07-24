@@ -111,7 +111,7 @@ def plot_fit(spectrum_df, popt, wl_min=760, wl_max=840, num_gaussians=3, title="
         y_comp = multi_gaussian(x_data, amp, ctr, wid)
         ax1.plot(x_data, y_comp, '--', color=colors[i], label=f'G{i + 1}: μ={ctr:.1f} nm, σ={wid:.1f} nm')
 
-    ax1.set_ylabel('Intensity (counts)', fontsize=16)
+    ax1.set_ylabel('Intensity [counts]', fontsize=16)
     ax1.set_title(title, fontsize=18)
     ax1.legend(fontsize=14)
     ax1.grid(True, alpha=0.3)
