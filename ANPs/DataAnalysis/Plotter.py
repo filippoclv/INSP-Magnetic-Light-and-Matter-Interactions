@@ -858,3 +858,34 @@ def plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets,
     ax.tick_params(axis='both', which='major', labelsize=14)
 
     plt.show()
+
+def plot_powercurve_forward_and_backward_sweep(folder_path, int_start, int_end, integration_time, background_subtraction_range=None, title_note=None):
+
+    all_spectra_dict = all_spectra_dataframe_dict(folder_path, background_subtraction_range=background_subtraction_range)
+    number_total_points = len(all_spectra_dict)
+
+    half_of_the_points = number_total_points // 2
+    sorted_labels = sorted(all_spectra_dict.keys(), key=lambda x: int(x[1:]))
+
+    forward_spectra = {k: all_spectra_dict[k] for k in sorted_labels[:half_of_the_points]}
+    backward_spectra = {k: all_spectra_dict[k] for k in sorted_labels[half_of_the_points:]}
+
+    forward_powercurve = integrate_all_spectra(forward_spectra, int_start, int_end, integration_time)
+    backward_powercurve = integrate_all_spectra(backward_spectra, int_start, int_end, integration_time)
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+
+    ax.plot(forward_powercurve["Power_W"], forward_powercurve["Luminescence_counts/s"], 'o-', label="Forward power sweep", color='tab:blue')
+    ax.plot(backward_powercurve["Power_W"], backward_powercurve["Luminescence_counts/s"], 'o-', label="Backward power sweep", color='tab:orange')
+
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("Power [W]", fontsize=16)
+    ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
+    ax.grid(True, which='both', linestyle='--', alpha=0.3)
+    ax.legend(fontsize=16, loc="upper left")
+    ax.set_title(f"Luminescence vs power, forward and backward power sweep, log-scale\n({int_start}-{int_end} nm peak, {title_note})", fontsize=18)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+
+    plt.show()

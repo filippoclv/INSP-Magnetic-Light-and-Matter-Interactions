@@ -3,7 +3,6 @@ import json
 from FileReader import *
 from Plotter import *
 from Analyzer import *
-from DataAnalysis import *
 from DataAnalysisNF import *
 
 warnings.simplefilter("ignore", np.RankWarning)

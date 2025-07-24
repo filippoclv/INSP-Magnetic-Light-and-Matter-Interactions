@@ -3,7 +3,6 @@ import json
 from FileReader import *
 from Plotter import *
 from Analyzer import *
-from DataAnalysis import *
 from DataAnalysisNF import *
 
 warnings.simplefilter("ignore", np.RankWarning)
@@ -72,18 +71,16 @@ degree = 10
 
 plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 
+plot_powercurve_forward_and_backward_sweep(folder_path=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
+                                           int_start=770,
+                                           int_end=835,
+                                           integration_time=1,
+                                           background_subtraction_range=background_subtraction_range,
+                                           title_note="TIR")
 
-
-# Forward and backward sweep plotting:
-
-# plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
-#                                  int_start=770,
-#                                  int_end=835,
-#                                  integration_time=selected_data["integration_time"],
-#                                  title_note="- TIR configuration")
-
-# plot_power_curves_back_and_forth(folder=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
-#                                  int_start=770,
-#                                  int_end=835,
-#                                  integration_time=selected_data["integration_time"],
-#                                  title_note="- NO TIR configuration, same parameters")
+plot_powercurve_forward_and_backward_sweep(folder_path=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
+                                           int_start=770,
+                                           int_end=835,
+                                           integration_time=1,
+                                           background_subtraction_range=background_subtraction_range,
+                                           title_note="normal incidence")
