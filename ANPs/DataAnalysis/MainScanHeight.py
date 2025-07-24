@@ -15,7 +15,7 @@ reference_background_subtraction_range = reference_background_subtraction_range_
 int_start = 770
 int_end = 835
 
-selected_dataset = scan_height_datasets[5]
+selected_dataset = scan_height_datasets[-1]
 all_spectra_dict = all_spectra_dataframe_dict_nearfield_heights(selected_dataset["folder"], reference_background_subtraction_range=reference_background_subtraction_range)
 
 # white_light_spectrum_path = Path(selected_dataset["folder"]).parent / "whitelightref.txt"
