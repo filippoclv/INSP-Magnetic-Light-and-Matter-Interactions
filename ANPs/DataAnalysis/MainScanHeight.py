@@ -39,9 +39,10 @@ plot_all_spectra_nearfield_heights(all_spectra_dict,
 #                                               integration_time=selected_dataset["integration_time"],
 #                                               data_label=selected_dataset)
 
-heights, wl_bins, intensity_map = integral_map_different_heights(all_spectra_dict,
-                                                                 integration_time=selected_dataset["integration_time"],
-                                                                 wl_start=759,
-                                                                 wl_stop=844)
+heights, wl_bins, intensity_map = calculate_LDOS_map_different_heights(all_spectra_dict,
+                                                                       integration_time=selected_dataset["integration_time"],
+                                                                       wl_start=759,
+                                                                       wl_stop=844,
+                                                                       minimum_luminescence_threshold=7)
 
 plot_LDOS_map(heights, wl_bins, intensity_map, cb_min=1, cb_max=1.5)

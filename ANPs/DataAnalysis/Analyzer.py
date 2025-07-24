@@ -101,7 +101,7 @@ def calculate_derivative_of_fit(powercurve_dataset, polynomial_fit, log_power_fi
 
     return powercurve_dataset, s_value, s_power
 
-def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_stop, wl_step=1.0, reference_key="Reference"):
+def calculate_LDOS_map_different_heights(spectra_dict, integration_time, wl_start, wl_stop, wl_step=1.0, reference_key="Reference", minimum_luminescence_threshold=10):
 
     heights = []
     wl_bins = np.arange(wl_start, wl_stop + wl_step, wl_step)
@@ -111,31 +111,42 @@ def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_
     reference_integrals = None
 
     if reference_dataframe is not None:
+
         reference_integrals = []
+
         for wl in wl_bins[:-1]:
+
             window = reference_dataframe[(reference_dataframe["Wavelength_nm"] >= wl) & (reference_dataframe["Wavelength_nm"] < wl + wl_step)]
-            val = np.trapz(window["Intensity_counts"], window["Wavelength_nm"]) / integration_time if not window.empty else 0
-            reference_integrals.append(val)
+            integrated_bin_value = np.trapz(window["Intensity_counts"], window["Wavelength_nm"]) / integration_time if not window.empty else 0
+            reference_integrals.append(integrated_bin_value)
+
         reference_integrals = np.array(reference_integrals)
 
     sorted_items = sorted([item for item in spectra_dict.items() if item[0] != reference_key], key=lambda item: item[1].attrs["Height_mV"])
 
     for label, dataframe in sorted_items:
+
         height = dataframe.attrs["Height_mV"]
         heights.append(height)
         row = []
+
         for wl in wl_bins[:-1]:
+
             window = dataframe[(dataframe["Wavelength_nm"] >= wl) & (dataframe["Wavelength_nm"] < wl + wl_step)]
-            val = np.trapz(window["Intensity_counts"], window["Wavelength_nm"]) / integration_time if not window.empty else 0
-            row.append(val)
+            integrated_bin_value = np.trapz(window["Intensity_counts"], window["Wavelength_nm"]) / integration_time if not window.empty else 0
+            row.append(integrated_bin_value)
+
         row = np.array(row)
 
         if reference_integrals is not None:
-            min_signal_threshold = 7
+
+            minimum_luminescence_threshold = minimum_luminescence_threshold
+
             with np.errstate(divide='ignore', invalid='ignore'):
+
                 ratio = row / reference_integrals
-                mask = (row >= min_signal_threshold)
-                ratio[~mask] = np.nan
+                mask = (row <= minimum_luminescence_threshold)
+                ratio[mask] = np.nan
                 row = ratio
 
         intensity_map.append(row)
