@@ -25,7 +25,7 @@ all_spectra_dict = all_spectra_dataframe_dict_nearfield_heights(selected_dataset
 #     white_light_spectrum_dataframe = read_spectrum_txt_to_dataframe_nearfield_heights(white_light_spectrum_path)
 #     plot_single_spectrum(white_light_spectrum_dataframe, title="White light spectrum")
 
-reference_spectrum = all_spectra_dict.get("Reference")
+# reference_spectrum = all_spectra_dict.get("Reference")
 
 # if reference_spectrum is not None:
 
