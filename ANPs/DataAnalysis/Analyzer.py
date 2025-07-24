@@ -140,8 +140,6 @@ def calculate_LDOS_map_different_heights(spectra_dict, integration_time, wl_star
 
         if reference_integrals is not None:
 
-            minimum_luminescence_threshold = minimum_luminescence_threshold
-
             with np.errstate(divide='ignore', invalid='ignore'):
 
                 ratio = row / reference_integrals
