@@ -12,6 +12,7 @@ background_subtraction_range_narrower_grating = (842, 844)
 background_subtraction_range = background_subtraction_range_narrower_grating
 int_start = 770
 int_end = 835
+degree = 10
 
 selected_dataset = powercurves_datasets[-2]
 
@@ -49,8 +50,6 @@ all_spectra_dict = all_spectra_dataframe_dict(selected_dataset["folder"],
 
 plot_all_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end)
 
-degree = 10
-
 # powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
 # powercurve, s_value, s_power = calculate_derivative_of_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
 
@@ -64,18 +63,22 @@ degree = 10
 # plot_all_powercurves_fitted_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 # plot_all_derivatives_of_fits_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 
-plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
+# plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets, background_subtraction_range, int_start, int_end, degree=degree)
 
-plot_powercurve_forward_and_backward_sweep(folder_path=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
-                                           int_start=770,
-                                           int_end=835,
-                                           integration_time=1,
-                                           background_subtraction_range=background_subtraction_range,
-                                           title_note="TIR")
+# plot_powercurve_forward_and_backward_sweep(folder_path=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410125446",
+#                                            int_start=770,
+#                                            int_end=835,
+#                                            integration_time=1,
+#                                            ratio_start=0.0001,
+#                                            ratio_stop=0.7,
+#                                            background_subtraction_range=background_subtraction_range,
+#                                            title_note="non near-field, TIR")
 
-plot_powercurve_forward_and_backward_sweep(folder_path=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
-                                           int_start=770,
-                                           int_end=835,
-                                           integration_time=1,
-                                           background_subtraction_range=background_subtraction_range,
-                                           title_note="normal incidence")
+# plot_powercurve_forward_and_backward_sweep(folder_path=r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\TIRvsNOTIR_20250410\20250410132709",
+#                                            int_start=770,
+#                                            int_end=835,
+#                                            integration_time=1,
+#                                            ratio_start=0.0001,
+#                                            ratio_stop=0.7,
+#                                            background_subtraction_range=background_subtraction_range,
+#                                            title_note="non near-field, normal incidence")

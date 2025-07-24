@@ -859,7 +859,7 @@ def plot_all_fitted_powercurves_with_s_from_json(powercurves_datasets,
 
     plt.show()
 
-def plot_powercurve_forward_and_backward_sweep(folder_path, int_start, int_end, integration_time, background_subtraction_range=None, title_note=None):
+def plot_powercurve_forward_and_backward_sweep(folder_path, int_start, int_end, integration_time, ratio_start=None, ratio_stop=None, background_subtraction_range=None, title_note=None):
 
     all_spectra_dict = all_spectra_dataframe_dict(folder_path, background_subtraction_range=background_subtraction_range)
     number_total_points = len(all_spectra_dict)
@@ -875,8 +875,27 @@ def plot_powercurve_forward_and_backward_sweep(folder_path, int_start, int_end, 
 
     fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
-    ax.plot(forward_powercurve["Power_W"], forward_powercurve["Luminescence_counts/s"], 'o-', label="Forward power sweep", color='tab:blue')
-    ax.plot(backward_powercurve["Power_W"], backward_powercurve["Luminescence_counts/s"], 'o-', label="Backward power sweep", color='tab:orange')
+    ax.plot(forward_powercurve["Power_W"],
+            forward_powercurve["Luminescence_counts/s"],
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='steelblue',
+            linestyle='-',
+            linewidth=2,
+            color='steelblue',
+            label="Forward power sweep")
+
+    ax.plot(backward_powercurve["Power_W"],
+            backward_powercurve["Luminescence_counts/s"],
+            marker='o',
+            markersize=7,
+            markerfacecolor='none',
+            markeredgecolor='darkorange',
+            linestyle='-',
+            linewidth=2,
+            color='darkorange',
+            label="Backward power sweep")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -884,8 +903,28 @@ def plot_powercurve_forward_and_backward_sweep(folder_path, int_start, int_end, 
     ax.set_ylabel("Luminescence [counts/s]", fontsize=16)
     ax.grid(True, which='both', linestyle='--', alpha=0.3)
     ax.legend(fontsize=16, loc="upper left")
-    ax.set_title(f"Luminescence vs power, forward and backward power sweep, log-scale\n({int_start}-{int_end} nm peak, {title_note})", fontsize=18)
+    ax.set_title(f"Luminescence vs power, forward and backward power sweep, log-scale\n({int_start}–{int_end} nm peak{', ' + title_note if title_note else ''})", fontsize=18)
     ax.tick_params(axis='both', which='major', labelsize=14)
-    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+
+    parameters_text = f"Integration time: {integration_time} s"
+
+    if title_note:
+
+        parameters_text = f"Type: {title_note}\n" + parameters_text
+
+    if ratio_start:
+
+        parameters_text += f"\nPower ratio start: {ratio_start}"
+
+    if ratio_stop:
+
+        parameters_text += f"\nPower ratio stop: {ratio_stop}"
+
+    ax.text(0.57, 0.33, parameters_text,
+            transform=ax.transAxes,
+            fontsize=16,
+            verticalalignment="top",
+            horizontalalignment="left",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="black", alpha=0.7))
 
     plt.show()
