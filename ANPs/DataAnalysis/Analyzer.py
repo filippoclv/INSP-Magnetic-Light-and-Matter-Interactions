@@ -100,3 +100,72 @@ def calculate_derivative_of_fit(powercurve_dataset, polynomial_fit, log_power_fi
     powercurve_dataset.loc[closest_index, "Non-linearity s parameter"] = True
 
     return powercurve_dataset, s_value, s_power
+
+def integrate_all_spectra_nearfield_heights(spectra_dict, wl_min, wl_max, integration_time):
+
+    results = []
+
+    for label, data in spectra_dict.items():
+
+        if label == "Reference":
+
+            continue
+
+        height = data.attrs["Height_mV"]
+        filtered_dataframe = data[(data["Wavelength_nm"] >= wl_min) & (data["Wavelength_nm"] <= wl_max)]
+
+        if filtered_dataframe.empty:
+
+            print(f"Warning: {label} has no data in range {wl_min}-{wl_max} nm")
+
+            continue
+
+        integrated_counts = np.trapz(filtered_dataframe["Intensity_counts"], filtered_dataframe["Wavelength_nm"])
+        luminescence = integrated_counts / integration_time
+
+        results.append((height, luminescence))
+
+    heightcurve_dataset = pd.DataFrame(results, columns=["Height_mV", "Luminescence_counts/s"])
+
+    return heightcurve_dataset
+
+def integral_map_different_heights(spectra_dict, integration_time, wl_start, wl_stop, wl_step=1.0, reference_key="Reference"):
+
+    heights = []
+    wl_bins = np.arange(wl_start, wl_stop + wl_step, wl_step)
+    intensity_map = []
+
+    reference_dataframe = spectra_dict.get(reference_key)
+    reference_integrals = None
+
+    if reference_dataframe is not None:
+        reference_integrals = []
+        for wl in wl_bins[:-1]:
+            window = reference_dataframe[(reference_dataframe["Wavelength_nm"] >= wl) & (reference_dataframe["Wavelength_nm"] < wl + wl_step)]
+            val = np.trapz(window["Intensity_counts"], window["Wavelength_nm"]) / integration_time if not window.empty else 0
+            reference_integrals.append(val)
+        reference_integrals = np.array(reference_integrals)
+
+    sorted_items = sorted([item for item in spectra_dict.items() if item[0] != reference_key], key=lambda item: item[1].attrs["Height_mV"])
+
+    for label, dataframe in sorted_items:
+        height = dataframe.attrs["Height_mV"]
+        heights.append(height)
+        row = []
+        for wl in wl_bins[:-1]:
+            window = dataframe[(dataframe["Wavelength_nm"] >= wl) & (dataframe["Wavelength_nm"] < wl + wl_step)]
+            val = np.trapz(window["Intensity_counts"], window["Wavelength_nm"]) / integration_time if not window.empty else 0
+            row.append(val)
+        row = np.array(row)
+
+        if reference_integrals is not None:
+            min_signal_threshold = 7
+            with np.errstate(divide='ignore', invalid='ignore'):
+                ratio = row / reference_integrals
+                mask = (row >= min_signal_threshold)
+                ratio[~mask] = np.nan
+                row = ratio
+
+        intensity_map.append(row)
+
+    return np.array(heights), wl_bins[:-1] + wl_step / 2, np.array(intensity_map)
