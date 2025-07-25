@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/GaussianFitterAllSpectra.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/GaussianFitterAllSpectra.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/fit_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/fit_results.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,15 +178,7 @@
       <workItem from="1752754468870" duration="5868000" />
       <workItem from="1752829739869" duration="8738000" />
       <workItem from="1753261103286" duration="38257000" />
-      <workItem from="1753440827112" duration="10719000" />
-    </task>
-    <task id="LOCAL-00143" summary="updates">
-      <option name="closed" value="true" />
-      <created>1753115113325</created>
-      <option name="number" value="00143" />
-      <option name="presentableId" value="LOCAL-00143" />
-      <option name="project" value="LOCAL" />
-      <updated>1753115113325</updated>
+      <workItem from="1753440827112" duration="12868000" />
     </task>
     <task id="LOCAL-00144" summary="updates">
       <option name="closed" value="true" />
@@ -572,7 +564,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753456355422</updated>
     </task>
-    <option name="localTasksCounter" value="192" />
+    <task id="LOCAL-00192" summary="updates">
+      <option name="closed" value="true" />
+      <created>1753456579453</created>
+      <option name="number" value="00192" />
+      <option name="presentableId" value="LOCAL-00192" />
+      <option name="project" value="LOCAL" />
+      <updated>1753456579453</updated>
+    </task>
+    <option name="localTasksCounter" value="193" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -587,7 +587,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainScanHeight.coverage" NAME="MainScanHeight Coverage Results" MODIFIED="1753369189167" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$MainPowercurves.coverage" NAME="MainPowercurves Coverage Results" MODIFIED="1753364817623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
-    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$GaussianFitterAllSpectra.coverage" NAME="GaussianFitterAllSpectra Coverage Results" MODIFIED="1753456400340" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter" />
+    <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$GaussianFitterAllSpectra.coverage" NAME="GaussianFitterAllSpectra Coverage Results" MODIFIED="1753458564938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$main_data_treatment_powercurves.coverage" NAME="main_data_treatment_powercurves Coverage Results" MODIFIED="1752767011869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/DataAnalysis" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$PiezoStageControl.coverage" NAME="PiezoStageControl Coverage Results" MODIFIED="1745408527015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANP/Interfacing" />
     <SUITE FILE_PATH="coverage/INSP_Magnetic_Light_and_Matter_Interactions$PlotterScanHeight.coverage" NAME="PlotterScanHeight Coverage Results" MODIFIED="1753364434760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ANPs/DataAnalysis" />
