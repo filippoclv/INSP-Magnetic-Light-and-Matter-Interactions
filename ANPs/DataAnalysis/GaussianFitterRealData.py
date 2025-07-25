@@ -1,4 +1,4 @@
-# GaussianFitter.py
+# GaussianFitterRealData.py
 # Script for multi-Gaussian decomposition of Tm3+ 800 nm emission band in NaYF4 nanoparticles
 # Based on literature: The ~800 nm band (3H4 -> 3H6 transition) is often decomposed into 3-4 overlapping Gaussians
 # due to Stark splitting in the crystal field. Typical centers: ~785-795 nm, 800-805 nm, 810-815 nm (sometimes a 4th at ~820 nm).
@@ -26,7 +26,7 @@ def multi_gaussian(x, *params):
 
 
 def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_guesses=None, bounds=None,
-                 bg_mean=0.0, dark_rate=0.01, read_noise=4.0, integration_time=3.0):
+                 bg_mean=0.0, dark_rate=0.0003, read_noise=3.0, integration_time=3.0):
     """
     Fit the spectrum dataframe to num_gaussians Gaussians in the given wavelength range.
 
