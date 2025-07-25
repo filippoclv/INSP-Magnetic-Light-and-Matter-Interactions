@@ -68,7 +68,7 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
             initial_guesses.extend([a, c, s])
 
     if bounds is None:
-        # Tight bounds based on literature and supervisor input
+        # Tight bounds based on literature
         lower = [0.0]  # Baseline
         upper = [10.0]  # Baseline cap at 10 counts
         if num_gaussians == 3:

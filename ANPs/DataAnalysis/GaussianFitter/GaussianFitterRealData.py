@@ -63,7 +63,7 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
             initial_guesses.extend([a, c, s])
 
     if bounds is None:
-        # Tight bounds based on literature and supervisor input
+        # Tight bounds based on literature
         lower = [0.0] + [0, 778.0, 3.0, 0, 798.0, 3.0, 0, 813.0, 3.0]  # Per Gaussian: amp>=0, center±2 nm, sigma>=3 nm
         upper = [10.0] + [300.0, 782.0, 15.0, 300.0, 802.0, 15.0, 300.0, 817.0, 15.0]  # Amp<=300, center±2 nm, sigma<=15 nm
         bounds = (lower, upper)
