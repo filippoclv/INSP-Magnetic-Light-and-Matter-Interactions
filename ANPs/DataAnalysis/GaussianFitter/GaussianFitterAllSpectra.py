@@ -1,4 +1,4 @@
-# GaussianFitterRealData.py
+# GaussianFitterAllSpectra.py
 # Script for multi-Gaussian decomposition of Tm3+ 800 nm emission band in NaYF4 nanoparticles
 # Based on literature: The ~800 nm band (3H4 -> 3H6 transition) is often decomposed into 3-4 overlapping Gaussians
 # due to Stark splitting in the crystal field. Typical centers: ~785-795 nm, 800-805 nm, 810-815 nm (sometimes a 4th at ~820 nm).
