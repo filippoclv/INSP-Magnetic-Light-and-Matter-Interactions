@@ -13,11 +13,11 @@ import pandas as pd
 
 def multi_gaussian(x, *params):
     """
-    Multi-Gaussian function: sum of individual Gaussians.
-    Params: [amp1, center1, sigma1, amp2, center2, sigma2, ...]
+    Multi-Gaussian function: sum of individual Gaussians + baseline.
+    Params: [baseline, amp1, center1, sigma1, amp2, center2, sigma2, ...]
     """
-    y = np.zeros_like(x)
-    for i in range(0, len(params), 3):
+    y = params[0]  # Baseline (constant)
+    for i in range(1, len(params), 3):
         amp = params[i]
         ctr = params[i + 1]
         wid = params[i + 2]
@@ -26,7 +26,7 @@ def multi_gaussian(x, *params):
 
 
 def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_guesses=None, bounds=None,
-                 bg_mean=0.0, dark_rate=0.1, read_noise=5.0, integration_time=3.0):
+                 bg_mean=0.0, dark_rate=0.01, read_noise=4.0, integration_time=3.0):
     """
     Fit the spectrum dataframe to num_gaussians Gaussians in the given wavelength range.
 
@@ -45,6 +45,9 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
     - popt: Optimized parameters [amp1, ctr1, sig1, ...]
     - perr: Standard errors from covariance matrix.
     """
+    # Subtract background from the entire dataframe (clip to 0 to avoid negative values)
+    spectrum_df['Intensity_counts'] = np.clip(spectrum_df['Intensity_counts'] - bg_mean, 0, None)
+
     filtered_df = spectrum_df[(spectrum_df['Wavelength_nm'] >= wl_min) & (spectrum_df['Wavelength_nm'] <= wl_max)]
     x_data = filtered_df['Wavelength_nm'].values
     y_data = filtered_df['Intensity_counts'].values
@@ -55,19 +58,19 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
         centers = np.linspace(785, 815, num_gaussians)  # Literature-inspired: 785, ~800, 815 for 3
         sigmas = [6.0] * num_gaussians  # Typical sigma ~5-8 nm
         amps = [max_y / num_gaussians] * num_gaussians
-        initial_guesses = []
+        initial_guesses = [0.0]  # Initial baseline = 0
         for a, c, s in zip(amps, centers, sigmas):
             initial_guesses.extend([a, c, s])
 
     if bounds is None:
         # Bounds to prevent unphysical fits
-        lower = [0, wl_min, 1] * num_gaussians
-        upper = [np.inf, wl_max, 20] * num_gaussians
+        lower = [0] + [0, wl_min, 1] * num_gaussians  # Baseline >=0
+        upper = [np.inf] + [np.inf, wl_max, 20] * num_gaussians
         bounds = (lower, upper)
 
-    # Compute variance for each data point
+    # Compute variance for each data point (use subtracted y_data)
     dark_counts = dark_rate * integration_time
-    variance = y_data + 2 * bg_mean + dark_counts + read_noise**2
+    variance = y_data + 2 * bg_mean + dark_counts + read_noise**2  # Account for subtraction variance
     sigma = np.sqrt(variance)
     sigma = np.clip(sigma, 1e-6, None)  # Prevent zero or negative sigma
 
@@ -105,10 +108,12 @@ def plot_fit(spectrum_df, popt, wl_min=760, wl_max=840, num_gaussians=3, title="
     ax1.plot(x_data, y_fit, 'r--', label='Total Fit')
 
     colors = plt.cm.viridis(np.linspace(0, 1, num_gaussians))
+    baseline = popt[0]
+    ax1.axhline(baseline, color='gray', linestyle=':', label=f'Baseline: {baseline:.1f}')
     for i in range(num_gaussians):
-        start = i * 3
+        start = 1 + i * 3  # Skip baseline
         amp, ctr, wid = popt[start:start + 3]
-        y_comp = multi_gaussian(x_data, amp, ctr, wid)
+        y_comp = multi_gaussian(x_data, 0, amp, ctr, wid)  # Individual without baseline
         ax1.plot(x_data, y_comp, '--', color=colors[i], label=f'G{i + 1}: μ={ctr:.1f} nm, σ={wid:.1f} nm')
 
     ax1.set_ylabel('Intensity [counts]', fontsize=16)
@@ -161,11 +166,13 @@ if __name__ == "__main__":
     print(f"Calculated bg_mean: {bg_mean:.2f}")
 
     # Fit with 3 Gaussians (as per refined choice)
-    popt, perr = fit_spectrum(z0_df, num_gaussians=3, bg_mean=bg_mean, dark_rate=0.03, read_noise=6.0, integration_time=3.0)
+    popt, perr = fit_spectrum(z0_df, num_gaussians=3, bg_mean=bg_mean, dark_rate=0.01, read_noise=4.0, integration_time=3.0)
     if popt is not None:
-        print("Fitted parameters (amp, center, sigma ± err):")
-        for i in range(0, len(popt), 3):
-            print(f"Gaussian {i // 3 + 1}: amp={popt[i]:.2f} ± {perr[i]:.2f}, "
+        print("Fitted parameters (baseline, amp, center, sigma ± err):")
+        print(f"Baseline: {popt[0]:.2f} ± {perr[0]:.2f}")
+        for i in range(1, len(popt), 3):
+            j = (i - 1) // 3 + 1
+            print(f"Gaussian {j}: amp={popt[i]:.2f} ± {perr[i]:.2f}, "
                   f"center={popt[i + 1]:.2f} ± {perr[i + 1]:.2f} nm, "
                   f"sigma={popt[i + 2]:.2f} ± {perr[i + 2]:.2f} nm")
-        plot_fit(z0_df, popt, num_gaussians=3, title="Gaussian Fit to Z0 Spectrum (Near-Field)")
+        plot_fit(z0_df, popt, num_gaussians=3, title="Gaussian fit to Z0 spectrum, P=90%, t=3s, near-field")
