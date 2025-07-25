@@ -75,7 +75,7 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
     sigma = np.clip(sigma, 1e-6, None)  # Prevent zero or negative sigma
 
     try:
-        popt, pcov = curve_fit(multi_gaussian, x_data, y_data, p0=initial_guesses, bounds=bounds, sigma=sigma, absolute_sigma=True, maxfev=5000)
+        popt, pcov = curve_fit(multi_gaussian, x_data, y_data, p0=initial_guesses, bounds=bounds, sigma=sigma, absolute_sigma=True, maxfev=10000)
         perr = np.sqrt(np.diag(pcov))
     except Exception as e:
         print(f"Fitting failed: {e}")
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     print(f"Calculated bg_mean: {bg_mean:.2f}")
 
     # Fit with 3 Gaussians (as per refined choice)
-    popt, perr = fit_spectrum(z0_df, num_gaussians=3, bg_mean=bg_mean, dark_rate=0.01, read_noise=4.0, integration_time=3.0)
+    popt, perr = fit_spectrum(z0_df, num_gaussians=3, bg_mean=bg_mean, dark_rate=0.0003, read_noise=3.0, integration_time=3.0)
     if popt is not None:
         print("Fitted parameters (baseline, amp, center, sigma ± err):")
         print(f"Baseline: {popt[0]:.2f} ± {perr[0]:.2f}")
