@@ -57,8 +57,11 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
     if initial_guesses is None:
         # Auto initial guesses: based on literature and data max
         max_y = y_data.max()
-        centers = [780.0, 800.0, 815.0]  # Literature-based: ~780, 800, 815 nm
-        sigmas = [6.0, 6.0, 6.0]  # Typical sigma ~5-8 nm
+        if num_gaussians == 3:
+            centers = [780.0, 800.0, 815.0]
+        else:
+            centers = [780.0, 800.0, 810.0, 820.0]  # For 4 Gaussians
+        sigmas = [6.0] * num_gaussians  # Typical sigma ~5-8 nm
         amps = [max_y / num_gaussians] * num_gaussians  # Equal initial amplitudes
         initial_guesses = [0.0]  # Initial baseline = 0
         for a, c, s in zip(amps, centers, sigmas):
@@ -66,20 +69,24 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
 
     if bounds is None:
         # Tight bounds based on literature and supervisor input
-        lower = [0.0] + [0, 778.0, 3.0, 0, 798.0, 3.0, 0, 813.0, 3.0]  # Per Gaussian: amp>=0, center±2 nm, sigma>=3 nm
-        upper = [10.0] + [300.0, 782.0, 15.0, 300.0, 802.0, 15.0, 300.0, 817.0,
-                          15.0]  # Amp<=300, center±2 nm, sigma<=15 nm
+        lower = [0.0]  # Baseline
+        upper = [10.0]  # Baseline cap at 10 counts
+        if num_gaussians == 3:
+            lower += [0, 778.0, 3.0, 0, 798.0, 3.0, 0, 813.0, 3.0]
+            upper += [300.0, 782.0, 15.0, 300.0, 802.0, 15.0, 300.0, 817.0, 15.0]
+        else:  # For 4 Gaussians
+            lower += [0, 778.0, 3.0, 0, 798.0, 3.0, 0, 808.0, 3.0, 0, 818.0, 3.0]
+            upper += [300.0, 782.0, 15.0, 300.0, 802.0, 15.0, 300.0, 812.0, 15.0, 300.0, 822.0, 15.0]
         bounds = (lower, upper)
 
     # Compute variance for each data point (use subtracted y_data)
     dark_counts = dark_rate * integration_time
-    variance = y_data + 2 * bg_mean + dark_counts + read_noise ** 2  # Account for subtraction variance
+    variance = y_data + 2 * bg_mean + dark_counts + read_noise**2  # Account for subtraction variance
     sigma = np.sqrt(variance)
     sigma = np.clip(sigma, 1e-6, None)  # Prevent zero or negative sigma
 
     try:
-        popt, pcov = curve_fit(multi_gaussian, x_data, y_data, p0=initial_guesses, bounds=bounds, sigma=sigma,
-                               absolute_sigma=True, maxfev=10000)
+        popt, pcov = curve_fit(multi_gaussian, x_data, y_data, p0=initial_guesses, bounds=bounds, sigma=sigma, absolute_sigma=True, maxfev=10000)
         perr = np.sqrt(np.diag(pcov))
     except Exception as e:
         print(f"Fitting failed: {e}")
@@ -88,7 +95,7 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
     # Compute goodness of fit (reduced chi-squared)
     y_fit = multi_gaussian(x_data, *popt)
     residuals = y_data - y_fit
-    chi2 = np.sum((residuals / sigma) ** 2)
+    chi2 = np.sum((residuals / sigma)**2)
     dof = len(x_data) - len(popt)
     reduced_chi2 = chi2 / dof
     print(f"Reduced chi-squared: {reduced_chi2:.2f}")
@@ -139,26 +146,6 @@ def plot_fit(spectrum_df, popt, wl_min=760, wl_max=840, num_gaussians=3, title="
     plt.show()
 
 
-def load_spectrum_txt(file_path):
-    """
-    Load a spectrum .txt file into a Pandas DataFrame.
-    Handles wavelength with comma as decimal separator.
-    """
-    wavelengths = []
-    intensities = []
-    with open(file_path, 'r') as f:
-        for line in f:
-            if '=' in line or not ';' in line:  # Skip headers
-                continue
-            wl_str, int_str = line.strip().split(';')
-            wl = float(wl_str.replace(',', '.'))
-            intensity = int(int_str.strip())
-            wavelengths.append(wl)
-            intensities.append(intensity)
-    df = pd.DataFrame({'Wavelength_nm': wavelengths, 'Intensity_counts': intensities})
-    return df
-
-
 def all_spectra_dataframe_dict_nearfield_heights(folder_path):
     folder = Path(folder_path)
 
@@ -181,6 +168,11 @@ def all_spectra_dataframe_dict_nearfield_heights(folder_path):
             data.attrs["Height_mV"] = height_map.get(height_index)
         spectra_dict[data.attrs["Height_label"]] = data
 
+    reference_path = folder / "ref.txt"
+    if reference_path.exists():
+        reference_spectrum = load_spectrum_txt(reference_path)
+        spectra_dict["Reference"] = reference_spectrum
+
     return spectra_dict
 
 
@@ -191,30 +183,52 @@ def fit_all_heights(spectra_dict, wl_min=760, wl_max=840, num_gaussians=3, dark_
     Returns dict of height: {'popt': array, 'perr': array, 'areas': list}.
     """
     results = {}
-    for label, df in spectra_dict.items():
-        # Calculate bg_mean from 843-844 nm range for each spectrum
-        bg_region = df[(df['Wavelength_nm'] >= 843) & (df['Wavelength_nm'] <= 844)]
+    ref_df = spectra_dict.get("Reference", None)
+    if ref_df is not None:
+        bg_region = ref_df[(ref_df['Wavelength_nm'] >= 843) & (ref_df['Wavelength_nm'] <= 844)]
         bg_mean = bg_region['Intensity_counts'].mean() if not bg_region.empty else 0.0
-        print(f"Calculated bg_mean for {label}: {bg_mean:.2f}")
+        print(f"Calculated common bg_mean from reference: {bg_mean:.2f}")
+    else:
+        bg_mean = 0.0
+        print("No reference spectrum, bg_mean set to 0.0")
 
+    for label, df in spectra_dict.items():
+        if label == "Reference": continue  # Skip ref
         height = df.attrs.get("Height_mV", "Unknown")
         popt, perr = fit_spectrum(df, wl_min, wl_max, num_gaussians, bg_mean=bg_mean, dark_rate=dark_rate,
                                   read_noise=read_noise, integration_time=integration_time)
         if popt is not None:
-            areas = [popt[start] * popt[start + 2] * np.sqrt(2 * np.pi) for start in
-                     range(1, len(popt), 3)]  # Area = amp * sigma * sqrt(2pi)
+            areas = [popt[start] * popt[start + 2] * np.sqrt(2 * np.pi) for start in range(1, len(popt), 3)]  # Area = amp * sigma * sqrt(2pi)
             results[height] = {'popt': popt, 'perr': perr, 'areas': areas}
             plot_fit(df, popt, wl_min, wl_max, num_gaussians,
                      title=f"Gaussian fit to {label} spectrum, P=90%, t=3s, height {height} mV")
 
-    # Save to CSV and plot amps/areas vs height
+    # Save to clearer CSV
     if results:
-        df_results = pd.DataFrame.from_dict(results, orient='index')
-        df_results.to_csv('fit_results.csv')
+        data = []
+        for height, res in results.items():
+            popt = res['popt']
+            perr = res['perr']
+            areas = res['areas']
+            row = {'Height_mV': height, 'baseline': popt[0], 'baseline_err': perr[0]}
+            for i in range(num_gaussians):
+                j = 1 + i * 3
+                row[f'g{i+1}_amp'] = popt[j]
+                row[f'g{i+1}_amp_err'] = perr[j]
+                row[f'g{i+1}_center'] = popt[j+1]
+                row[f'g{i+1}_center_err'] = perr[j+1]
+                row[f'g{i+1}_sigma'] = popt[j+2]
+                row[f'g{i+1}_sigma_err'] = perr[j+2]
+                row[f'g{i+1}_area'] = areas[i]
+            data.append(row)
+        df_results = pd.DataFrame(data)
+        df_results.to_csv('fit_results.csv', index=False)
         heights = sorted(results.keys())
         for g in range(num_gaussians):
-            amps = [results[h]['popt'][1 + 3 * g] for h in heights]  # Amp for Gaussian g
+            amps = [results[h]['popt'][1 + 3*g] for h in heights]  # Amp for Gaussian g
             areas = [results[h]['areas'][g] for h in heights]
+            centers = [results[h]['popt'][2 + 3*g] for h in heights]  # Center for Gaussian g
+            # Plot amps vs height
             fig, ax1 = plt.subplots()
             ax1.plot(heights, amps, 'b-o', label='Amp')
             ax1.set_xlabel('Height (mV)')
@@ -222,12 +236,18 @@ def fit_all_heights(spectra_dict, wl_min=760, wl_max=840, num_gaussians=3, dark_
             ax2 = ax1.twinx()
             ax2.plot(heights, areas, 'g--o', label='Area')
             ax2.set_ylabel('Area', color='g')
-            plt.title(f'Gaussian {g + 1} Amp and Area vs Height')
+            plt.title(f'Gaussian {g+1} Amp and Area vs Height')
+            plt.grid(True)
+            plt.show()
+            # Plot amps vs center position
+            plt.plot(centers, amps, 'r-o')
+            plt.xlabel('Center (nm)')
+            plt.ylabel('Amplitude (counts)')
+            plt.title(f'Gaussian {g+1} Amp vs Center Position')
             plt.grid(True)
             plt.show()
 
     return results
-
 
 # Example usage (integrate with your project by passing a spectrum dataframe from all_spectra_dict)
 if __name__ == "__main__":
