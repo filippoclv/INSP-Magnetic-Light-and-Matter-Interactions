@@ -53,19 +53,19 @@ def fit_spectrum(spectrum_df, wl_min=760, wl_max=840, num_gaussians=3, initial_g
     y_data = filtered_df['Intensity_counts'].values
 
     if initial_guesses is None:
-        # Auto initial guesses: evenly spaced centers, sigmas ~6 nm, amps ~ max / num_gaussians
+        # Auto initial guesses: based on literature and data max
         max_y = y_data.max()
-        centers = np.linspace(785, 815, num_gaussians)  # Literature-inspired: 785, ~800, 815 for 3
-        sigmas = [6.0] * num_gaussians  # Typical sigma ~5-8 nm
-        amps = [max_y / num_gaussians] * num_gaussians
+        centers = [780.0, 800.0, 815.0]  # Literature-based: ~780, 800, 815 nm
+        sigmas = [6.0, 6.0, 6.0]  # Typical sigma ~5-8 nm
+        amps = [max_y / num_gaussians] * num_gaussians  # Equal initial amplitudes
         initial_guesses = [0.0]  # Initial baseline = 0
         for a, c, s in zip(amps, centers, sigmas):
             initial_guesses.extend([a, c, s])
 
     if bounds is None:
-        # Bounds to prevent unphysical fits
-        lower = [0] + [0, wl_min, 1] * num_gaussians  # Baseline >=0
-        upper = [np.inf] + [np.inf, wl_max, 20] * num_gaussians
+        # Tight bounds based on literature and supervisor input
+        lower = [0.0] + [0, 778.0, 3.0, 0, 798.0, 3.0, 0, 813.0, 3.0]  # Per Gaussian: amp>=0, center±2 nm, sigma>=3 nm
+        upper = [10.0] + [300.0, 782.0, 15.0, 300.0, 802.0, 15.0, 300.0, 817.0, 15.0]  # Amp<=300, center±2 nm, sigma<=15 nm
         bounds = (lower, upper)
 
     # Compute variance for each data point (use subtracted y_data)
