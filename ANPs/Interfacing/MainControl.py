@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream:ANPs/Interfacing/MainControl.py
 import numpy as np
 import os
 import sys
@@ -1318,5 +1317,4 @@ RotorStage.close()
 
 #%% Disconnection powermeter
 
->>>>>>> Stashed changes:ANP/Interfacing/MainControl.py
 PowerMeter.disconnect_device() # To disconnect the device
