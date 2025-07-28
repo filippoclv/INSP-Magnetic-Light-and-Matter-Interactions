@@ -10,7 +10,7 @@ if ScriptFolder not in sys.path: sys.path.append(ScriptFolder)
 
 from FunctionsPowerControl import *
 from SavingScript import *
-#from FunctionsTipControl import *
+from FunctionsTipControl import *
 
 WorkingFolder = 'C:\\Users\\User\\Desktop\\Benoit\\PythonConnection\\v2_20240318'; os.chdir(WorkingFolder)
 TodayDateTime = time.strftime('%Y%m%d', time.gmtime())
@@ -657,7 +657,6 @@ RotorStage.close()
 
 #%% Disconnection powermeter
 
-=======
 import numpy as np
 import os
 import sys
