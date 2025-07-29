@@ -243,7 +243,7 @@ def fit_all_heights(spectra_dict, wl_min=760, wl_max=840, num_gaussians=3, dark_
             ax1.set_ylabel('Amplitude [counts]', color='b')
             ax2 = ax1.twinx()
             ax2.plot(heights, areas, 'g--o', label='Area')
-            ax2.set_ylabel('Area', color='g')
+            ax2.set_ylabel('Area [counts * nm]', color='g')
             plt.title(f'Gaussian {g + 1} amplitude and area vs height\n(area of the gaussian peak, close to integrated counts:\nArea = A * sigma * sqrt(2*pi))')
             plt.grid(True)
             plt.show()
