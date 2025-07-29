@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_21-Jul-25_10_20_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_21-Jul-25_10_20__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/GaussianFitterAllSpectra.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/GaussianFitterAllSpectra.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/GaussianFitterRealData.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/GaussianFitter/GaussianFitterRealData.py" afterDir="false" />
-    </list>
+    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -182,15 +176,7 @@
       <workItem from="1752829739869" duration="8738000" />
       <workItem from="1753261103286" duration="38257000" />
       <workItem from="1753440827112" duration="13792000" />
-      <workItem from="1753788886241" duration="379000" />
-    </task>
-    <task id="LOCAL-00145" summary="updates">
-      <option name="closed" value="true" />
-      <created>1753264536090</created>
-      <option name="number" value="00145" />
-      <option name="presentableId" value="LOCAL-00145" />
-      <option name="project" value="LOCAL" />
-      <updated>1753264536090</updated>
+      <workItem from="1753788886241" duration="887000" />
     </task>
     <task id="LOCAL-00146" summary="updates">
       <option name="closed" value="true" />
@@ -576,7 +562,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753458707571</updated>
     </task>
-    <option name="localTasksCounter" value="194" />
+    <task id="LOCAL-00194" summary="updates">
+      <option name="closed" value="true" />
+      <created>1753789473571</created>
+      <option name="number" value="00194" />
+      <option name="presentableId" value="LOCAL-00194" />
+      <option name="project" value="LOCAL" />
+      <updated>1753789473571</updated>
+    </task>
+    <option name="localTasksCounter" value="195" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -157,7 +157,7 @@ def load_spectrum_txt(file_path):
 # Example usage (integrate with your project by passing a spectrum dataframe from all_spectra_dict)
 if __name__ == "__main__":
     # Load Z0.txt (replace with your actual file path)
-    z0_path = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250722\20250722142045\ref.txt"  # Update this to the real path, e.g., r"C:\path\to\Z0.txt"
+    z0_path = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250722\20250722142045\Z0.txt"  # Update this to the real path, e.g., r"C:\path\to\Z0.txt"
     z0_df = load_spectrum_txt(z0_path)
 
     # Calculate bg_mean from 843-844 nm range (or use your pre-subtracted value)
@@ -175,4 +175,4 @@ if __name__ == "__main__":
             print(f"Gaussian {j}: amp={popt[i]:.2f} ± {perr[i]:.2f}, "
                   f"center={popt[i + 1]:.2f} ± {perr[i + 1]:.2f} nm, "
                   f"sigma={popt[i + 2]:.2f} ± {perr[i + 2]:.2f} nm")
-        plot_fit(z0_df, popt, num_gaussians=3, title="Gaussian fit to reference spectrum, P=90%, t=3s, near-field")
+        plot_fit(z0_df, popt, num_gaussians=3, title="Gaussian fit to Z0 spectrum, P=90%, t=3s, near-field")
