@@ -205,7 +205,7 @@ def fit_all_heights(spectra_dict, wl_min=760, wl_max=840, num_gaussians=3, dark_
                      range(1, len(popt), 3)]  # Area = amp * sigma * sqrt(2pi)
             results[height] = {'popt': popt, 'perr': perr, 'areas': areas}
             plot_fit(df, popt, wl_min, wl_max, num_gaussians,
-                     title=f"Gaussian fit to {label} spectrum, P=90%, t=3s, height {height} mV")
+                     title=f"Gaussian fit to {label} spectrum, P=70%, t=2s, height {height} mV")
 
     # Save to clearer CSV
     if results:
@@ -253,6 +253,6 @@ def fit_all_heights(spectra_dict, wl_min=760, wl_max=840, num_gaussians=3, dark_
 
 # Example usage (integrate with your project by passing a spectrum dataframe from all_spectra_dict)
 if __name__ == "__main__":
-    folder_path = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250722\20250722142045"  # Update to your folder path
+    folder_path = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250722\20250722134112"  # Update to your folder path
     spectra_dict = all_spectra_dataframe_dict_nearfield_heights(folder_path)
     fit_results = fit_all_heights(spectra_dict)
