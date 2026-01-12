@@ -5,7 +5,7 @@ import time
 import matplotlib.pyplot as plt
 
 # Add the script folder to the module search path
-ScriptFolder = 'C:\\Users\\User\\Desktop\\Filippo\\INSP-Magnetic-Light-and-Matter-Interactions\\ANPs\\Interfacing'
+ScriptFolder = 'C:\\Users\\User\\Desktop\\Filippo\\INSP-Magnetic-Light-and-Matter-Interactions\\ANP\\Interfacing'
 if ScriptFolder not in sys.path: sys.path.append(ScriptFolder)
 
 from FunctionsPowerControl import *
@@ -803,7 +803,6 @@ DensityInfo = 0
 
 AngleAll, PowerAll, PowerRange, PowerRangeFitParameters = fScanPowerRange(RotorStage, PowerMeter, fBeamSplitterCubeLawTheta2Power, AngleStart, AngleStop, AngleNumberStep)
 
-
 PowerRangeMax = PowerRange[0]
 PowerRangeMin = PowerRange[1]
 
@@ -866,7 +865,7 @@ MyDataFolder = fScanHeight_APD(DoRefSpectrum, RepeatCount)
 #%% fMoveToPower
 
 #Desired ratio of the max power
-Ratio = 0.18
+Ratio = 0.0010
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
@@ -878,13 +877,13 @@ RotorStage.move_to(Angle)
 
 #%% fGetPowerCurve
 
-RatioStart = 0.05
-RatioStop =  0.3
+RatioStart = 0.0001
+RatioStop =  0.0001
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 81
-DelayIntegrationTime = 0.5 # [s]
+PowerNumberStep = 21
+DelayIntegrationTime = 3 # [s]
 MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, Pmin, Pmax, Ratio, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
 time.sleep(0.5)
 
@@ -892,7 +891,7 @@ time.sleep(0.5)
 WLRange = np.array([780, 820]) # (nm) 800 nm
 # WLRange = np.array([680, 710]) # (nm) 700 nm
 # WLRange = np.array([730, 750]) # (nm) 740 nm
-WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
+# WLRangeAll = np.array([[645, 650], [655, 665], [680, 710], [730, 750], [790, 810]])
 fProcessPowerCurve(MyDataFolder, WLRangeAll)
 
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
