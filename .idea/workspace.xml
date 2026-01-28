@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24-Jul-25_15_25_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_24-Jul-25_15_25__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ANPs/DataAnalysis/MainPowercurves.py" beforeDir="false" afterPath="$PROJECT_DIR$/ANPs/DataAnalysis/MainPowercurves.py" afterDir="false" />
-    </list>
+    <list default="true" id="a545cf86-4eb0-4791-bf15-943412ff5c26" name="Changes" comment="updates" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -57,39 +52,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.Analyzer.executor": "Run",
-    "Python.DataAnalysis.executor": "Run",
-    "Python.DataAnalysisNF.executor": "Run",
-    "Python.EnsembleCorrection.executor": "Run",
-    "Python.GaussianFitter.executor": "Run",
-    "Python.GaussianFitterAllSpectra.executor": "Run",
-    "Python.GaussianFitterRealData.executor": "Run",
-    "Python.MainDataTreatment.executor": "Run",
-    "Python.MainDataTreatmentNew.executor": "Run",
-    "Python.MainPowercurves.executor": "Run",
-    "Python.MainScanHeight.executor": "Run",
-    "Python.PiezoStageControl.executor": "Run",
-    "Python.Plotter.executor": "Run",
-    "Python.PlotterScanHeight.executor": "Run",
-    "Python.SavingScript.executor": "Run",
-    "Python.main_data_treatment_powercurves.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/Filippo Calavaro/Documents/Filippo Calavaro/Python/PythonLabCode/INSP-Magnetic-Light-and-Matter-Interactions/ANP/Interfacing/PiezoStageControl.py",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.Analyzer.executor&quot;: &quot;Run&quot;,
+    &quot;Python.DataAnalysis.executor&quot;: &quot;Run&quot;,
+    &quot;Python.DataAnalysisNF.executor&quot;: &quot;Run&quot;,
+    &quot;Python.EnsembleCorrection.executor&quot;: &quot;Run&quot;,
+    &quot;Python.GaussianFitter.executor&quot;: &quot;Run&quot;,
+    &quot;Python.GaussianFitterAllSpectra.executor&quot;: &quot;Run&quot;,
+    &quot;Python.GaussianFitterRealData.executor&quot;: &quot;Run&quot;,
+    &quot;Python.MainDataTreatment.executor&quot;: &quot;Run&quot;,
+    &quot;Python.MainDataTreatmentNew.executor&quot;: &quot;Run&quot;,
+    &quot;Python.MainPowercurves.executor&quot;: &quot;Run&quot;,
+    &quot;Python.MainScanHeight.executor&quot;: &quot;Run&quot;,
+    &quot;Python.PiezoStageControl.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Plotter.executor&quot;: &quot;Run&quot;,
+    &quot;Python.PlotterScanHeight.executor&quot;: &quot;Run&quot;,
+    &quot;Python.SavingScript.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_data_treatment_powercurves.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Filippo Calavaro/Documents/Filippo Calavaro/Python/PythonLabCode/INSP-Magnetic-Light-and-Matter-Interactions/ANP/Interfacing/PiezoStageControl.py&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Python\PythonLabCode\INSP-Magnetic-Light-and-Matter-Interactions\ANPs\DataAnalysis\GaussianFitter" />
@@ -191,6 +186,7 @@
       <workItem from="1764252106777" duration="581000" />
       <workItem from="1765288648834" duration="86000" />
       <workItem from="1765289324368" duration="169000" />
+      <workItem from="1769433271799" duration="21000" />
     </task>
     <task id="LOCAL-00148" summary="updates">
       <option name="closed" value="true" />
