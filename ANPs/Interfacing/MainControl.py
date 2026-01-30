@@ -785,6 +785,109 @@ def fScanHeight_APD(DoRefSpectrum, RepeatCount):
     
     return MyDataFolder
 
+def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope, 
+                    X_Rel_List, Y_Rel_List, 
+                    PowerStart, PowerStop, PowerNumberStep, 
+                    PowerRangeFitParameters, 
+                    SaveDataFolder, 
+                    IntegrationTime=0.1, dt=4e-9, LinearPowerLogScale=True):
+    """
+    Performs a 2D map relative to current position.
+    - Each pixel is a full power curve.
+    - Saves a separate data file for each pixel (Live Saving).
+    - Line-by-line saving safety.
+    """
+    
+    print('\n--- Power Map (Relative) is running ---')
+
+    # 1. Create Map Folder
+    FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
+    MapFolder = os.path.join(SaveDataFolder, FolderTimeName + '_Map_PowerCurves')
+    os.makedirs(MapFolder)
+    print(f'New folder created in {MapFolder}')
+
+    # 2. Get Initial Position (Origin) for Relative Movement
+    try:
+        OriginX = float(PiezoStage.GET_X())
+        OriginY = float(PiezoStage.GET_Y())
+    except:
+        print("WARNING: Could not read Piezo position. Assuming 0,0.")
+        OriginX = 0.0
+        OriginY = 0.0
+        
+    print(f"Origin Position: X={OriginX:.2f}u, Y={OriginY:.2f}u")
+
+    # 3. Generate Power Scan
+    if LinearPowerLogScale:
+        PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
+    else:
+        PowerScan = np.linspace(PowerStart, PowerStop, PowerNumberStep)
+
+    # 4. Pre-calc APD Parameters
+    TotalSamples, Times = set_param(PicoScope, ["A"], IntegrationTime, dt)
+
+    # --- SPATIAL LOOP ---
+    for iY, Y_Offset in enumerate(Y_Rel_List):
+        # Calculate Absolute Target based on Origin
+        TargetY = OriginY + Y_Offset
+        PiezoStage.MOVEY(TargetY, "u")
+        
+        for iX, X_Offset in enumerate(X_Rel_List):
+            TargetX = OriginX + X_Offset
+            PiezoStage.MOVEX(TargetX, "u")
+            
+            # Mechanical Settle Time
+            time.sleep(0.05) 
+            
+            print(f"Pixel [{iX}, {iY}] | Offset ({X_Offset:.1f}, {Y_Offset:.1f}) | Measuring...")
+
+            # --- CREATE PIXEL FILE ---
+            # Unique file for this pixel
+            PixelFileName = f"Pixel_X{iX}_Y{iY}.txt"
+            PixelFilePath = os.path.join(MapFolder, PixelFileName)
+            
+            # Write Header
+            with open(PixelFilePath, 'w') as FileInfo:
+                FileInfo.write(f"N\tPindex\tSetPointPower\tCurrentPower\tTime\tCounts\tX_Offset={X_Offset}\tY_Offset={Y_Offset}\n")
+
+            LumiData = []
+            RealPowerData = []
+            
+            # --- POWER CURVE LOOP ---
+            for Pi, SetPointPower in enumerate(PowerScan):
+                
+                # A. Move Rotor
+                fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+                time.sleep(0.05)
+                
+                # B. Measure APD
+                # Using run_scope as per your APD_Control
+                CountsDict = run_scope(PicoScope, Times, TotalSamples, ["A"], IntegrationTime, dt, plot=False)
+                CountRate = CountsDict.get("A", 0)
+                
+                # C. Measure Real Power & Time
+                CurrentPower = fMeasurePower(PowerMeter)
+                CurrentTime = time.strftime("%H%M%S", time.gmtime())
+                
+                # D. Save Line-by-Line (Append Mode 'a') - matches your reference safety logic
+                with open(PixelFilePath, 'a') as FileInfo:
+                    FileInfo.write(f"{Pi+1}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{CurrentTime}\t{CountRate}\n")
+                
+                LumiData.append(CountRate)
+                RealPowerData.append(CurrentPower)
+
+            # --- PLOT (No Save, Just Show) ---
+            plt.figure()
+            plt.plot(RealPowerData, LumiData, 'o-')
+            plt.xscale('log')
+            plt.yscale('log')
+            plt.xlabel('Power (W)')
+            plt.ylabel('Counts (cps)')
+            plt.title(f'Pixel {iX},{iY} (Offset {X_Offset:.1f},{Y_Offset:.1f})')
+            plt.grid(True, which='both')
+            plt.show() # Code will wait here until you close the plot window
+
+    print("Map Finished.")
     
 #%% Connection RotorStage
 
@@ -862,6 +965,37 @@ DoRefSpectrum = True
 RepeatCount = 3
 
 MyDataFolder = fScanHeight_APD(DoRefSpectrum, RepeatCount)
+
+#%% fMapPowerCurves Execution
+
+# 1. Define Relative Grid (Microns)
+# These are OFFSETS relative to where the piezo is right now.
+# Example: 0, 0.5, 1.0 ...
+X_Relative_Coords = np.linspace(0, 2.0, 5)   # 5 points
+Y_Relative_Coords = np.linspace(0, 2.0, 5)   
+
+# 2. Define Power Settings
+MapPowerStart = 0.00005 # 50 uW
+MapPowerStop = 0.001    # 1 mW
+MapPowerSteps = 10 
+
+# 3. Run Map
+# Ensure 'PowerRangeFitParameters' exists from your calibration!
+fMapPowerCurves(
+    PiezoStage, 
+    RotorStage, 
+    PowerMeter, 
+    Pico, 
+    X_Relative_Coords, 
+    Y_Relative_Coords, 
+    MapPowerStart, 
+    MapPowerStop, 
+    MapPowerSteps, 
+    PowerRangeFitParameters, 
+    SaveDataFolder,
+    IntegrationTime=0.1,
+    LinearPowerLogScale=True
+)
 
 #%% fMoveToPower
 
