@@ -792,11 +792,14 @@ def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope,
                     SaveDataFolder, 
                     IntegrationTime=0.2, dt=4e-9, LinearPowerLogScale=True):
     """
-    Performs a 2D map relative to current position.
-    SAFETY FEATURES: 
-    1. Aborts if Piezo position is unreadable.
-    2. Resets to MINIMUM POWER after every pixel.
-    3. Resets to MINIMUM POWER if script crashes or finishes.
+    Performs a 2D map relative to the current Piezo position.
+    
+    VALIDATED LOGIC:
+    1. Reads Origin (GET_X/Y) to ensure relative movement. ABORTS if read fails.
+    2. Uses 'u' units for Piezo to match PiezoStageControl.py logic.
+    3. Uses 'run_scope' signature matching APD_Control.py.
+    4. Saves line-by-line ('a' mode) to prevent data loss.
+    5. SAFETY: Resets laser to Min Power after every pixel and on exit.
     """
     
     print('\n--- Power Map (Relative) is running ---')
@@ -807,39 +810,42 @@ def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope,
     os.makedirs(MapFolder)
     print(f'New folder created in {MapFolder}')
 
-    # 2. SAFETY CHECK: Get Initial Position
+    # 2. SAFETY CHECK: Get Initial Position (Origin)
     print("Reading Piezo starting position...")
     try:
+        # We try to read the position. If the stage is OFF or disconnected, this raises an error.
+        # We explicitly cast to float because GET_X returns a string.
         OriginX = float(PiezoStage.GET_X())
         OriginY = float(PiezoStage.GET_Y())
         print(f" -> Origin Verified: X={OriginX:.2f}u, Y={OriginY:.2f}u")
     except Exception as e:
         print(f"\n!!! CRITICAL SAFETY ERROR !!! Piezo unreadable: {e}")
-        print("ABORTING MAP. No movement performed.")
+        print("ABORTING MAP. No movement performed to protect sample.")
         return 
 
-    # 3. Generate Power Scan
+    # 3. Generate Power Scan (Matches your MainControl logic)
     if LinearPowerLogScale:
         PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
     else:
         PowerScan = np.linspace(PowerStart, PowerStop, PowerNumberStep)
 
-    # 4. Pre-calc APD
+    # 4. Pre-calc APD Parameters (Matches APD_Control.py)
+    # We calculate 'times' and 'total_samples' once to speed up the loop
     TotalSamples, Times = set_param(PicoScope, ["A"], IntegrationTime, dt)
 
-    # --- START SAFETY BLOCK ---
+    # --- START GLOBAL SAFETY BLOCK ---
     try: 
         # --- SPATIAL LOOP ---
         for iY, Y_Offset in enumerate(Y_Rel_List):
             TargetY = OriginY + Y_Offset
-            PiezoStage.MOVEY(TargetY, "u")
+            PiezoStage.MOVEY(TargetY, "u") # Moves in microns
             
             for iX, X_Offset in enumerate(X_Rel_List):
                 TargetX = OriginX + X_Offset
-                PiezoStage.MOVEX(TargetX, "u")
+                PiezoStage.MOVEX(TargetX, "u") # Moves in microns
                 
-                # Mechanical Settle
-                time.sleep(0.05) 
+                # Mechanical Settle (Piezo needs ~50-100ms to stop vibrating)
+                time.sleep(0.1) 
                 
                 print(f"Pixel [{iX}, {iY}] | Offset ({X_Offset:.1f}, {Y_Offset:.1f}) | Measuring...")
 
@@ -847,6 +853,7 @@ def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope,
                 PixelFileName = f"Pixel_X{iX}_Y{iY}.txt"
                 PixelFilePath = os.path.join(MapFolder, PixelFileName)
                 
+                # Write Header
                 with open(PixelFilePath, 'w') as FileInfo:
                     FileInfo.write(f"N\tPindex\tSetPointPower\tCurrentPower\tTime\tCounts\tX_Offset={X_Offset}\tY_Offset={Y_Offset}\n")
 
@@ -858,9 +865,9 @@ def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope,
                     
                     # A. Move Rotor
                     fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
-                    time.sleep(0.05)
+                    time.sleep(0.1) # Rotor needs time to settle
                     
-                    # B. Measure APD
+                    # B. Measure APD (Matches APD_Control.run_scope arguments)
                     CountsDict = run_scope(PicoScope, Times, TotalSamples, ["A"], IntegrationTime, dt, plot=False)
                     CountRate = CountsDict.get("A", 0)
                     
@@ -868,7 +875,7 @@ def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope,
                     CurrentPower = fMeasurePower(PowerMeter)
                     CurrentTime = time.strftime("%H%M%S", time.gmtime())
                     
-                    # D. Save
+                    # D. Live Save (Append mode)
                     with open(PixelFilePath, 'a') as FileInfo:
                         FileInfo.write(f"{Pi+1}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{CurrentTime}\t{CountRate}\n")
                     
@@ -876,12 +883,11 @@ def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope,
                     RealPowerData.append(CurrentPower)
 
                 # --- PIXEL SAFETY RESET ---
-                # Curve Finished: Go back to Minimum Power immediately!
-                print("   -> Curve done. Resetting to Min Power.")
+                # Go back to Minimum Power while moving to next pixel
                 fMoveToPower(RotorStage, PowerMeter, PowerStart, *PowerRangeFitParameters)
-                time.sleep(0.05) # Allow rotor to reset
-
-                # --- PLOT (Show Only) ---
+                
+                # --- PLOT (Non-Blocking) ---
+                # We use pause(0.1) so the loop continues automatically after showing the plot.
                 plt.figure()
                 plt.plot(RealPowerData, LumiData, 'o-')
                 plt.xscale('log')
@@ -890,16 +896,18 @@ def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, PicoScope,
                 plt.ylabel('Counts (cps)')
                 plt.title(f'Pixel {iX},{iY} (Offset {X_Offset:.1f},{Y_Offset:.1f})')
                 plt.grid(True, which='both')
-                plt.show()
+                plt.show(block=False)
+                plt.pause(0.5) # Show for 0.5s then close and continue
+                plt.close()
 
         print("Map Finished Successfully.")
 
     finally:
         # --- GLOBAL SAFETY RESET ---
-        # This block runs NO MATTER WHAT (Success, Error, or Ctrl+C)
+        # Runs even if you press Ctrl+C or an error occurs
         print("\n--- SAFETY SHUTDOWN ---")
-        print("Resetting Laser to Minimum Power...")
         try:
+            print("Resetting Laser to Minimum Power...")
             fMoveToPower(RotorStage, PowerMeter, PowerStart, *PowerRangeFitParameters)
             print(" -> Laser Safe.")
         except Exception as e:
@@ -984,31 +992,36 @@ MyDataFolder = fScanHeight_APD(DoRefSpectrum, RepeatCount)
 
 #%% fMapPowerCurves Execution
 
-# 1. Define Relative Grid
-X_Relative_Coords = np.linspace(0, 2.0, 5)   # 5 points
-Y_Relative_Coords = np.linspace(0, 2.0, 5)   
+# 1. VERIFY CALIBRATION
+if 'PowerRangeFitParameters' not in locals():
+    print("ERROR: Please run fStudyLaserStabilityPower (Calibration) first!")
+else:
+    # 2. DEFINE MAP (Relative Offsets in Microns)
+    # This will scan a 2um x 2um box starting from where you are NOW.
+    X_Relative_Coords = np.linspace(0, 2.0, 5)   # 0, 0.5, 1.0, 1.5, 2.0
+    Y_Relative_Coords = np.linspace(0, 2.0, 5)   
 
-# 2. Define Power Settings
-MapPowerStart = 0.00005 # 50 uW (This is your SAFE parking power)
-MapPowerStop = 0.001    # 1 mW
-MapPowerSteps = 10 
+    # 3. DEFINE POWER (Watts)
+    MapPowerStart = 0.00005 # 50 uW (Must be safe for parking)
+    MapPowerStop = 0.001    # 1 mW
+    MapPowerSteps = 10 
 
-# 3. Run Map
-fMapPowerCurves(
-    PiezoStage, 
-    RotorStage, 
-    PowerMeter, 
-    Pico, 
-    X_Relative_Coords, 
-    Y_Relative_Coords, 
-    MapPowerStart, 
-    MapPowerStop, 
-    MapPowerSteps, 
-    PowerRangeFitParameters, 
-    SaveDataFolder,
-    IntegrationTime=0.2,
-    LinearPowerLogScale=True
-)
+    # 4. RUN
+    fMapPowerCurves(
+        PiezoStage, 
+        RotorStage, 
+        PowerMeter, 
+        Pico, 
+        X_Relative_Coords, 
+        Y_Relative_Coords, 
+        MapPowerStart, 
+        MapPowerStop, 
+        MapPowerSteps, 
+        PowerRangeFitParameters, 
+        SaveDataFolder,
+        IntegrationTime=0.2,
+        LinearPowerLogScale=True
+    )
 
 #%% fMoveToPower
 
