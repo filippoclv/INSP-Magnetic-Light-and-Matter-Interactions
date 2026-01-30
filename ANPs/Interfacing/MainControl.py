@@ -834,7 +834,7 @@ stream(PicoScope, times, total_samples, Channel_PicoScope, IntegrationTime, dt, 
 #%% fScanPowerRange_APD
 
 RatioStart = 0.0002
-RatioStop =  0.0020
+RatioStop =  0.0050
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
@@ -845,11 +845,11 @@ fGetPowerCurve_APD(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberSte
 #%% fGetPowerCurve_BackAndForth_APD
 
 RatioStart = 0.0001
-RatioStop =  0.0050
+RatioStop =  0.0070
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 61 # Step number will be doubled for back and forth
+PowerNumberStep = 101 # Step number will be doubled for back and forth
 IntegrationTime = 0.1 # [s]
 fGetPowerCurve_BackAndForth_APD(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, Pmin, Pmax, Ratio, RatioStart, RatioStop, IntegrationTime, dt, LinearPowerLogScale = True)
 
@@ -866,7 +866,7 @@ MyDataFolder = fScanHeight_APD(DoRefSpectrum, RepeatCount)
 #%% fMoveToPower
 
 #Desired ratio of the max power
-Ratio = 0.18
+Ratio = 0.0002
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
@@ -878,13 +878,13 @@ RotorStage.move_to(Angle)
 
 #%% fGetPowerCurve
 
-RatioStart = 0.05
-RatioStop =  0.3
+RatioStart = 0.01
+RatioStop =  0.8
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 81
-DelayIntegrationTime = 0.5 # [s]
+PowerNumberStep = 21
+DelayIntegrationTime = 1 # [s]
 MyDataFolder = fGetPowerCurve(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, Pmin, Pmax, Ratio, RatioStart, RatioStop, DelayIntegrationTime, LinearPowerLogScale = True)
 time.sleep(0.5)
 
