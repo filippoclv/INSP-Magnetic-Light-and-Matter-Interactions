@@ -953,12 +953,12 @@ stream(PicoScope, times, total_samples, Channel_PicoScope, IntegrationTime, dt, 
 
 #%% fScanPowerRange_APD
 
-RatioStart = 0.0002
-RatioStop =  0.0050
+RatioStart = 0.001
+RatioStop =  0.01
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 61
+PowerNumberStep = 31
 IntegrationTime = 0.1 # [s]
 fGetPowerCurve_APD(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, Pmin, Pmax, Ratio, RatioStart, RatioStop, IntegrationTime, dt, LinearPowerLogScale = True)
 
@@ -983,6 +983,17 @@ RepeatCount = 3
 
 MyDataFolder = fScanHeight_APD(DoRefSpectrum, RepeatCount)
 
+#%% HARDWARE CONNECTION (piezo)
+
+# 1. Connect Piezo Stage
+# Make sure to import the class if not already imported
+from PiezoStageControl import Piezoconcept 
+try:
+    PiezoStage = Piezoconcept(port="COM9") # Check your Device Manager if not COM9
+    print("PiezoStage connected on COM9.")
+except Exception as e:
+    print(f"Piezo Connection Failed: {e}")
+
 #%% fMapPowerCurves
 
 # 1. VERIFY CALIBRATION
@@ -991,13 +1002,13 @@ if 'PowerRangeFitParameters' not in locals():
 else:
     # 2. SETUP
     # Define relative offsets in Microns (e.g., 2x2 um grid)
-    X_Rel = np.linspace(0, 2.0, 5)   
-    Y_Rel = np.linspace(0, 2.0, 5)   
+    X_Rel = np.linspace(0, 2.0, 3)   
+    Y_Rel = np.linspace(0, 2.0, 3)   
 
     # Define Power (Watts)
-    MapPowerStart = 0.00005 # 50 uW (Safe Minimum)
-    MapPowerStop = 0.001    # 1 mW
-    MapPowerSteps = 10 
+    MapPowerStart = 0.001 
+    MapPowerStop = 0.01
+    MapPowerSteps = 21
     
     # 3. RUN
     # Note: Ensure Channel_PicoScope is defined globally (e.g. Channel_PicoScope = ["A"])
