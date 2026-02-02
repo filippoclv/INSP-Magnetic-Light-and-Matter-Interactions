@@ -238,83 +238,83 @@ def launch_gui():
 
 #%% Connection PiezoStage
 
-PiezoStage = Piezoconcept(port = "COM9")
+#PiezoStage = Piezoconcept(port = "COM9")
 
 #%%
 
-PiezoStage.MOVEX(15, "u")
+#PiezoStage.MOVEX(15, "u")
 
 #%%
 
-PiezoStage.MOVEY(15, "u")
+#PiezoStage.MOVEY(15, "u")
 
 #%%
 
-print(PiezoStage.INFOS())
+#print(PiezoStage.INFOS())
 
 #%%
 
-print(f'\nX position: {PiezoStage.GET_X()}')
+#print(f'\nX position: {PiezoStage.GET_X()}')
 
 #%%
 
-print(f'\nY position: {PiezoStage.GET_Y()}')
+#print(f'\nY position: {PiezoStage.GET_Y()}')
 
 #%%
 
-print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+#print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 
-PiezoStage.recenter()
-print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+#PiezoStage.recenter()
+#print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 
-PiezoStage.move_relX(50, "n")
-print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+#PiezoStage.move_relX(50, "n")
+#print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 
-PiezoStage.move_relY(50, "n")
-print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+#PiezoStage.move_relY(50, "n")
+#print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 
-PiezoStage.move_relZ(50, "n")
-print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+#PiezoStage.move_relZ(50, "n")
+#print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%% Manual step movement:
 
-step_size = 100 # Nanometers by default
+#step_size = 100 # Nanometers by default
 
-move_x(1) # Forward
-
-#%%
-
-step_size = 100 # Nanometers by default
-
-move_x(-1) # Backwards
+#move_x(1) # Forward
 
 #%%
 
-step_size = 100 # Nanometers by default
+#step_size = 100 # Nanometers by default
 
-move_y(1)
+#move_x(-1) # Backwards
 
 #%%
 
-step_size = 100 # Nanometers by default
+#step_size = 100 # Nanometers by default
 
-move_y(-1)
+#move_y(1)
+
+#%%
+
+#step_size = 100 # Nanometers by default
+
+#move_y(-1)
 
 #%% GUI to move with arrow keys
 
-step_size = 100 # Nanometers by default
+#step_size = 100 # Nanometers by default
 
-Thread(target=keyboard_input, daemon=True).start()
-launch_gui()
+#Thread(target=keyboard_input, daemon=True).start()
+#launch_gui()
 
 #%%
 
-PiezoStage.close()
+#PiezoStage.close()
