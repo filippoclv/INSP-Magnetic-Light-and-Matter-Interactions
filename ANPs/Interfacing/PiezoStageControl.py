@@ -271,13 +271,13 @@ def launch_gui():
 
 #%%
 
-PiezoStage.move_relX(5, "u")
-print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+#PiezoStage.move_relX(5, "u")
+#print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 
-PiezoStage.move_relY(5, "u")
-print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
+#PiezoStage.move_relY(5, "u")
+#print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
 
 #%%
 
