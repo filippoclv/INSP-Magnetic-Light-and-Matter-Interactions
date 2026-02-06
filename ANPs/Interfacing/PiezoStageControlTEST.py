@@ -54,6 +54,11 @@ class Piezoconcept:
         """Internal read loop."""
         start = time.time()
         while time.time() - start < 0.5:
+            
+            
+            
+            
+            
             try:
                 line = self.ser.readline().decode('ascii', errors='ignore').strip()
                 if not line: continue
