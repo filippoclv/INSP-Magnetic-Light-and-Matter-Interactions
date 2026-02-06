@@ -785,48 +785,27 @@ def fScanHeight_APD(DoRefSpectrum, RepeatCount):
     
     return MyDataFolder
 
-def fMapPowerCurves_Verified(PiezoStage, RotorStage, PowerMeter, 
+def fMapPowerCurves_Relative(PiezoStage, RotorStage, PowerMeter, 
                              X_Rel_List, Y_Rel_List, 
                              PowerStart, PowerStop, PowerNumberStep, 
                              PowerRangeFitParameters, 
                              SaveDataFolder, 
                              IntegrationTime=0.1, dt=4e-9, LinearPowerLogScale=True):
-    """
-    Verified Map (Corrected for Barebone Driver):
-    1. Reads CURRENT piezo position as the "Anchor" (Origin).
-    2. Moves relative to Anchor using move_x/move_y.
-    3. VERIFIES position by reading it back.
-    """
     
-    print('\n--- Verified Power Map (Auto-Anchored) ---')
+    print('\n--- Verified Power Map (Relative + Live Plot) ---')
 
-    # 1. Create Map Folder
+    # 1. Setup Folders
     FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
-    MapFolder = os.path.join(SaveDataFolder, FolderTimeName + '_VerifiedMap')
+    MapFolder = os.path.join(SaveDataFolder, FolderTimeName + '_RelativeMap')
     os.makedirs(MapFolder)
     print(f'Data stored in: {MapFolder}')
 
-    # 2. AUTO-ANCHOR: Read Current Position as Origin
-    try:
-        print("Reading current position to set as Anchor...")
-        
-        # --- FIX: Use get_x() instead of get_pos('X') ---
-        raw_x = PiezoStage.get_x()
-        raw_y = PiezoStage.get_y()
-        
-        # --- FIX: Parse string "25.123 um" -> Float 25.123 ---
-        # Checks if 'um' or 'nm' is in string, removes it, then converts to float
-        OriginX = float(raw_x.lower().replace('um','').replace('nm','').strip())
-        OriginY = float(raw_y.lower().replace('um','').replace('nm','').strip())
-        
-        print(f" -> ANCHOR ESTABLISHED: X={OriginX:.4f} um, Y={OriginY:.4f} um")
-        
-    except Exception as e:
-        print(f"\n!!! CRITICAL ERROR !!! Could not set Anchor. Driver returned: X='{raw_x}', Y='{raw_y}'")
-        print(f"Error details: {e}")
-        return 
-
-    # 3. Generate Power Scan List
+    Origin_X = 0.0
+    Origin_Y = 0.0
+    Virtual_X = 0.0
+    Virtual_Y = 0.0
+    
+    # 3. Setup Power Scan
     if LinearPowerLogScale:
         PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
     else:
@@ -835,124 +814,104 @@ def fMapPowerCurves_Verified(PiezoStage, RotorStage, PowerMeter,
     # 4. Master Loop
     TotalPixels = len(X_Rel_List) * len(Y_Rel_List)
     PixelCount = 0
-
-    # Go to Safe Min Power before moving Piezo
     SafeMinPower = PowerRangeFitParameters[2] 
     fMoveToPower(RotorStage, PowerMeter, SafeMinPower, *PowerRangeFitParameters)
 
-    for iY, Y_Offset in enumerate(Y_Rel_List):
+    # --- Y LOOP (Rows) ---
+    for iY, Target_Y in enumerate(Y_Rel_List):
         
-        # Calculate Absolute Target Y based on ANCHOR
-        TargetY = OriginY + Y_Offset
+        # 1. Move Y to new Row
+        dY = Target_Y - Virtual_Y
+        if abs(dY) > 0.001:
+            PiezoStage.move_rel('Y', dY)
+            Virtual_Y += dY # Update tracker
+            time.sleep(0.1)
         
-        # --- FIX: Use move_y instead of move_abs ---
-        PiezoStage.move_y(TargetY)
-        
-        for iX, X_Offset in enumerate(X_Rel_List):
+        # --- X LOOP (Columns) ---
+        for iX, Target_X in enumerate(X_Rel_List):
             
-            # Calculate Absolute Target X
-            TargetX = OriginX + X_Offset
+            # 2. Move X (Relative Nudge)
+            dX = Target_X - Virtual_X
+            if abs(dX) > 0.001:
+                PiezoStage.move_rel('X', dX)
+                Virtual_X += dX # Update tracker
+                time.sleep(0.1) # Short settle for small moves
             
-            # --- FIX: Use move_x instead of move_abs ---
-            PiezoStage.move_x(TargetX)
+            # 3. Measurement Block
+            try:
+                # Clean up the string to get a float for plotting
+                RawX = str(PiezoStage.get_x()).lower().replace('um','').replace('nm','').strip()
+                RawY = str(PiezoStage.get_y()).lower().replace('um','').replace('nm','').strip()
+                RealX = float(RawX)
+                RealY = float(RawY)
+            except:
+                RealX = -999.0; RealY = -999.0
             
-            # --- THE "TRUST BUT VERIFY" STEP ---
-            time.sleep(0.5) 
-            
-            # Read REAL position from hardware
-            # --- FIX: Use get_x() and clean the string ---
-            real_x_str = PiezoStage.get_x().strip()
-            real_y_str = PiezoStage.get_y().strip()
-            
-            print(f"\nPx {PixelCount+1}/{TotalPixels} | Target Offset: ({X_Offset:.1f}, {Y_Offset:.1f}) | READ: X={real_x_str}, Y={real_y_str}")
+            print(f"Px {PixelCount+1}/{TotalPixels} | Pos:({Target_X:.1f}, {Target_Y:.1f}) | READ: {RealX}, {RealY}")
 
-            # Create Pixel File
-            PixelFileName = f"Pixel_{iX}_{iY}.txt"
-            PixelFilePath = os.path.join(MapFolder, PixelFileName)
-            
-            # Write Header
+            PixelFilePath = os.path.join(MapFolder, f"Pixel_{iX}_{iY}.txt")
             with open(PixelFilePath, 'w') as FileInfo:
-                FileInfo.write(f"N\tPindex\tSetPointPower\tCurrentPower\tTime\tCounts\tTargetX={TargetX}\tTargetY={TargetY}\tREAL_X={real_x_str}\tREAL_Y={real_y_str}\n")
+                FileInfo.write(f"N\tPindex\tSetPoint\tReadPower\tTime\tCounts\tOffX={Target_X}\tOffY={Target_Y}\tRX={RealX}\tRY={RealY}\n")
 
             LumiData = []
             RealPowerData = []
             
-            # --- POWER CURVE LOOP ---
             for Pi, SetPointPower in enumerate(PowerScan):
-                
-                # A. Set Laser Power
                 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
-                
-                # B. Measure APD
                 CountRates = fGetAPDflux(IntegrationTime, dt)
                 CountRateToWrite = CountRates[Channel_PicoScope[0]]
-                
-                # C. Measure Real Power
                 CurrentPower = fMeasurePower(PowerMeter)
                 CurrentTime = time.strftime("%H%M%S", time.gmtime())
                 
-                # D. Save Data
                 with open(PixelFilePath, 'a') as FileInfo:
                     FileInfo.write(f"{Pi+1}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{CurrentTime}\t{CountRateToWrite}\n")
                 
                 LumiData.append(CountRateToWrite)
                 RealPowerData.append(CurrentPower)
             
-            # Reset Power for safety before next move
+            # Reset Laser
             fMoveToPower(RotorStage, PowerMeter, SafeMinPower, *PowerRangeFitParameters)
             
+            # --- LIVE PLOTTING ---
+            
+            try:
+                plt.figure(figsize=(5, 4))
+                plt.scatter(RealPowerData, LumiData, c='blue')
+                plt.plot(RealPowerData, LumiData, 'b--', alpha=0.5)
+                
+                if LinearPowerLogScale:
+                    plt.xscale('log'); plt.yscale('log')
+                
+                # Title with Pixel ID and Real Position
+                plt.title(f'Pixel {iX},{iY} (Px {PixelCount+1})\nPos: {RealX:.3f}, {RealY:.3f} um')
+                plt.xlabel('Power (W)'); plt.ylabel('Counts')
+                plt.grid(True, which="both", linestyle='--')
+                plt.tight_layout()
+                
+                plt.show(block=False)
+                plt.pause(0.5) # Show for 0.5s then continue
+                plt.close()
+            except Exception as e:
+                print(f"Plot Error: {e}")
+
             PixelCount += 1
 
-    print("\n--- MAP FINISHED ---")
-    print(f"Returning to Anchor ({OriginX:.4f}, {OriginY:.4f})...")
-    PiezoStage.move_x(OriginX)
-    PiezoStage.move_y(OriginY)
+        # --- ROW END: FLYBACK X ---
+        print(" -> Row Finished. Flyback X to 0...")
+        
+        PiezoStage.move_x(Origin_X) # Keeping your Absolute Move Logic
+        Virtual_X = 0.0 # Reset Virtual X because we moved to Absolute 0
+        time.sleep(0.2) 
 
-def fScanPiezoRange(PiezoStage):
-    """
-    Moves X and Y to 0 and 100 um to find the PHYSICAL limits.
-    Returns the valid span for mapping.
-    """
-    print("\n--- STARTING PIEZO RANGE SCAN ---")
-    print("Warning: This will move the stage to its limits!")
+    # --- MAP END: RETURN TO START ---
+    print("\nMap Complete. Returning to Origin (0,0)...")
     
-    # --- SCAN X ---
-    print("\n[X-AXIS] Finding bounds...")
+    time.sleep(0.2)
+    PiezoStage.move_x(Origin_X)
     
-    # Go to 0
-    PiezoStage.move_x(0)
-    time.sleep(1.0)
-    raw_x_min = PiezoStage.get_x()
-    
-    # Go to Max (Sending 100um is safe; controller will just stop at its limit)
-    PiezoStage.move_x(100) 
-    time.sleep(1.0)
-    raw_x_max = PiezoStage.get_x()
-    
-    # --- SCAN Y ---
-    print("[Y-AXIS] Finding bounds...")
-    
-    # Go to 0
-    PiezoStage.move_y(0)
-    time.sleep(1.0)
-    raw_y_min = PiezoStage.get_y()
-    
-    # Go to Max
-    PiezoStage.move_y(100) 
-    time.sleep(1.0)
-    raw_y_max = PiezoStage.get_y()
-    
-    # --- REPORT ---
-    print("-" * 40)
-    print("PHYSICAL RANGE RESULTS:")
-    print(f"X Axis: {raw_x_min}  <-->  {raw_x_max}")
-    print(f"Y Axis: {raw_y_min}  <-->  {raw_y_max}")
-    print("-" * 40)
-    
-    # Return to center (safe spot)
-    print("Returning to origin (0, 0)...")
-    PiezoStage.move_x(0)
-    PiezoStage.move_y(0)
+    time.sleep(0.2)
+    PiezoStage.move_y(Origin_Y)
+    print("Done.")
     
 #%% Connection RotorStage
 
@@ -1051,12 +1010,56 @@ except Exception as e:
     print(f"!!! Piezo Connection Failed: {e}")
     PiezoStage = None
 
-#%% fScanPiezoRange EXECUTION (Run this first to check 7um vs 50um limit)
+#%% RESET PIEZO CONNECTION (Run this to force a re-connect)
 
-if PiezoStage is not None:
-    fScanPiezoRange(PiezoStage)
+try:
+    if 'PiezoStage' in locals() and PiezoStage is not None:
+        print("Closing existing Piezo connection...")
+        PiezoStage.close()
+    else:
+        print("No active Piezo connection found.")
+except Exception as e:
+    print(f"Error during close: {e}")
+
+# Clear the variable so the Connection Cell thinks it's a fresh start
+PiezoStage = None
+print("PiezoStage variable reset. You can now re-run the Connection cell.")
+
+#%% MANUAL PIEZO CHECK & TEST
+
+# Check connection
+if 'PiezoStage' in locals() and PiezoStage is not None:
+    
+    # --- 1. GET CURRENT POSITION ---
+    print("\n--- Current Stage Position ---")
+    # We read and strip whitespace/units for clean display
+    curr_x = PiezoStage.get_x().strip()
+    curr_y = PiezoStage.get_y().strip()
+    
+    print(f"X Axis: {curr_x}")
+    print(f"Y Axis: {curr_y}")
+    print(f"Z Axis: {curr_z}")
+    
+    # --- 2. TEST MOVEMENT (Uncomment below to use) ---
+    # WARNING: Ensure these values are safe (0-50um) for your setup!
+    
+    Target_X = 0  # Microns (Absolute Position)
+    Target_Y = 0  # Microns (Absolute Position)
+    
+    print(f"\nMoving to Test Target: X={Target_X} u, Y={Target_Y} u ...")
+    time.sleep(1.0)
+    PiezoStage.move_x(Target_X)
+    time.sleep(1.0)
+    PiezoStage.move_y(Target_Y)
+    time.sleep(1.0)
+    
+    time.sleep(1.0) # Allow settling time
+    
+    # Read back to confirm
+    print(f"New Pos -> X: {PiezoStage.get_x().strip()} | Y: {PiezoStage.get_y().strip()}")
+
 else:
-    print("Connect Piezo first!")
+    print("!!! PiezoStage is not connected. Run the Connection cell first.")
 
 #%% fMapPowerCurves_Verified EXECUTION
 
@@ -1067,15 +1070,15 @@ elif 'PowerRangeFitParameters' not in locals():
     print("CRITICAL STOP: Please run fScanPowerRange (Laser Calibration) first!")
 else:
     # 1. Define Grid (Microns relative to current position)
-    X_Rel = np.linspace(0, 2.0, 3)   # 0 to 2 um
-    Y_Rel = np.linspace(0, 2.0, 3)   # 0 to 2 um
+    X_Rel = np.linspace(0, 3.0, 3)   # 0 to 2 um
+    Y_Rel = np.linspace(0, 3.0, 3)   # 0 to 2 um
 
     # 2. Define Power Scan (Ratios of Laser Calibration)
     PowerRangeMax = PowerRange[0]
     PowerRangeMin = PowerRange[1]
     
-    RatioStart = 0.001 
-    RatioStop  = 0.03
+    RatioStart = 0.01 
+    RatioStop  = 0.3
     
     MapPowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
     MapPowerStop  = PowerRangeMin + RatioStop  * (PowerRangeMax - PowerRangeMin)
@@ -1084,7 +1087,7 @@ else:
     print(f"Map Configured: {len(X_Rel)}x{len(Y_Rel)} Pixels.")
 
     # 3. RUN
-    fMapPowerCurves_Verified(
+    fMapPowerCurves_Relative(
         PiezoStage, 
         RotorStage, 
         PowerMeter, 
@@ -1103,7 +1106,7 @@ else:
 #%% fMoveToPower
 
 #Desired ratio of the max power
-Ratio = 0.3
+Ratio = 0.2
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
