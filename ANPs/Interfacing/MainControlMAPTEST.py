@@ -1070,9 +1070,13 @@ elif 'PowerRangeFitParameters' not in locals():
     print("CRITICAL STOP: Please run fScanPowerRange (Laser Calibration) first!")
 else:
     # 1. Define Grid (Microns relative to current position)
-    X_Rel = np.linspace(0, 3.0, 3)   # 0 to 2 um
-    Y_Rel = np.linspace(0, 3.0, 3)   # 0 to 2 um
-
+    X_Rel = np.linspace(0, 1.0, 5)   # 0 to 2 um
+    Y_Rel = np.linspace(0, 1.0, 5)   # 0 to 2 um
+    
+    # Example: 10x10 micron map with 0.5um steps (20x20 pixels)
+    # X_Rel = np.arange(0, 10.5, 0.5) 
+    # Y_Rel = np.arange(0, 10.5, 0.5)
+    
     # 2. Define Power Scan (Ratios of Laser Calibration)
     PowerRangeMax = PowerRange[0]
     PowerRangeMin = PowerRange[1]
@@ -1082,7 +1086,7 @@ else:
     
     MapPowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
     MapPowerStop  = PowerRangeMin + RatioStop  * (PowerRangeMax - PowerRangeMin)
-    MapPowerSteps = 3 
+    MapPowerSteps = 2 
 
     print(f"Map Configured: {len(X_Rel)}x{len(Y_Rel)} Pixels.")
 
