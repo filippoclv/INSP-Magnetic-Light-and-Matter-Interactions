@@ -785,152 +785,174 @@ def fScanHeight_APD(DoRefSpectrum, RepeatCount):
     
     return MyDataFolder
 
-def fMapPowerCurves(PiezoStage, RotorStage, PowerMeter, 
-                    X_Rel_List, Y_Rel_List, 
-                    PowerStart, PowerStop, PowerNumberStep, 
-                    PowerRangeFitParameters, 
-                    SaveDataFolder, 
-                    IntegrationTime=0.1, dt=4e-9, LinearPowerLogScale=True):
+def fMapPowerCurves_Verified(PiezoStage, RotorStage, PowerMeter, 
+                             X_Rel_List, Y_Rel_List, 
+                             PowerStart, PowerStop, PowerNumberStep, 
+                             PowerRangeFitParameters, 
+                             SaveDataFolder, 
+                             IntegrationTime=0.1, dt=4e-9, LinearPowerLogScale=True):
     """
-    Performs a 2D map relative to the manual starting position (Auto-Anchor).
-    - Auto-detects current position as Origin (0,0).
-    - Scans offsets relative to this Origin.
-    - SAFETY: Returns to the Origin at the end (or if crash occurs).
-    - SAFETY: Clamps Power to calibration limits to prevent 'NaN' crashes.
+    Verified Map (Corrected for Barebone Driver):
+    1. Reads CURRENT piezo position as the "Anchor" (Origin).
+    2. Moves relative to Anchor using move_x/move_y.
+    3. VERIFIES position by reading it back.
     """
     
-    print('\n--- Power Map (Auto-Anchored) is running ---')
+    print('\n--- Verified Power Map (Auto-Anchored) ---')
 
     # 1. Create Map Folder
     FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
-    MapFolder = os.path.join(SaveDataFolder, FolderTimeName + '_Map_PowerCurves')
+    MapFolder = os.path.join(SaveDataFolder, FolderTimeName + '_VerifiedMap')
     os.makedirs(MapFolder)
-    print(f'New folder created in {MapFolder}')
+    print(f'Data stored in: {MapFolder}')
 
-    # 2. ANCHORING: Read Current Position as Origin
-    print("Reading current position to set as Anchor...")
+    # 2. AUTO-ANCHOR: Read Current Position as Origin
     try:
-        raw_x = PiezoStage.GET_X()
-        raw_y = PiezoStage.GET_Y()
-        # Parse units (Handle "30.0 um" vs "30.0")
-        OriginX = float(raw_x.split(' ')[0]) if isinstance(raw_x, str) else float(raw_x)
-        OriginY = float(raw_y.split(' ')[0]) if isinstance(raw_y, str) else float(raw_y)
-        print(f" -> ANCHOR SET: X={OriginX:.4f}u, Y={OriginY:.4f}u")
+        print("Reading current position to set as Anchor...")
+        
+        # --- FIX: Use get_x() instead of get_pos('X') ---
+        raw_x = PiezoStage.get_x()
+        raw_y = PiezoStage.get_y()
+        
+        # --- FIX: Parse string "25.123 um" -> Float 25.123 ---
+        # Checks if 'um' or 'nm' is in string, removes it, then converts to float
+        OriginX = float(raw_x.lower().replace('um','').replace('nm','').strip())
+        OriginY = float(raw_y.lower().replace('um','').replace('nm','').strip())
+        
+        print(f" -> ANCHOR ESTABLISHED: X={OriginX:.4f} um, Y={OriginY:.4f} um")
+        
     except Exception as e:
-        print(f"\n!!! CRITICAL SAFETY ERROR !!! Piezo unreadable: {e}")
-        print("ABORTING MAP. No movement performed.")
+        print(f"\n!!! CRITICAL ERROR !!! Could not set Anchor. Driver returned: X='{raw_x}', Y='{raw_y}'")
+        print(f"Error details: {e}")
         return 
 
-    # 3. Generate Power Scan
+    # 3. Generate Power Scan List
     if LinearPowerLogScale:
         PowerScan = np.power(10, np.linspace(np.log10(PowerStart), np.log10(PowerStop), PowerNumberStep))
     else:
         PowerScan = np.linspace(PowerStart, PowerStop, PowerNumberStep)
-        
-    # 4. Calculate Safety Limits from Calibration
-    # FitParams = [Theta0, Amplitude, Offset]
-    Amplitude = PowerRangeFitParameters[1]
-    Offset    = PowerRangeFitParameters[2]
-    PhysMax = Amplitude + Offset
-    PhysMin = Offset
     
-    # Clamp slightly inside physics limits to prevent NaN errors
-    SafeMax = PhysMax * 0.999 
-    SafeMin = PhysMin * 1.001 
+    # 4. Master Loop
+    TotalPixels = len(X_Rel_List) * len(Y_Rel_List)
+    PixelCount = 0
 
-    # --- START GLOBAL SAFETY BLOCK ---
-    try: 
-        # --- SPATIAL LOOP ---
-        for iY, Y_Offset in enumerate(Y_Rel_List):
-            # Calculate Absolute Target based on ANCHOR
-            TargetY = OriginY + Y_Offset
-            PiezoStage.MOVEY(TargetY, "u")
+    # Go to Safe Min Power before moving Piezo
+    SafeMinPower = PowerRangeFitParameters[2] 
+    fMoveToPower(RotorStage, PowerMeter, SafeMinPower, *PowerRangeFitParameters)
+
+    for iY, Y_Offset in enumerate(Y_Rel_List):
+        
+        # Calculate Absolute Target Y based on ANCHOR
+        TargetY = OriginY + Y_Offset
+        
+        # --- FIX: Use move_y instead of move_abs ---
+        PiezoStage.move_y(TargetY)
+        
+        for iX, X_Offset in enumerate(X_Rel_List):
             
-            for iX, X_Offset in enumerate(X_Rel_List):
-                TargetX = OriginX + X_Offset
-                PiezoStage.MOVEX(TargetX, "u")
-                
-                # Wait for Piezo to settle
-                time.sleep(0.2) 
-                print(f"\nPixel [{iX}, {iY}] -> Pos ({TargetX:.2f}, {TargetY:.2f}) Starting...")
-
-                # Create Pixel File
-                PixelFileName = f"Pixel_X{iX}_Y{iY}.txt"
-                PixelFilePath = os.path.join(MapFolder, PixelFileName)
-                
-                with open(PixelFilePath, 'w') as FileInfo:
-                    FileInfo.write(f"N\tPindex\tSetPointPower\tCurrentPower\tTime\tCounts\tTargetX={TargetX}\tTargetY={TargetY}\tAnchorX={OriginX}\tAnchorY={OriginY}\n")
-
-                LumiData = []
-                RealPowerData = []
-                
-                # --- POWER CURVE LOOP ---
-                for Pi, SetPointPower in enumerate(PowerScan):
-                    
-                    # Crash Prevention Logic
-                    if SetPointPower > SafeMax: TargetPower = SafeMax
-                    elif SetPointPower < SafeMin: TargetPower = SafeMin
-                    else: TargetPower = SetPointPower
-                    
-                    print(f"   [Step {Pi+1}/{len(PowerScan)}] Req: {SetPointPower:.2e} -> Set: {TargetPower:.2e} W ... ", end="")
-
-                    # A. Move Rotor
-                    fMoveToPower(RotorStage, PowerMeter, TargetPower, *PowerRangeFitParameters)
-                    
-                    # B. Measure APD
-                    CountRates = fGetAPDflux(IntegrationTime, dt)
-                    CountRateToWrite = CountRates[Channel_PicoScope[0]]
-                    
-                    # C. Measure Real Power
-                    CurrentPower = fMeasurePower(PowerMeter)
-                    CurrentTime = time.strftime("%H%M%S", time.gmtime())
-                    
-                    # D. Save
-                    with open(PixelFilePath, 'a') as FileInfo:
-                        FileInfo.write(f"{Pi+1}\t{Pi}\t{TargetPower}\t{CurrentPower}\t{CurrentTime}\t{CountRateToWrite}\n")
-                    
-                    LumiData.append(CountRateToWrite)
-                    RealPowerData.append(CurrentPower)
-                    
-                    print(f"Meas: {CountRateToWrite:.1e} cps")
-
-                # --- PIXEL RESET ---
-                # Go to Safe Min Power before moving Piezo
-                fMoveToPower(RotorStage, PowerMeter, SafeMin, *PowerRangeFitParameters)
-                
-                # --- PLOT ---
-                plt.figure()
-                plt.scatter(RealPowerData, LumiData)
-                plt.xscale('log')
-                plt.yscale('log')
-                plt.xlabel('Power (W)')
-                plt.ylabel('Counts (cps)')
-                plt.title(f'Pixel {iX},{iY} (Offset {X_Offset:.1f}, {Y_Offset:.1f})')
-                plt.grid(True, which='both')
-                plt.show(block=False)
-                plt.pause(0.5)
-                plt.close()
-
-        print("Map Finished Successfully.")
-
-    finally:
-        print("\n--- SAFETY SHUTDOWN ---")
-        try:
-            # 1. Reset Laser
-            print("1. Resetting Laser to Minimum Power...")
-            Offset = PowerRangeFitParameters[2]
-            SafeMin = Offset * 1.001
-            fMoveToPower(RotorStage, PowerMeter, SafeMin, *PowerRangeFitParameters)
-            print("   -> Laser Safe.")
+            # Calculate Absolute Target X
+            TargetX = OriginX + X_Offset
             
-            # 2. Reset Piezo to ANCHOR
-            print(f"2. Returning Piezo to Anchor ({OriginX:.4f}, {OriginY:.4f})...")
-            PiezoStage.MOVEX(OriginX, "u")
-            PiezoStage.MOVEY(OriginY, "u")
-            print("   -> Piezo Returned to Start.")
+            # --- FIX: Use move_x instead of move_abs ---
+            PiezoStage.move_x(TargetX)
             
-        except Exception as e:
-            print(f" -> Warning: Safety Shutdown failed! Error: {e}")
+            # --- THE "TRUST BUT VERIFY" STEP ---
+            time.sleep(0.5) 
+            
+            # Read REAL position from hardware
+            # --- FIX: Use get_x() and clean the string ---
+            real_x_str = PiezoStage.get_x().strip()
+            real_y_str = PiezoStage.get_y().strip()
+            
+            print(f"\nPx {PixelCount+1}/{TotalPixels} | Target Offset: ({X_Offset:.1f}, {Y_Offset:.1f}) | READ: X={real_x_str}, Y={real_y_str}")
+
+            # Create Pixel File
+            PixelFileName = f"Pixel_{iX}_{iY}.txt"
+            PixelFilePath = os.path.join(MapFolder, PixelFileName)
+            
+            # Write Header
+            with open(PixelFilePath, 'w') as FileInfo:
+                FileInfo.write(f"N\tPindex\tSetPointPower\tCurrentPower\tTime\tCounts\tTargetX={TargetX}\tTargetY={TargetY}\tREAL_X={real_x_str}\tREAL_Y={real_y_str}\n")
+
+            LumiData = []
+            RealPowerData = []
+            
+            # --- POWER CURVE LOOP ---
+            for Pi, SetPointPower in enumerate(PowerScan):
+                
+                # A. Set Laser Power
+                fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
+                
+                # B. Measure APD
+                CountRates = fGetAPDflux(IntegrationTime, dt)
+                CountRateToWrite = CountRates[Channel_PicoScope[0]]
+                
+                # C. Measure Real Power
+                CurrentPower = fMeasurePower(PowerMeter)
+                CurrentTime = time.strftime("%H%M%S", time.gmtime())
+                
+                # D. Save Data
+                with open(PixelFilePath, 'a') as FileInfo:
+                    FileInfo.write(f"{Pi+1}\t{Pi}\t{SetPointPower}\t{CurrentPower}\t{CurrentTime}\t{CountRateToWrite}\n")
+                
+                LumiData.append(CountRateToWrite)
+                RealPowerData.append(CurrentPower)
+            
+            # Reset Power for safety before next move
+            fMoveToPower(RotorStage, PowerMeter, SafeMinPower, *PowerRangeFitParameters)
+            
+            PixelCount += 1
+
+    print("\n--- MAP FINISHED ---")
+    print(f"Returning to Anchor ({OriginX:.4f}, {OriginY:.4f})...")
+    PiezoStage.move_x(OriginX)
+    PiezoStage.move_y(OriginY)
+
+def fScanPiezoRange(PiezoStage):
+    """
+    Moves X and Y to 0 and 100 um to find the PHYSICAL limits.
+    Returns the valid span for mapping.
+    """
+    print("\n--- STARTING PIEZO RANGE SCAN ---")
+    print("Warning: This will move the stage to its limits!")
+    
+    # --- SCAN X ---
+    print("\n[X-AXIS] Finding bounds...")
+    
+    # Go to 0
+    PiezoStage.move_x(0)
+    time.sleep(1.0)
+    raw_x_min = PiezoStage.get_x()
+    
+    # Go to Max (Sending 100um is safe; controller will just stop at its limit)
+    PiezoStage.move_x(100) 
+    time.sleep(1.0)
+    raw_x_max = PiezoStage.get_x()
+    
+    # --- SCAN Y ---
+    print("[Y-AXIS] Finding bounds...")
+    
+    # Go to 0
+    PiezoStage.move_y(0)
+    time.sleep(1.0)
+    raw_y_min = PiezoStage.get_y()
+    
+    # Go to Max
+    PiezoStage.move_y(100) 
+    time.sleep(1.0)
+    raw_y_max = PiezoStage.get_y()
+    
+    # --- REPORT ---
+    print("-" * 40)
+    print("PHYSICAL RANGE RESULTS:")
+    print(f"X Axis: {raw_x_min}  <-->  {raw_x_max}")
+    print(f"Y Axis: {raw_y_min}  <-->  {raw_y_max}")
+    print("-" * 40)
+    
+    # Return to center (safe spot)
+    print("Returning to origin (0, 0)...")
+    PiezoStage.move_x(0)
+    PiezoStage.move_y(0)
     
 #%% Connection RotorStage
 
@@ -1009,50 +1031,81 @@ RepeatCount = 3
 
 MyDataFolder = fScanHeight_APD(DoRefSpectrum, RepeatCount)
 
-#%% HARDWARE CONNECTION (piezo)
+#%% HARDWARE CONNECTION (Piezo) & VERIFICATION
 
-# 1. Connect Piezo Stage
-# Make sure to import the class if not already imported
-from PiezoStageControl import Piezoconcept 
+# 1. Connect Piezo Stage (Only once)
+from PiezoStageControlMAPTEST import Piezoconcept 
 try:
-    PiezoStage = Piezoconcept(port="COM9") # Check your Device Manager if not COM9
-    print("PiezoStage connected on COM9.")
+    # Check if already connected to avoid "Access Denied" errors
+    if 'PiezoStage' not in locals() or PiezoStage is None:
+        PiezoStage = Piezoconcept(port="COM9")
+        print("PiezoStage connected on COM9.")
+    else:
+        print("PiezoStage is already connected.")
+        
+    # 2. Quick Health Check (Read Position)
+    # FIX: Changed get_info() to get_infos() to match the driver
+    info_str = PiezoStage.get_infos().splitlines()[0]
+    print(f"Device Connected: {info_str}") 
+    
 except Exception as e:
-    print(f"Piezo Connection Failed: {e}")
+    print(f"!!! Piezo Connection Failed: {e}")
+    PiezoStage = None
 
-#%% fMapPowerCurves
+#%% fScanPiezoRange EXECUTION
 
-# 1. VERIFY CALIBRATION
-if 'PowerRangeFitParameters' not in locals():
-    print("ERROR: Run fStudyLaserStabilityPower (Calibration) first!")
+# 1. Connect (if not already)
+from PiezoStageControlMAPTEST import Piezoconcept 
+try:
+    if 'PiezoStage' not in locals() or PiezoStage is None:
+        PiezoStage = Piezoconcept(port="COM9")
+        print("PiezoStage connected.")
+except:
+    print("Connection failed or port busy.")
+
+# 2. Run the Scan
+if PiezoStage is not None:
+    fScanPiezoRange(PiezoStage)
 else:
-    # 2. SETUP SPATIAL GRID (Microns RELATIVE to current position)
-    # 
-    # Examples:
-    # np.linspace(0, 2.0, 3)   -> Scans [0.0, 1.0, 2.0] relative to start
-    # np.linspace(-1.0, 1.0, 3) -> Scans [-1.0, 0.0, 1.0] centered on start
-    X_Rel = np.linspace(0, 2.0, 3)   
-    Y_Rel = np.linspace(0, 2.0, 3)   
+    print("Connect Piezo first!")
 
-    # 3. SETUP POWER (Ratios)
-    # We calculate Watts from calibration to avoid crashing
-    P_Amp = PowerRangeFitParameters[1]
-    P_Off = PowerRangeFitParameters[2]
-    P_Max = P_Amp + P_Off
-    P_Min = P_Off
+#%% fMapPowerCurves_Verified EXECUTION
+
+# --- PRE-FLIGHT CHECKS ---
+if PiezoStage is None:
+    print("CRITICAL STOP: Piezo not connected.")
+elif 'PowerRangeFitParameters' not in locals():
+    print("CRITICAL STOP: Please run fScanPowerRange (Laser Calibration) first!")
+else:
+    # 1. Define the Relative Grid (in Microns)
+    # This defines the SHAPE of your map, relative to where you start.
+    # Scanning a 2x2 micron area:
+    X_Rel = np.linspace(0, 2.0, 3)   # Points: 0.0, 1.0, 2.0 um
+    Y_Rel = np.linspace(0, 2.0, 3)   # Points: 0.0, 1.0, 2.0 um
+
+    # 2. Define Power Scan (Based on your LASER Calibration)
+    # Note: This is NOT Piezo calibration. This is setting the laser power steps.
+    PowerRangeMax = PowerRange[0]
+    PowerRangeMin = PowerRange[1]
     
-    RatioStart = 0.01 
-    RatioStop  = 0.3
+    # Ratios: Scanning from 0.1% to 3% of max power
+    RatioStart = 0.001 
+    RatioStop  = 0.03
     
-    MapPowerStart = P_Min + RatioStart * (P_Max - P_Min)
-    MapPowerStop  = P_Min + RatioStop  * (P_Max - P_Min)
-    MapPowerSteps = 3
-    
+    MapPowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
+    MapPowerStop  = PowerRangeMin + RatioStop  * (PowerRangeMax - PowerRangeMin)
+    MapPowerSteps = 3 # Number of power points per pixel
+
+    print(f"Map Configured: {len(X_Rel)}x{len(Y_Rel)} Pixels.")
     print(f"Power Scan: {MapPowerStart:.2e} W to {MapPowerStop:.2e} W")
-    print("Map will anchor to CURRENT Piezo position.")
-    
-    # 4. RUN
-    fMapPowerCurves(
+
+    # 3. RUN THE MAP
+    # The function will:
+    #   a. Read your CURRENT position and set it as (0,0)
+    #   b. Move to each pixel (0,0 -> 1,0 -> 2,0...)
+    #   c. Verify the move by reading the position back
+    #   d. Perform the power curve
+    fMapPowerCurves_Verified(
         PiezoStage, 
         RotorStage, 
         PowerMeter, 

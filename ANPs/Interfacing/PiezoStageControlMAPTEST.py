@@ -1,320 +1,149 @@
-from __future__ import print_function
-from builtins import str
 import serial
-import nplab.instrument.serial_instrument as si
 import time
 import tkinter as tk
-import keyboard
-from threading import Thread
+from tkinter import ttk
+import threading
 
-# Could be necessary:
-# pip install keyboard
-# pip install serial
-# pip install nplab
+class Piezoconcept:
+    """
+    Barebone Driver for FOC100.
+    - Direct Serial (No nplab)
+    - No software safety limits (Hardware handles 0-100um)
+    - Integer Nanometers ('n') protocol
+    """
+    def __init__(self, port='COM9'):
+        self.port = port
+        self.ser = serial.Serial(
+            port=self.port,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            timeout=1,
+            xonxoff=False, rtscts=False, dsrdtr=False
+        )
+        # Flush buffers to avoid reading old data
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
+        print(f"[Piezo] Connected on {port}")
 
-class Piezoconcept(si.SerialInstrument):
-    """A simple class for the Piezo concept FOC100 nanopositioning system."""
-    
-    def __init__(self, position=None, port=None):
+    def _send(self, cmd):
+        """Send raw command terminated by newline."""
+        self.ser.write(f"{cmd}\n".encode('ascii'))
+        # Tiny delay to let controller process
+        time.sleep(0.05) 
 
-        self.position = position
-        self.termination_character = '\n'
-        self.port_settings = {
-                    "baudrate":115200,
-                    "bytesize":serial.EIGHTBITS,
-                    "parity":serial.PARITY_NONE,
-                    "stopbits":serial.STOPBITS_ONE,
-                    "timeout": 1, # Wait at most one second for a response
-                    #"writeTimeout":1, #similarly, fail if writing takes >1s
-                    #"xonxoff":False, 'rtscts':False, 'dsrdtr':False,
-                    }
-
-        si.SerialInstrument.__init__(self, port=port)
-        #self.recenter()
-        
-    def move_relX(self, value, unit="n"):
-        """A command for relative movement, where the default units is nm."""
-
-        if unit == "n":
-
-            multiplier=1
-
-        if unit == "u":
-
-            multiplier=1E3
-             
-        if (value*multiplier+self.position) > 1E5 or (value*multiplier+self.position) < 0:
-
-            print("The value is out of range! 0-100 um (0-1E8 nm) (X)")
-
-        elif (value*multiplier+self.position) < 1E5 and (value*multiplier+self.position) >= 0:
-
-            self.write("MOVRX "+str(value)+unit)
-            self.position=(value*multiplier+self.position)
-
-    def move_relY(self, value, unit="n"):
-        """A command for relative movement, where the default units is nm."""
-
-        if unit == "n":
-            multiplier = 1
-
-        if unit == "u":
-            multiplier = 1E3
-
-        if (value * multiplier + self.position) > 1E5 or (value * multiplier + self.position) < 0:
-
-            print("The value is out of range! 0-100 um (0-1E8 nm) (X)")
-
-        elif (value * multiplier + self.position) < 1E5 and (value * multiplier + self.position) >= 0:
-
-            self.write("MOVRY " + str(value) + unit)
-            self.position = (value * multiplier + self.position)
-
-    def move_relZ(self, value, unit="n"):
-        """A command for relative movement, where the default units is nm."""
-
-        if unit == "n":
-            multiplier = 1
-
-        if unit == "u":
-            multiplier = 1E3
-
-        if (value * multiplier + self.position) > 1E5 or (value * multiplier + self.position) < 0:
-
-            print("The value is out of range! 0-100 um (0-1E8 nm) (X)")
-
-        elif (value * multiplier + self.position) < 1E5 and (value * multiplier + self.position) >= 0:
-
-            self.write("MOVRZ " + str(value) + unit)
-            self.position = (value * multiplier + self.position)
-    
-    def MOVEX(self, value, unit="n"):
-        """An absolute movement command, will print an error to the console
-        if you move outside of the range(100um) default unit is nm"""
-
-        if unit == "n":
-
-            multiplier=1
-
-        if unit == "u":
-
-            multiplier=1E3
-            
-        if value*multiplier >1E5 or value*multiplier <0:
-
-            print("The value is out of range! 0-100 um (0-1E8 nm) (X)")
-            
-        elif value*multiplier < 1E5 and value*multiplier >=0:
-
-            self.write("MOVEX "+str(value)+unit)
-            self.position = value*multiplier
-
-    def MOVEY(self, value, unit="n"):
-        """An absolute movement command, will print an error to the console
-        if you move outside of the range(100um) default unit is nm"""
-
-        if unit == "n":
-
-            multiplier=1
-
-        if unit == "u":
-
-            multiplier=1E3
-            
-        if value*multiplier >1E5 or value*multiplier <0:
-
-            print("The value is out of range! 0-100 um (0-1E8 nm) (Y)")
-            
-        elif value*multiplier < 1E5 and value*multiplier >=0:
-
-            self.write("MOVEY "+str(value)+unit)
-            self.position = value*multiplier
-
-    def recenter(self):
-        """Moves the stage to the center position."""
-
-        self.move(50,unit = "u")
-        self.position = 50E3
-        
-    def INFOS(self):
-        """Read full device information as raw text."""
-        
-        self.write("INFOS")
-        time.sleep(3)  # Let it respond fully
-        
+    def _read(self):
+        """Read response line."""
         try:
-            
-            raw = self.ser.read(1024)  # Read up to 1024 bytes
-            
-            return raw.decode("latin1").strip()
-        
-        except UnicodeDecodeError as e:
-            
-            return f"[Decode error] {e}"
+            response = self.ser.readline().decode('ascii').strip()
+            return response
+        except Exception as e:
+            return f"Error: {e}"
 
-    def GET_X(self):
+    # --- MOVEMENT (Raw integer nanometers) ---
+    # Manual says: MOVEX 200000n [cite: 283]
 
-        return self.query("GET_X", multiline=False, timeout=0.1).strip()
+    def move_x(self, microns):
+        nm = int(microns * 1000)
+        self._send(f"MOVEX {nm}n")
+
+    def move_y(self, microns):
+        nm = int(microns * 1000)
+        self._send(f"MOVEY {nm}n")
+
+    def move_z(self, microns):
+        nm = int(microns * 1000)
+        self._send(f"MOVEZ {nm}n")
+
+    # --- GETTERS ---
+    def get_x(self):
+        self.ser.reset_input_buffer() # Clear old echoes
+        self._send("GET_X")
+        return self._read()
+
+    def get_y(self):
+        self.ser.reset_input_buffer()
+        self._send("GET_Y")
+        return self._read()
+
+    def get_z(self):
+        self.ser.reset_input_buffer()
+        self._send("GET_Z")
+        return self._read()
     
-    def GET_Y(self):
+    def get_info(self):
+        self.ser.reset_input_buffer()
+        self._send("INFOS")
+        time.sleep(0.2) # INFO needs more time
+        return self.ser.read(1024).decode('ascii', errors='ignore')
 
-        return self.query("GET_Y", multiline=False, timeout=0.1).strip()
-    
-    def GET_Z(self):
+    def close(self):
+        self.ser.close()
+        print("[Piezo] Closed")
 
-        return self.query("GET_Z", multiline=False, timeout=0.1).strip()
-    
-    def GET_XYZ(self):
-
-        return {
-                "X": self.GET_X(),
-                "Y": self.GET_Y(),
-                "Z": self.GET_Z()
-               }
-
-# Move by steps with arrow keys:
-
-def move_x(direction):
-
-    PiezoStage.move_relX(direction * step_size, "n")
-    print(f"Moved X: {direction * step_size} nm")
-
-def move_y(direction):
-
-    PiezoStage.move_relY(direction * step_size, "n")
-    print(f"Moved Y: {direction * step_size} nm")
-
-def move_z(direction):
-
-    PiezoStage.move_relZ(direction * step_size, "n")
-    print(f"Moved Z: {direction * step_size} nm")
-
-def keyboard_input():
-
-    print("[INFO] Use arrow keys to move in the X/Y direction, ESC to exit.")
-
-    while True:
-
-        try:
-
-            if keyboard.is_pressed('right'):
-
-                move_x(1)
-                time.sleep(0.1)
-
-            elif keyboard.is_pressed('left'):
-
-                move_x(-1)
-                time.sleep(0.1)
-
-            elif keyboard.is_pressed('up'):
-
-                move_y(1)
-                time.sleep(0.1)
-
-            elif keyboard.is_pressed('down'):
-
-                move_y(-1)
-                time.sleep(0.1)
-
-            elif keyboard.is_pressed('esc'):
-
-                print("[INFO] Exiting...")
-
-                break
-
-        except:
-
-            break
-
-def launch_gui():
-
+# --- GUI DASHBOARD ---
+def launch_dashboard(piezo):
     root = tk.Tk()
-    root.title("Piezostage keyboard controller")
-    root.geometry("300x100")
-    label = tk.Label(root, text="Use arrow keys to move.\nESC to exit.", font=("Arial", 12))
-    label.pack(pady=20)
+    root.title("Piezo Dashboard (Real-Time)")
+    
+    # Variables
+    pos_x = tk.StringVar(value="---")
+    pos_y = tk.StringVar(value="---")
+    pos_z = tk.StringVar(value="---")
+    step_size = tk.DoubleVar(value=1.0) # Microns
+
+    # Update Function
+    def refresh_positions():
+        # Note: Querying too fast might slow down movement commands in main script
+        # Use this button manually when verifying
+        pos_x.set(piezo.get_x())
+        pos_y.set(piezo.get_y())
+        pos_z.set(piezo.get_z())
+
+    # Manual Move Functions
+    def move_manual(axis, direction):
+        step = step_size.get() * direction
+        # We need to know current pos to do relative move? 
+        # Or use MOVRX (Relative) command if available. 
+        # Manual [cite: 276] confirms MOVRX exists.
+        nm = int(step * 1000)
+        piezo._send(f"MOVR{axis} {nm}n")
+        refresh_positions()
+
+    # Layout
+    frame = ttk.LabelFrame(root, text="Position Readout")
+    frame.pack(padx=10, pady=10, fill="x")
+
+    ttk.Label(frame, text="X:").grid(row=0, column=0)
+    ttk.Label(frame, textvariable=pos_x).grid(row=0, column=1)
+    ttk.Label(frame, text="Y:").grid(row=1, column=0)
+    ttk.Label(frame, textvariable=pos_y).grid(row=1, column=1)
+    ttk.Label(frame, text="Z:").grid(row=2, column=0)
+    ttk.Label(frame, textvariable=pos_z).grid(row=2, column=1)
+    
+    btn_refresh = ttk.Button(frame, text="READ XYZ", command=refresh_positions)
+    btn_refresh.grid(row=3, column=0, columnspan=2, pady=5)
+
+    ctrl_frame = ttk.LabelFrame(root, text="Manual Control")
+    ctrl_frame.pack(padx=10, pady=10, fill="x")
+    
+    ttk.Label(ctrl_frame, text="Step (um):").pack()
+    ttk.Entry(ctrl_frame, textvariable=step_size).pack()
+
+    # Arrows
+    btn_frame = ttk.Frame(ctrl_frame)
+    btn_frame.pack(pady=5)
+    
+    ttk.Button(btn_frame, text="Y+", command=lambda: move_manual('Y', 1)).grid(row=0, column=1)
+    ttk.Button(btn_frame, text="Y-", command=lambda: move_manual('Y', -1)).grid(row=2, column=1)
+    ttk.Button(btn_frame, text="X-", command=lambda: move_manual('X', -1)).grid(row=1, column=0)
+    ttk.Button(btn_frame, text="X+", command=lambda: move_manual('X', 1)).grid(row=1, column=2)
+
     root.mainloop()
 
-#%% Connection PiezoStage
-
-# PiezoStage = Piezoconcept(port = "COM9")
-
-# #%%
-
-# PiezoStage.MOVEX(10, "u")
-
-# #%%
-
-# PiezoStage.MOVEY(25, "u")
-
-# #%%
-
-# print(PiezoStage.INFOS())
-
-# #%%
-
-# print(f'\nX position: {PiezoStage.GET_X()}')
-
-# #%%
-
-# print(f'\nY position: {PiezoStage.GET_Y()}')
-
-# #%%
-
-# print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
-
-# #%%
-
-# PiezoStage.recenter()
-# print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
-
-# #%%
-
-# PiezoStage.move_relX(5, "u")
-# print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
-
-# #%%
-
-# PiezoStage.move_relY(5, "u")
-# print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
-
-# #%%
-
-# PiezoStage.move_relZ(50, "n")
-# print(f'\nXYZ position: {PiezoStage.GET_XYZ()}')
-
-# #%% Manual step movement:
-
-# step_size = 100 # Nanometers by default
-
-# move_x(1) # Forward
-
-# #%%
-
-# step_size = 100 # Nanometers by default
-
-# move_x(-1) # Backwards
-
-# #%%
-
-# step_size = 100 # Nanometers by default
-
-# move_y(1)
-
-# #%%
-
-# step_size = 100 # Nanometers by default
-
-# move_y(-1)
-
-# #%% GUI to move with arrow keys
-
-# step_size = 100 # Nanometers by default
-
-# Thread(target=keyboard_input, daemon=True).start()
-# launch_gui()
-
-# #%%
-
-# PiezoStage.close()
+if __name__ == "__main__":
+    # Test Mode
+    stage = Piezoconcept(port='COM9')
+    print(stage.get_info())
+    launch_dashboard(stage)
