@@ -1033,37 +1033,26 @@ MyDataFolder = fScanHeight_APD(DoRefSpectrum, RepeatCount)
 
 #%% HARDWARE CONNECTION (Piezo) & VERIFICATION
 
-# 1. Connect Piezo Stage (Only once)
+# 1. Connect Piezo Stage
 from PiezoStageControlMAPTEST import Piezoconcept 
 try:
-    # Check if already connected to avoid "Access Denied" errors
     if 'PiezoStage' not in locals() or PiezoStage is None:
         PiezoStage = Piezoconcept(port="COM9")
         print("PiezoStage connected on COM9.")
     else:
         print("PiezoStage is already connected.")
         
-    # 2. Quick Health Check (Read Position)
-    # FIX: Changed get_info() to get_infos() to match the driver
-    info_str = PiezoStage.get_infos().splitlines()[0]
-    print(f"Device Connected: {info_str}") 
+    # 2. Quick Health Check
+    # FIXED: Changed .get_infos() to .get_info() to match your driver
+    info_response = PiezoStage.get_info()
+    print(f"Device Info: {info_response}") 
     
 except Exception as e:
     print(f"!!! Piezo Connection Failed: {e}")
     PiezoStage = None
 
-#%% fScanPiezoRange EXECUTION
+#%% fScanPiezoRange EXECUTION (Run this first to check 7um vs 50um limit)
 
-# 1. Connect (if not already)
-from PiezoStageControlMAPTEST import Piezoconcept 
-try:
-    if 'PiezoStage' not in locals() or PiezoStage is None:
-        PiezoStage = Piezoconcept(port="COM9")
-        print("PiezoStage connected.")
-except:
-    print("Connection failed or port busy.")
-
-# 2. Run the Scan
 if PiezoStage is not None:
     fScanPiezoRange(PiezoStage)
 else:
@@ -1077,34 +1066,24 @@ if PiezoStage is None:
 elif 'PowerRangeFitParameters' not in locals():
     print("CRITICAL STOP: Please run fScanPowerRange (Laser Calibration) first!")
 else:
-    # 1. Define the Relative Grid (in Microns)
-    # This defines the SHAPE of your map, relative to where you start.
-    # Scanning a 2x2 micron area:
-    X_Rel = np.linspace(0, 2.0, 3)   # Points: 0.0, 1.0, 2.0 um
-    Y_Rel = np.linspace(0, 2.0, 3)   # Points: 0.0, 1.0, 2.0 um
+    # 1. Define Grid (Microns relative to current position)
+    X_Rel = np.linspace(0, 2.0, 3)   # 0 to 2 um
+    Y_Rel = np.linspace(0, 2.0, 3)   # 0 to 2 um
 
-    # 2. Define Power Scan (Based on your LASER Calibration)
-    # Note: This is NOT Piezo calibration. This is setting the laser power steps.
+    # 2. Define Power Scan (Ratios of Laser Calibration)
     PowerRangeMax = PowerRange[0]
     PowerRangeMin = PowerRange[1]
     
-    # Ratios: Scanning from 0.1% to 3% of max power
     RatioStart = 0.001 
     RatioStop  = 0.03
     
     MapPowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
     MapPowerStop  = PowerRangeMin + RatioStop  * (PowerRangeMax - PowerRangeMin)
-    MapPowerSteps = 3 # Number of power points per pixel
+    MapPowerSteps = 3 
 
     print(f"Map Configured: {len(X_Rel)}x{len(Y_Rel)} Pixels.")
-    print(f"Power Scan: {MapPowerStart:.2e} W to {MapPowerStop:.2e} W")
 
-    # 3. RUN THE MAP
-    # The function will:
-    #   a. Read your CURRENT position and set it as (0,0)
-    #   b. Move to each pixel (0,0 -> 1,0 -> 2,0...)
-    #   c. Verify the move by reading the position back
-    #   d. Perform the power curve
+    # 3. RUN
     fMapPowerCurves_Verified(
         PiezoStage, 
         RotorStage, 
