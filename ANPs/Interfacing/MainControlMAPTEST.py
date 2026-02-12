@@ -951,7 +951,7 @@ CountRates = fGetAPDflux(IntegrationTime, dt)
 
 #%% Stream avec APD x PicoScope
 
-IntegrationTime = 0.1 # Duration [s]
+IntegrationTime = 0.1 # Duration [s]<<<
 dt = 4e-9 # TimeStep for the APD behaviour [s] DO NOT CHANGE
 
 set_trigger(PicoScope, Channel_PicoScope, trigger = False)
@@ -960,12 +960,13 @@ stream(PicoScope, times, total_samples, Channel_PicoScope, IntegrationTime, dt, 
 
 #%% fScanPowerRange_APD
 
-RatioStart = 0.0001
-RatioStop =  0.03
+RatioStart = 0.1
+RatioStop =  0.6
+
 PowerStart = PowerRangeMin + RatioStart * (PowerRangeMax - PowerRangeMin)
 PowerStop = PowerRangeMin + RatioStop * (PowerRangeMax - PowerRangeMin)
 
-PowerNumberStep = 61
+PowerNumberStep = 51
 IntegrationTime = 0.1 # [s]
 fGetPowerCurve_APD(RotorStage, PowerMeter, PowerStart, PowerStop, PowerNumberStep, SaveDataFolder, DensityInfo, Pmin, Pmax, Ratio, RatioStart, RatioStop, IntegrationTime, dt, LinearPowerLogScale = True)
 
@@ -1110,7 +1111,7 @@ else:
 #%% fMoveToPower
 
 #Desired ratio of the max power
-Ratio = 0.2
+Ratio = 0.3
 
 SetPointPower = PowerRangeMin + Ratio * (PowerRangeMax - PowerRangeMin)
 fMoveToPower(RotorStage, PowerMeter, SetPointPower, *PowerRangeFitParameters)
