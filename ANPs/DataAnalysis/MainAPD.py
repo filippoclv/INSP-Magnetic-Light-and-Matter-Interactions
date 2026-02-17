@@ -18,6 +18,6 @@ if not bg_region.empty:
 
 else:
 
-    print(f"Warning: No data found in background range {bg_min}-{bg_max} nm. Skipping subtraction.")
+    print(f"Warning: no data found in background range {bg_min}-{bg_max} nm. Skipping subtraction.")
 
 plot_single_spectrum(spectrum, "Agglomerate spectrum, 40% power, 1 s integration time, background subtracted")
