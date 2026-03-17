@@ -3,7 +3,7 @@ from FileReader import *
 from Plotter import *
 from Analyzer import *
 
-with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\Data\20250623\powercurves_metadata.json", "r") as powercurves:
+with open(r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\PhD\Projects\Doughnut\20260317\powercurves_metadata.json", "r") as powercurves:
 
     powercurves_datasets = json.load(powercurves)
 
@@ -12,7 +12,7 @@ background_subtraction_range_narrower_grating = (842, 844)
 background_subtraction_range = background_subtraction_range_narrower_grating
 int_start = 770
 int_end = 835
-degree = 20
+degree = 5
 
 selected_dataset = powercurves_datasets[0]
 
@@ -53,10 +53,10 @@ plot_single_powercurve_with_s(powercurve, selected_dataset, wl_min=int_start, wl
 powercurve, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(powercurve, degree=degree)
 powercurve, s_value, s_power = calculate_derivative_of_fit(powercurve, polynomial_fit, log_power_fine_points, degree=degree)
 
-plot_single_powercurve_fit(powercurve, polynomial_fit, log_power_fine_points, selected_dataset, int_start, int_end, degree=degree)
+# plot_single_powercurve_fit(powercurve, polynomial_fit, log_power_fine_points, selected_dataset, int_start, int_end, degree=degree)
 
 derivative_fine_points = np.polyder(polynomial_fit)(log_power_fine_points)
-plot_single_derivative_of_fit(powercurve, log_power_fine_points, derivative_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
+# plot_single_derivative_of_fit(powercurve, log_power_fine_points, derivative_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
 
 plot_single_powercurve_with_s_fitted(powercurve, polynomial_fit, log_power_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
 
@@ -82,3 +82,60 @@ plot_single_powercurve_with_s_fitted(powercurve, polynomial_fit, log_power_fine_
 #                                            ratio_stop=0.7,
 #                                            background_subtraction_range=background_subtraction_range,
 #                                            title_note="non near-field, normal incidence")
+
+def plot_txt_powercurve_with_s(filepath, data_label, wl_min, wl_max):
+    # Read the text file
+    df = pd.read_csv(filepath, sep="\t")
+
+    # Rename the columns so they perfectly match what Analyzer.py and Plotter.py expect
+    df = df.rename(columns={
+        "CurrentPower": "Power_W",
+        "CountRates": "Luminescence_counts/s"
+    })
+
+    # Call your exact existing function (which internally calculates the derivative)
+    plot_single_powercurve_with_s(df, data_label, wl_min, wl_max)
+
+    df, polynomial_fit, log_power_fine_points, power_fine_points, luminescence_fine_points = fit_powercurve(df, degree=degree)
+    df, s_value, s_power = calculate_derivative_of_fit(df, polynomial_fit, log_power_fine_points, degree=degree)
+
+    # plot_single_powercurve_fit(df, polynomial_fit, log_power_fine_points, selected_dataset, int_start, int_end, degree=degree)
+
+    derivative_fine_points = np.polyder(polynomial_fit)(log_power_fine_points)
+    # plot_single_derivative_of_fit(df, log_power_fine_points, derivative_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
+
+    plot_single_powercurve_with_s_fitted(df, polynomial_fit, log_power_fine_points, s_value, s_power, selected_dataset, int_start, int_end, degree=degree)
+
+# Create the metadata dictionary expected by Plotter.py
+apd_data_label = {
+    "label": "APD agglomerate",
+    "integration_time": 1,      # From your txt header
+    "ratio_start": 0.001,       # From your txt header
+    "ratio_stop": 0.1           # From your txt header
+}
+
+# Call the function (update the path if necessary)
+txt_filepath = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\PhD\Projects\Doughnut\20260317\20260317162933\SetInfoPowerCurve_APD.txt"
+plot_txt_powercurve_with_s(txt_filepath, apd_data_label, wl_min=int_start, wl_max=int_end)
+
+apd_data_label = {
+    "label": "APD monolayer",
+    "integration_time": 0.1,      # From your txt header
+    "ratio_start": 0.001,       # From your txt header
+    "ratio_stop": 0.1           # From your txt header
+}
+
+
+txt_filepath = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\PhD\Projects\Doughnut\20260317\20260317160929\SetInfoPowerCurve_APD.txt"
+plot_txt_powercurve_with_s(txt_filepath, apd_data_label, wl_min=int_start, wl_max=int_end)
+
+apd_data_label = {
+    "label": "APD agglomerate",
+    "integration_time": 1,      # From your txt header
+    "ratio_start": 0.001,       # From your txt header
+    "ratio_stop": 0.1           # From your txt header
+}
+
+
+txt_filepath = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\PhD\Projects\Doughnut\20260317\20260317163246\SetInfoPowerCurve_APD.txt"
+plot_txt_powercurve_with_s(txt_filepath, apd_data_label, wl_min=int_start, wl_max=int_end)

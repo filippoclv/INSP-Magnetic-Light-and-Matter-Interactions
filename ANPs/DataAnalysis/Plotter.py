@@ -423,7 +423,7 @@ def plot_single_powercurve_with_s(powercurve_dataset, data_label, wl_min, wl_max
             color='crimson',
             markersize=8,
             markeredgecolor='black',
-            label=f"s ≈ {s_value:.2f} at {s_power:.4f} W")
+            label=f"s ≈ {s_value:.2f} at {s_power:.5f} W")
 
     ax.axvline(x=s_power,
                color='crimson',
@@ -676,7 +676,7 @@ def plot_single_powercurve_with_s_fitted(powercurve_dataset,
             color='crimson',
             markersize=8,
             markeredgecolor='black',
-            label=f"s ≈ {s_value:.2f} at {s_power:.4f} W")
+            label=f"s ≈ {s_value:.2f} at {s_power:.5f} W")
 
     ax.axvline(x=s_power, color='crimson', linestyle='--', linewidth=1.5, alpha=0.7)
 
