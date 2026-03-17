@@ -125,7 +125,6 @@ apd_data_label = {
     "ratio_stop": 0.1           # From your txt header
 }
 
-
 txt_filepath = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\PhD\Projects\Doughnut\20260317\20260317160929\SetInfoPowerCurve_APD.txt"
 plot_txt_powercurve_with_s(txt_filepath, apd_data_label, wl_min=int_start, wl_max=int_end)
 
@@ -135,8 +134,6 @@ apd_data_label = {
     "ratio_start": 0.001,       # From your txt header
     "ratio_stop": 0.1           # From your txt header
 }
-
-
 
 txt_filepath = r"C:\Users\Filippo Calavaro\Documents\Filippo Calavaro\PhD\Projects\Doughnut\20260317\20260317163246\SetInfoPowerCurve_APD.txt"
 plot_txt_powercurve_with_s(txt_filepath, apd_data_label, wl_min=int_start, wl_max=int_end)
