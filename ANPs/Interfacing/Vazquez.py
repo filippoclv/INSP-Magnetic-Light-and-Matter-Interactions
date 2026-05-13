@@ -959,6 +959,14 @@ Pmin = np.min(PowerAll)
 Pmax = np.max(PowerAll)
 
 #%%
+def PowerUpdate(Power, step, mode, nbsteps = 1):
+    if mode == "Linear":
+        return Power + step * nbsteps
+    elif mode == "Powscale":
+        return Power * (step ** nbsteps)
+    else:
+        print("Invalid mode")
+        return None
 
 def GetPointSpectro(Power, 
                     SpectrumName, 
@@ -1201,7 +1209,7 @@ def FindAvalanchePowscale(
             Pmin,
             Pmax,
             Ratio,
-            integration_time = 1):
+            detector = "Spectrometer"):
     
     print("Autodetection is running ...")
     rough_step_gap = 1.3 #First measurement and gap between measurements
@@ -1212,16 +1220,29 @@ def FindAvalanchePowscale(
     SlopeQueueSize = 3
     nbdark = 10
     
+    #Detector verification
+    Spectro = (detector == "Spectrometer")
+    APD = (detector == "APD")
+    if not (Spectro or APD):
+        print("Invalid detector name")
+        return None
+    
     #Create the output folder and files
     
     FolderTimeName = time.strftime('%Y%m%d%H%M%S', time.gmtime())
     MyDataFolder = SaveDataFolder + '\\' + FolderTimeName
     os.makedirs(MyDataFolder)
     
-    FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'w')
-    FileInfo.write(f'Power\tCurrentPower\tTime\tLuminosity\tInt. time = {integration_time}\tP_min = {Pmin}\tP_max = {Pmax}\n')
+    if Spectro:
+        FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve.txt', 'w')
+        FileInfo.write(f'Power\tCurrentPower\tTime\tLuminosity\tInt. time = {integration_time}\tP_min = {Pmin}\tP_max = {Pmax}\n')
+        integration_time = 1
+    else:
+        FileInfo = open(MyDataFolder + '\\' + 'SetInfoPowerCurve_APD.txt', 'w')
+        FileInfo.write(f'Power\tCurrentPower\tTime\tCountRates\tInt. time = {integration_time}\tP_min = {Pmin}\tP_max = {Pmax}\n')
+        integration_time = 0.5    
     FileInfo.close()
-    
+
     print(f'New folder and file created in {MyDataFolder}')
     
     #Dark noise measurement (6 points)
@@ -1229,8 +1250,11 @@ def FindAvalanchePowscale(
     noise_lum_list = np.zeros(nbdark)
     
     for l in range(nbdark):
-        SpectrumName = f"Dark{l}"
-        noise_lum_list[l] = GetPointSpectro(Power, SpectrumName, MyDataFolder, integration_time)[1]
+        if Spectro:
+            SpectrumName = f"Dark{l}"
+            noise_lum_list[l] = GetPointSpectro(Power, SpectrumName, MyDataFolder, integration_time)[1]
+        elif APD:
+            noise_lum_list[l] = GetPointAPD(Power, MyDataFolder, integration_time)[1]
         
     noise = [np.mean(noise_lum_list), np.max(noise_lum_list)]
     print("\n\n\nNoise calibrated")
@@ -1244,15 +1268,24 @@ def FindAvalanchePowscale(
     while InNoise and Power < PowerLimit:
         index += 1
         Power *= rough_step_gap
-        SpectrumName = f"Noise{index}"
-        pump, measure = GetPointSpectro(Power, SpectrumName, MyDataFolder, integration_time, noise[0])
+        
+        if Spectro:
+            SpectrumName = f"Noise{index}"
+            pump, measure = GetPointSpectro(Power, SpectrumName, MyDataFolder, integration_time, noise[0])
+        else:
+            pump, measure = GetPointAPD(Power, MyDataFolder, integration_time, noise[0])[1]
         
         if (measure - noise[1] > noise[0]):
             #Ensure true noise exit
             LumNoiseExit[0] = measure
             PowNoiseExit[0] = pump
-            SpectrumName = f"Try{index}"
-            pump, measure = GetPointSpectro(Power * fine_step_gap, SpectrumName, MyDataFolder, integration_time, noise[0])
+            
+            if Spectro:
+                SpectrumName = f"Try{index}"
+                pump, measure = GetPointSpectro(Power, SpectrumName, MyDataFolder, integration_time, noise[0])
+            else:
+                pump, measure = GetPointAPD(Power, MyDataFolder, integration_time, noise[0])[1]
+            
             if (measure - noise[1] > noise[0] + noise[1]):
                 LumNoiseExit[1] = measure
                 PowNoiseExit[1] = pump
@@ -1272,8 +1305,11 @@ def FindAvalanchePowscale(
     LastNLum[-1] = LumNoiseExit[1]    
     for j in range(LumQueueSize - 2):
         index += 1 
-        SpectrumName = f"Avalanche{index}"
-        LastNPump[j], LastNLum[j] = GetPointSpectro(Power * fine_step_gap ** (2 - LumQueueSize + j), SpectrumName, MyDataFolder, integration_time, noise[0])
+        if Spectro:
+            SpectrumName = f"Avalanche{index}"
+            LastNPump[j], LastNLum[j] = GetPointSpectro(Power * fine_step_gap ** (2 - LumQueueSize + j), SpectrumName, MyDataFolder, integration_time, noise[0])
+        else:
+            LastNPump[j], LastNLum[j] = GetPointAPD(Power * fine_step_gap ** (2 - LumQueueSize + j), MyDataFolder, integration_time, noise[0])
     
     Power *= fine_step_gap #Highest power used in a measurement and last in queue
 
@@ -1302,7 +1338,12 @@ def FindAvalanchePowscale(
         for i in range(LumQueueSize - 1):
             LastNLum[i] = LastNLum[i + 1]
             LastNPump[i] = LastNPump[i + 1]
-        LastNPump[-1], LastNLum[-1] = GetPointSpectro(Power, SpectrumName, MyDataFolder, integration_time, noise[0])
+        
+        if Spectro:
+            SpectrumName = f"Avalanche{index}"
+            LastNPump[-1], LastNLum[-1] = GetPointSpectro(Power, SpectrumName, MyDataFolder, integration_time, noise[0])
+        else:
+            LastNPump[-1], LastNLum[-1] = GetPointAPD(Power, MyDataFolder, integration_time, noise[0])
 
         fit_params = linregress(np.log10(LastNPump), np.log10(LastNLum))
         slope_next = fit_params.slope
@@ -1342,7 +1383,7 @@ def FindAvalanchePowscale(
 
 
         
-LumQueueSize = FindAvalanchePowscale(SaveDataFolder, Pmin, Pmax, 0.001)
+LumQueueSize = FindAvalanchePowscale(SaveDataFolder, Pmin, Pmax, 0.001, detector = "Spectrometer")
 #LumQueueSize = FindAvalanche(SaveDataFolder, Pmin, Pmax, 0.001, detector = "Spectrometer")
 plt.yscale("log")
 plt.xscale("log")
